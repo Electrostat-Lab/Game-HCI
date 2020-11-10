@@ -16,6 +16,7 @@ allprojects {
     repositories {
         google()
         jcenter()
+        // hey you looking to add the GamePad don't forget this line
         maven { url 'https://jitpack.io' }
     }
 }

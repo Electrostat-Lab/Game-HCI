@@ -7,7 +7,7 @@ import android.util.DisplayMetrics;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.scrappers.mylibrary.R;
+import com.scrappers.GamePad.R;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;

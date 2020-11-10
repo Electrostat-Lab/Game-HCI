@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.os.Build;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.widget.ImageView;
@@ -35,10 +34,8 @@ public abstract class GameStickView extends CardView  {
     public void initializeGameStickHolder(GamePadView gamePadView, float GAMEPAD_CONFIG, int stickViewBackground){
         /*setting the background of the gameStickView ,elevation,focus behaviour */
         this.setBackground(ContextCompat.getDrawable(appCompatActivity,stickViewBackground));
-        if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ){
-            this.setElevation(40.20f);
-            this.setFocusable(true);
-        }
+        this.setElevation(40.20f);
+        this.setFocusable(true);
         /* get the StickViewSize(mainly height) */
         DisplayMetrics deviceDisplayMetrics=new DisplayMetrics();
         appCompatActivity.getWindowManager().getDefaultDisplay().getMetrics(deviceDisplayMetrics);

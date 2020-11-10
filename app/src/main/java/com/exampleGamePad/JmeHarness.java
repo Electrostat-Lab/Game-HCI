@@ -1,12 +1,9 @@
-package com.mygame;
+package com.exampleGamePad;
 
 import android.content.res.AssetManager;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.widget.FrameLayout;
 
 import com.jme3.app.AndroidHarness;
-import com.mygame.basic_android_template.R;
 
 import java.util.logging.Level;
 import java.util.logging.LogManager;
@@ -30,7 +27,7 @@ public class JmeHarness extends AndroidHarness {
 
         // Set main project class (fully qualified path)
         // the class that extends SimpleApplication
-        appClass = "com.mygame.JmeGame";
+        appClass = "com.exampleGamePad.JmeGame";
 
 
 //        // Set input configuration settings

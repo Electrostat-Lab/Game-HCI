@@ -1,8 +1,7 @@
-package com.mygame;
+package com.exampleGamePad;
 
 import android.graphics.Color;
 import android.view.View;
-import android.widget.Toast;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.AssetManager;
@@ -19,7 +18,6 @@ import com.jme3.light.AmbientLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
-import com.jme3.math.Matrix3f;
 import com.jme3.math.Plane;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
@@ -28,8 +26,7 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Cylinder;
 import com.jme3.scene.shape.Sphere;
-import com.mygame.basic_android_template.R;
-import com.scrappers.mylibrary.GamePadView;
+import com.scrappers.jmeGamePad.GamePadView;
 
 public class JmeGame extends SimpleApplication {
 

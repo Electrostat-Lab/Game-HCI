@@ -1,4 +1,3 @@
 include ':GamePad'
-include ':app:gamePadView'
 include ':app'
-rootProject.name = "basic-android-template"
+rootProject.name = "GamePad Example"

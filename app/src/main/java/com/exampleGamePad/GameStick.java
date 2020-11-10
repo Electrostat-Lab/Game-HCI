@@ -1,4 +1,4 @@
-package com.mygame;
+package com.exampleGamePad;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;

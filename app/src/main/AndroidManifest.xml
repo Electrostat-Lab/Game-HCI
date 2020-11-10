@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.mygame.basic_android_template">
+    package="com.exampleGamePad">
 
     <application
         android:allowBackup="true"
@@ -9,11 +9,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.mygame.MainActivity">
-
-        </activity>
         <activity
-            android:name="com.mygame.JmeHarness"
+            android:name="com.exampleGamePad.JmeHarness"
             android:label="@string/app_name"
             android:screenOrientation="landscape"
             android:theme="@style/AppTheme.NoActionBar">

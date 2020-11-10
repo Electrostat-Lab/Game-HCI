@@ -1,2 +1,4 @@
+include ':mylibrary'
+include ':app:gamePadView'
 include ':app'
 rootProject.name = "basic-android-template"

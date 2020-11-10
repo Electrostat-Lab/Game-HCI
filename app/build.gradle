@@ -35,5 +35,8 @@ dependencies {
 
     implementation "org.jmonkeyengine:jme3-core:3.3.2-stable"
     implementation "org.jmonkeyengine:jme3-android-native:3.3.2-stable"
+    implementation  "com.github.stephengold:Minie:3.0.0+debug"
+
+
 
 }

@@ -1,14 +1,20 @@
 package com.mygame;
 
+import android.content.res.AssetManager;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.widget.FrameLayout;
 
 import com.jme3.app.AndroidHarness;
+import com.mygame.basic_android_template.R;
 
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 
 public class JmeHarness extends AndroidHarness {
 
+    public static AssetManager assetManager;
+    public static JmeHarness jmeHarness;
     public JmeHarness() {
 
         // Set the desired EGL configuration
@@ -26,13 +32,14 @@ public class JmeHarness extends AndroidHarness {
         // the class that extends SimpleApplication
         appClass = "com.mygame.JmeGame";
 
-        // Set input configuration settings
-        joystickEventsEnabled = true;
-        keyEventsEnabled = true;
-        mouseEventsEnabled = true;
+
+//        // Set input configuration settings
+//        joystickEventsEnabled = true;
+//        keyEventsEnabled = true;
+//        mouseEventsEnabled = true;
 
         // Set application exit settings
-        finishOnAppStop = true;
+        finishOnAppStop = false;
         handleExitHook = true;
         exitDialogTitle = "Do you want to exit?";
         exitDialogMessage = "Use your home key to bring this app into the background or exit to terminate it.";
@@ -42,16 +49,23 @@ public class JmeHarness extends AndroidHarness {
         // For example, if the image file name is "splash"...
         //     splashPicID = R.drawable.splash;
         splashPicID = 0;
+
         // splashPicID = R.drawable.jme_white;
 
         // Set the default logging level (default=Level.INFO, Level.ALL=All Debug Info)
         LogManager.getLogManager().getLogger("").setLevel(Level.INFO);
+
 
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        assetManager=getAssets();
+        jmeHarness=this;
+
+
     }
+
 
 }

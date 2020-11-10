@@ -2,11 +2,12 @@ package com.mygame;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.control.VehicleControl;
 import com.jme3.math.FastMath;
+import com.scrappers.jmeGamePad.GameStickView;
+
 
 @SuppressLint("ViewConstructor")
 public class GameStick extends GameStickView {
@@ -21,6 +22,7 @@ public class GameStick extends GameStickView {
     public GameStick(Activity appCompatActivity, SimpleApplication jmeContext) {
         super( appCompatActivity);
         this.jmeContext=jmeContext;
+
     }
 
     public void setVehicleControl(VehicleControl vehicleControl) {

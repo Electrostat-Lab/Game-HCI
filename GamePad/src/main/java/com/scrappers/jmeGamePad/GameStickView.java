@@ -1,20 +1,14 @@
-package com.mygame;
+package com.scrappers.jmeGamePad;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.Shape;
 import android.os.Build;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
-import android.view.ViewGroup;
 import android.widget.ImageView;
-
-import com.mygame.basic_android_template.R;
 
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
@@ -38,7 +32,7 @@ public abstract class GameStickView extends CardView  {
         this.appCompatActivity=appCompatActivity;
     }
 
-    public void initializeGameStickHolder(GamePadView gamePadView,float GAMEPAD_CONFIG, int stickViewBackground){
+    public void initializeGameStickHolder(GamePadView gamePadView, float GAMEPAD_CONFIG, int stickViewBackground){
         /*setting the background of the gameStickView ,elevation,focus behaviour */
         this.setBackground(ContextCompat.getDrawable(appCompatActivity,stickViewBackground));
         if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ){

@@ -1,4 +1,4 @@
-package com.mygame;
+package com.scrappers.jmeGamePad;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -7,7 +7,7 @@ import android.util.DisplayMetrics;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.mygame.basic_android_template.R;
+import com.scrappers.mylibrary.R;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -28,7 +28,7 @@ public class GamePadView extends CardView {
     public static final String GAMEPAD_BUTTON_Y = "Y";
     public static final String GAMEPAD_BUTTON_A = "A";
     public static final String GAMEPAD_BUTTON_B = "B";
-    public static final int CRYSTAL_BUTTONS=R.drawable.crystal_buttons;
+    public static final int CRYSTAL_BUTTONS= R.drawable.crystal_buttons;
     public static final int CRYSTAL_QUADS=R.drawable.crystal_buttons_quad;
     public static final int MATERIALISTIC_BUTTONS=R.drawable.material_buttons;
     public static final int MATERIALISTIC_QUADS=R.drawable.material_buttons_quad;

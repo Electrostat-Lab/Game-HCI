@@ -29,6 +29,7 @@ import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Cylinder;
 import com.jme3.scene.shape.Sphere;
 import com.mygame.basic_android_template.R;
+import com.scrappers.mylibrary.GamePadView;
 
 public class JmeGame extends SimpleApplication {
 
@@ -58,7 +59,6 @@ public class JmeGame extends SimpleApplication {
                 GameStick gameStick = new GameStick(JmeHarness.jmeHarness,JmeGame.this);
                 /* set the vehicle Control */
                 gameStick.setVehicleControl(vehicle);
-                gameStick.accelerate(200f);
                 /* create a gamePadView instance of cardView/FrameLayout to display gamePad Component */
                 GamePadView gamePadView=new GamePadView( JmeHarness.jmeHarness,gameStick);
                 /* Initialize GamePad Parts*/

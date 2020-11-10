@@ -1,4 +1,4 @@
-package com.scrappers.mylibrary;
+package com.scrappers.jmeGamePad;
 
 import android.content.Context;
 

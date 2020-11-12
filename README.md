@@ -25,8 +25,92 @@ Step 2. Add the dependency :
 	}
 ```
 Step 3. If you are using JME(JmonkeyEngine3.3.2-Stable) then :
+
+## 1-> Create a class extending GameStickView : ##
 ```java
-package com.myGame;
+
+import android.annotation.SuppressLint;
+import android.app.Activity;
+
+import com.jme3.app.SimpleApplication;
+import com.scrappers.jmeGamePad.GameStickView;
+
+
+@SuppressLint("ViewConstructor")
+public class GameStick extends GameStickView {
+    
+    private VehicleControl vehicleControl;
+    private final SimpleApplication jmeContext;
+
+    public GameStick(Activity appCompatActivity, SimpleApplication jmeContext) {
+        super( appCompatActivity);
+        this.jmeContext=jmeContext;
+
+    }
+
+
+    @Override
+    public void accelerate(final float pulse) {
+        jmeContext.enqueue(new Runnable() {
+            @Override
+            public void run() {
+		//some jme code
+            }
+        });
+
+    }
+
+    @Override
+    public void reverseTwitch(float pulse) {
+        jmeContext.enqueue(new Runnable() {
+            @Override
+            public void run() {
+		//some jme code
+            }
+        });
+
+    }
+
+    @Override
+    public void steerRT(final float pulse) {
+        jmeContext.enqueue(new Runnable() {
+            @Override
+            public void run() {
+		//some jme code
+            }
+        });
+
+    }
+
+    @Override
+    public void steerLT(final float pulse) {
+        jmeContext.enqueue(new Runnable() {
+            @Override
+            public void run() {
+		//some jme code
+            }
+        });
+
+    }
+
+    @Override
+    public void neutralizeState(float pulseX, float pulseY) {
+        jmeContext.enqueue(new Runnable() {
+            @Override
+            public void run() {
+		//some jme code            
+            }
+        });
+
+    }
+
+
+}
+```
+
+## 2-> Do something like that in your game context class or another gameState : ##
+
+```java
 
 import android.graphics.Color;
 import android.view.View;

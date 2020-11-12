@@ -34,5 +34,5 @@ Video on Emulator wideScreen , Example of Responsive layout :
 ![JmeGamePad on a JmeVehiclesExample](https://youtu.be/LZkmWAvh9j0)
 
 Images :
-![Scene Editor](https://imgur.com/qIvQhOw)
+![ONE_THIRD_SCREEN Config](https://i.imgur.com/qIvQhOw.png)
 

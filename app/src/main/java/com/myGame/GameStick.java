@@ -1,4 +1,4 @@
-package com.exampleGamePad;
+package com.myGame;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -16,7 +16,6 @@ public class GameStick extends GameStickView {
     private final SimpleApplication jmeContext;
     private final float accelerationForce = FastMath.pow(5, 3.5f);
     private final float brakeForce = 300f;
-    private float steeringValue = 0;
     private float accelerationValue = 0;
 
     public GameStick(Activity appCompatActivity, SimpleApplication jmeContext) {

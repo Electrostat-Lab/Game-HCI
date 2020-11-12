@@ -1,4 +1,4 @@
-package com.exampleGamePad;
+package com.myGame;
 
 import android.content.res.AssetManager;
 import android.os.Bundle;
@@ -27,7 +27,7 @@ public class JmeHarness extends AndroidHarness {
 
         // Set main project class (fully qualified path)
         // the class that extends SimpleApplication
-        appClass = "com.exampleGamePad.JmeGame";
+        appClass = "com.myGame.JmeGame";
 
 
 //        // Set input configuration settings

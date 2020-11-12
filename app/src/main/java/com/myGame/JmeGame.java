@@ -1,4 +1,4 @@
-package com.exampleGamePad;
+package com.myGame;
 
 import android.graphics.Color;
 import android.view.View;
@@ -16,6 +16,7 @@ import com.jme3.bullet.control.VehicleControl;
 import com.jme3.input.ChaseCamera;
 import com.jme3.light.AmbientLight;
 import com.jme3.material.Material;
+import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Plane;
@@ -26,17 +27,16 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Cylinder;
 import com.jme3.scene.shape.Sphere;
+import com.jme3.texture.Texture;
+import com.jme3.util.SkyFactory;
 import com.scrappers.jmeGamePad.GamePadView;
 
 public class JmeGame extends SimpleApplication {
 
     private BulletAppState bulletAppState;
     private VehicleControl vehicle;
-    private final float accelerationForce = FastMath.pow(5, 3.5f);
     private final float brakeForce = 300f;
-    private float steeringValue = 0;
-    private float accelerationValue = 0;
-    private final Vector3f jumpForce = new Vector3f(0, 3000, 0);
+    private final Vector3f jumpForce = new Vector3f(0, 2000, 0);
 
 
     @Override
@@ -44,10 +44,11 @@ public class JmeGame extends SimpleApplication {
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
         bulletAppState.setDebugEnabled(false);
+        addSky();
         createPhysicsTestWorld(rootNode, getAssetManager(), bulletAppState.getPhysicsSpace());
         buildPlayer();
 
-
+        /*LIBRARY CODE*/
         /*run the gamePad Attachments & listeners from the android activity UI thread */
         JmeHarness.jmeHarness.runOnUiThread(new Runnable() {
             @Override
@@ -59,7 +60,7 @@ public class JmeGame extends SimpleApplication {
                 /* create a gamePadView instance of cardView/FrameLayout to display gamePad Component */
                 GamePadView gamePadView=new GamePadView( JmeHarness.jmeHarness,gameStick);
                 /* Initialize GamePad Parts*/
-                gamePadView.initializeGamePad(R.drawable.gamepad_domain,GamePadView.HALF_SCREEN)
+                gamePadView.initializeGamePad(R.drawable.gamepad_domain,GamePadView.ONE_THIRD_SCREEN)
                          .initializeGameStickHolder(R.drawable.moving_stick_domain)
                          .initializeGameStick(GamePadView.CRYSTAL_BUTTONS,R.drawable.ic_baseline_gamepad_24,200);
                 /*initialize the gameStick track */
@@ -70,13 +71,13 @@ public class JmeGame extends SimpleApplication {
                 gamePadView.addControlButton("BUTTON A",GamePadView.GAMEPAD_BUTTON_A ,GamePadView.CRYSTAL_BUTTONS, R.drawable.ic_baseline_gamepad_24,new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        vehicle.accelerate(accelerationForce);
+                        vehicle.applyCentralImpulse(jumpForce);
                     }
                 },null);
                 gamePadView.addControlButton("BUTTON B",GamePadView.GAMEPAD_BUTTON_B , GamePadView.CRYSTAL_BUTTONS, R.drawable.ic_baseline_gamepad_24,new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        vehicle.brake(brakeForce);
+
                     }
                 },null);
                 gamePadView.addControlButton("BUTTON X",GamePadView.GAMEPAD_BUTTON_X , GamePadView.CRYSTAL_BUTTONS, R.drawable.ic_baseline_gamepad_24,new View.OnClickListener() {
@@ -96,6 +97,12 @@ public class JmeGame extends SimpleApplication {
         });
     }
 
+    private void addSky() {
+        Geometry sky = (Geometry) SkyFactory.createSky(assetManager,assetManager.loadTexture("RocketLeauge/assets/Textures/sky.jpg"),Vector3f.UNIT_XYZ, SkyFactory.EnvMapType.EquirectMap);
+        sky.getMaterial().getAdditionalRenderState().setDepthFunc(RenderState.TestFunction.LessOrEqual);
+        getRootNode().attachChild(sky);
+    }
+
     private PhysicsSpace getPhysicsSpace(){
         return bulletAppState.getPhysicsSpace();
     }
@@ -109,12 +116,12 @@ public class JmeGame extends SimpleApplication {
      */
     public static void createPhysicsTestWorld(Node rootNode, AssetManager assetManager, PhysicsSpace space) {
         AmbientLight light = new AmbientLight();
-        light.setColor(ColorRGBA.LightGray);
+        light.setColor(ColorRGBA.White);
         rootNode.addLight(light);
 
 
         Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        material.setTexture("ColorMap", assetManager.loadTexture("mars.jpg"));
+        material.setTexture("ColorMap", assetManager.loadTexture("RocketLeauge/assets/Textures/mars.jpg"));
 
         Box floorBox = new Box(200f, 0.5f, 200f);
         Geometry floorGeometry = new Geometry("Floor", floorBox);
@@ -160,20 +167,25 @@ public class JmeGame extends SimpleApplication {
         //create a compound shape and attach the BoxCollisionShape for the car body at 0,1,0
         //this shifts the effective center of mass of the BoxCollisionShape to 0,-1,0
         CompoundCollisionShape compoundShape = new CompoundCollisionShape();
-        BoxCollisionShape box = new BoxCollisionShape(new Vector3f(2f, 0.5f, 2.5f));
+        BoxCollisionShape box = new BoxCollisionShape(new Vector3f(2.2f, 0.5f, 2.5f));
 
         compoundShape.addChildShape(box, new Vector3f(0, 1.5f, 0));
 
-        Spatial spatial=assetManager.loadModel("Mars.j3o");
-        spatial.setLocalScale(0.01f,0.01f,0.01f);
-        spatial.setLocalTranslation(new Vector3f(0, 1.5f, 0));
+        Spatial spatial=assetManager.loadModel("RocketLeauge/assets/Models/car22221/car22221.j3o");
+        spatial.setLocalScale(2.2f,2.2f,2.2f);
+        spatial.setLocalTranslation(new Vector3f(0, 1.2f, 0));
+        //colors
+        ((Node)spatial).getChild("glass").setMaterial(createMat(ColorRGBA.BlackNoAlpha,""));
+        ((Node)spatial).getChild("chassis").setMaterial(createMat(new ColorRGBA(0f,1f,3f,1f),"RocketLeauge/assets/Textures/TexturesCom_MetalBare0201_6_M.jpg"));
+        ((Node)spatial).getChild("addOns").setMaterial(createMat(ColorRGBA.White,""));
+        ((Node)spatial).getChild("nitros").setMaterial(createMat(new ColorRGBA(0f,0f,5f,1f),"RocketLeauge/assets/Textures/TexturesCom_MetalBare0201_6_M.jpg"));
+        ((Node)spatial).getChild("light").setMaterial(createMat(ColorRGBA.Yellow,""));
 
         //create vehicle node
-        Node vehicleNode=new Node("vehicleNfode");
+        Node vehicleNode=new Node("vehicleNode");
         vehicleNode.attachChild(spatial);
 
 //        chassis.setMaterial(mat);
-//        vehicleNode.attachChild(chassis);
         vehicle = new VehicleControl(compoundShape, 600f);
         vehicleNode.addControl(vehicle);
         //add a chaseCam tomove the cam with the object
@@ -186,7 +198,7 @@ public class JmeGame extends SimpleApplication {
         //setting suspension values for wheels, this can be a bit tricky
         //see also https://docs.google.com/Doc?docid=0AXVUZ5xw6XpKZGNuZG56a3FfMzU0Z2NyZnF4Zmo&hl=en
         float stiffness =30.0f;//200=f1 car
-        float compValue = 0.3f; //(should be lower than damp)
+        float compValue = 0.5f; //(should be lower than damp)
         float dampValue = 2f;
         //compression force of spring(Shock Producer)
         vehicle.setSuspensionCompression(compValue * 2.0f * FastMath.sqrt(stiffness));
@@ -201,7 +213,7 @@ public class JmeGame extends SimpleApplication {
         float radius = 0.5f;
         float restLength = 0.1f;
         float yOff = radius;
-        float xOff = 2*radius;
+        float xOff = 3*radius;
         float zOff = 4*radius;
 
         Cylinder wheelMesh = new Cylinder(16, 16, radius, radius * 0.5f, true);
@@ -244,13 +256,33 @@ public class JmeGame extends SimpleApplication {
         vehicleNode.attachChild(node4);
         rootNode.attachChild(vehicleNode);
 
+        setWheelFrictionSlip(20f);
+
         getPhysicsSpace().add(vehicle);
+    }
+
+    private void setWheelFrictionSlip(float frictionSlip) {
+        for(int nOfWheel=0;nOfWheel<vehicle.getNumWheels();nOfWheel++) {
+            vehicle.getWheel(nOfWheel).setFrictionSlip(frictionSlip);
+        }
+    }
+
+    public Material createMat(ColorRGBA colorRGBA,String Tex){
+        Material material=new Material(assetManager,"Common/MatDefs/Misc/Unshaded.j3md");
+        if(colorRGBA !=null){
+            material.setColor("Color", colorRGBA);
+        }
+        if(Tex.length() >1){
+            Texture texture=assetManager.loadTexture(Tex);
+            material.setTexture("ColorMap",texture);
+        }
+        material.setReceivesShadows(true);
+
+        return material;
     }
 
     @Override
     public void simpleUpdate(float tpf) {
-        cam.lookAt(vehicle.getPhysicsLocation(), Vector3f.UNIT_Y);
-        System.out.println();
     }
 
 }

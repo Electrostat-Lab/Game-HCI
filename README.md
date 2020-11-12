@@ -4,6 +4,7 @@
 [![](https://jitpack.io/v/Scrappers-glitch/JmEGamePad.svg)](https://jitpack.io/#Scrappers-glitch/JmEGamePad)
 
 ## [Video about this Library ](https://youtu.be/-fifyREL2Yo) ##
+## [JmeGamePad on a JmeVehiclesExample,Example of Responsive layout](https://youtu.be/LZkmWAvh9j0) ##
 
 ##### How to implement it into your Android project :
 
@@ -98,9 +99,7 @@ public class JmeGame extends SimpleApplication {
 ```
 
 
-Video on Emulator wideScreen , Example of Responsive layout :
 
-![JmeGamePad on a JmeVehiclesExample](https://youtu.be/LZkmWAvh9j0)
 
 Images :
 

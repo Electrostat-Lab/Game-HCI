@@ -103,12 +103,19 @@ public class JmeGame extends SimpleApplication {
 
 Images :
 
+ONE_THIRD_SCREEN Config
+
 ![ONE_THIRD_SCREEN Config](https://i.imgur.com/qIvQhOw.png)
+
+HALF_THIRD_SCREEN Config
 
 ![HALF_THIRD_SCREEN Config](https://i.imgur.com/z4FkJi9.png)
 
+MATERIALISTIC BUTTONS ONE_THIRD_SCREEN Config
 
 ![MATERIALISTIC BUTTONS ONE_THIRD_SCREEN Config](https://i.imgur.com/EA5XKSE.png)
+
+QUARTER_THIRD_SCREEN Config
 
 ![QUARTER_THIRD_SCREEN Config](https://i.imgur.com/gEo45K2.png)
 

@@ -34,6 +34,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     implementation "org.jmonkeyengine:jme3-core:3.3.2-stable"
+    implementation "org.jmonkeyengine:jme3-effects:3.3.2-stable"
     implementation "org.jmonkeyengine:jme3-android-native:3.3.2-stable"
     implementation 'com.github.stephengold:Minie:3.0.0'
     //add this part to your app build.gradle file plus

@@ -2,6 +2,7 @@ package com.scrappers.jmeGamePad;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.res.ColorStateList;
 import android.os.Build;
 import android.util.DisplayMetrics;
 import android.view.ViewGroup;
@@ -22,33 +23,50 @@ public class GamePadView extends CardView {
     public static final float ONE_THIRD_SCREEN = 1 / 3f;
     public static final float QUARTER_SCREEN = 1 / 4f;
     public static final float HALF_SCREEN = 1 / 2f;
-    public static final float FULL_SCREEN = 1f;
 
     public static final String GAMEPAD_BUTTON_X = "X";
     public static final String GAMEPAD_BUTTON_Y = "Y";
     public static final String GAMEPAD_BUTTON_A = "A";
     public static final String GAMEPAD_BUTTON_B = "B";
+    public static final int DEFAULT_GAMEPAD_DOMAIN=R.drawable.gamepad_domain;
+    public static final int DEFAULT_COLOR_STICK_DOMAIN=R.drawable.moving_stick_domain;
+    public static final int FLIPPED_COLOR_STICK_DOMAIN=R.drawable.moving_stick_flipped_domain;
+    public static final int NOTHING_IMAGE=R.drawable.nothing;
     public static final int CRYSTAL_BUTTONS= R.drawable.crystal_buttons;
     public static final int CRYSTAL_QUADS=R.drawable.crystal_buttons_quad;
     public static final int MATERIALISTIC_BUTTONS=R.drawable.material_buttons;
     public static final int MATERIALISTIC_QUADS=R.drawable.material_buttons_quad;
+    public static final int TEAL_HEXAS=R.drawable.teal_hexagons;
+    public static final int TRIS_BUTTONS=R.drawable.tris_buttons;
 
-    public GamePadView(@NonNull Activity appCompatActivity, GameStickView gameStickView) {
+
+    /**
+     * Create a gamePadView instance that would hold gameStickView & PadButtons
+     * @param appCompatActivity your activity instance #{{@see com.androidx.Activity}}
+     * @param gameStickView an instance of a class extending #{{@link GameStickView}}
+     */
+    public GamePadView(@NonNull Activity appCompatActivity, @NonNull GameStickView gameStickView) {
         super(appCompatActivity);
         setAppCompatActivity(appCompatActivity);
         setGameStickView(gameStickView);
     }
 
-    public void setGameStickView(GameStickView gameStickView) {
+    private void setGameStickView(GameStickView gameStickView) {
         this.gameStickView = gameStickView;
     }
 
-    public void setAppCompatActivity(Activity appCompatActivity) {
+    private void setAppCompatActivity(Activity appCompatActivity) {
         this.appCompatActivity = appCompatActivity;
     }
 
-
-
+    /**
+     * Initializes the main GamePadView that would hold the gameStickView & Buttons
+     * @param backgroundDrawable the gamePadView background domain
+     * @param CONFIG the gamePadView size configuration mode , either #{{@link GamePadView#HALF_SCREEN}} ,
+     *                                                                #{{@link GamePadView#ONE_THIRD_SCREEN}},
+     *                                                                ,or, #{{@link GamePadView#QUARTER_SCREEN}}.
+     * @return #{{@link GamePadView}} for multiple Implementations
+     */
     public GamePadView initializeGamePad(int backgroundDrawable, float CONFIG) {
         this.setBackground(ContextCompat.getDrawable(appCompatActivity, backgroundDrawable));
         this.setFocusable(false);
@@ -66,7 +84,7 @@ public class GamePadView extends CardView {
         GENERAL_PAD_CONFIG = CONFIG;
         /* set the location of the gamePad on the screen */
         this.setY(deviceDisplayMetrics.heightPixels - height*1.15f);
-        this.setX(50);
+        this.setX(60);
         /* set the dimensions of the gamePad*/
         LayoutParams layoutParams = new LayoutParams(deviceDisplayMetrics.widthPixels-50, (int) height);
         this.setLayoutParams(layoutParams);
@@ -75,13 +93,26 @@ public class GamePadView extends CardView {
         appCompatActivity.addContentView(this, layoutParams);
         return this;
     }
-
+    /**
+     * initializes the game Stick holder of the gamePad.
+     * @param stickViewBackground the background domain of the game stick
+     * @implNote initialize this before the gameStick - #{{@link GamePadView#initializeGameStick(int, int, int)}}
+     * @apiNote if you needn't an image or a background domain , set that part to use #{{@link GamePadView#NOTHING_IMAGE}}
+     * @return #{{@link GamePadView}} for multiple Implementations
+     */
     public GamePadView initializeGameStickHolder(int stickViewBackground) {
-
         gameStickView.initializeGameStickHolder(this, GENERAL_PAD_CONFIG, stickViewBackground);
         return this;
     }
 
+    /**
+     * initializes the game Stick part of the gamePad.
+     * @param stickBackground the background domain of the game stick
+     * @param stickImage the image of the game stick
+     * @param stickSize size of game stick
+     * @implNote initialize the gameStick holder before this - #{{@link GamePadView#initializeGameStickHolder(int)}}
+     * @apiNote if you needn't an image or a background domain , set that part to use #{{@link GamePadView#NOTHING_IMAGE}}
+     */
     public void initializeGameStick(int stickBackground, int stickImage, int stickSize) {
         gameStickView.initializeGameStick(stickBackground, stickImage, stickSize);
     }
@@ -122,25 +153,46 @@ public class GamePadView extends CardView {
 
     }
 
-
+    /**
+     * Internal use only
+     *
+     */
     public int getGamePadHeight() {
         return this.getLayoutParams().height;
     }
 
-    public int getGamePadWidth() {
+    private int getGamePadWidth() {
         return this.getLayoutParams().width;
     }
-
+    /**
+     * set the motion path indicator width
+     * @param width stroke size
+     */
     public void setMotionPathStrokeWidth(int width) {
         gameStickView.setMotionPathStrokeWidth(width);
     }
-
+    /**
+     * set the stick path indicator color
+     * @param color Color to specify , DEFAULT is black
+     */
     public void setMotionPathColor(int color) {
         gameStickView.setMotionPathColor(color);
     }
-
+    /**
+     * enables the stick path indicator
+     * @param stickPathEnabled true/false
+     */
     public void setStickPathEnabled(boolean stickPathEnabled) {
         gameStickView.setStickPathEnabled(stickPathEnabled);
     }
+    public void setButtonsStyle(int backgroundDrawable){
+        this.setBackground(ContextCompat.getDrawable(appCompatActivity, backgroundDrawable));
+    }
+    public void setButtonsColor(int color){
+        if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ){
+            this.setBackgroundTintList(ColorStateList.valueOf(color));
+        }
+    }
+
 
 }

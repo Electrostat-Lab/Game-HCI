@@ -2,6 +2,7 @@ package com.myGame;
 
 import android.content.res.AssetManager;
 import android.os.Bundle;
+import android.view.MotionEvent;
 
 import com.jme3.app.AndroidHarness;
 

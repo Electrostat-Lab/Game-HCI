@@ -48,7 +48,7 @@ public class GameStick extends GameStickView {
             @Override
             public void run() {
                 vehicleControl.accelerate(-accelerationForce*2);
-                vehicleControl.brake(brakeForce);
+                vehicleControl.brake(brakeForce/2);
             }
         });
 

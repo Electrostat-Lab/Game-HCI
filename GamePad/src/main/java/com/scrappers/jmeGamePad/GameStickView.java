@@ -26,12 +26,19 @@ public abstract class GameStickView extends CardView  {
     private float y;
     private boolean stickPathEnabled;
 
-
+    /**
+     * create a gameStickView & OverRide its abstract methods(gameStickView Listeners).
+     * @param appCompatActivity activity instance
+     * @apiNote in order to ensure a proper use , extend this class better than using anonymous class instance.
+     */
     public GameStickView(Activity appCompatActivity) {
         super(appCompatActivity);
         this.appCompatActivity=appCompatActivity;
     }
 
+    /**
+     * @apiNote  Internal use only , don't use it in your game context
+     */
     public void initializeGameStickHolder(GamePadView gamePadView, float GAMEPAD_CONFIG, int stickViewBackground){
         /*setting the background of the gameStickView ,elevation,focus behaviour */
         this.setBackground(ContextCompat.getDrawable(appCompatActivity,stickViewBackground));
@@ -50,8 +57,11 @@ public abstract class GameStickView extends CardView  {
         this.setY(gamePadView.getGamePadHeight()-stickViewSize);
         /* add the gameStickView to the gamePad */
         gamePadView.addView(this);
-
     }
+
+    /**
+     * @apiNote  Internal use only , don't use it in your game context
+     */
     public void initializeGameStick(int stickBackground, int stickImage, int stickSize){
         /*Define the stickPath & stickBrush */
         stickPath=new Path();
@@ -63,7 +73,6 @@ public abstract class GameStickView extends CardView  {
         stickBrush.setStrokeCap(Paint.Cap.ROUND);
         stickBrush.setXfermode(null);
         stickBrush.setAlpha(0xff);
-
 
         /* declare the origin of the gameStick */
 
@@ -89,18 +98,28 @@ public abstract class GameStickView extends CardView  {
         this.addView(stick);
     }
 
-
+    /**
+     * @apiNote  Internal use only , don't use it in your game context
+     */
     public void setMotionPathStrokeWidth(int width){
         stickBrush.setStrokeWidth(width);
     }
+
+    /**
+     * @apiNote  Internal use only , don't use it in your game context
+     */
     public void setMotionPathColor(int color){
         stickBrush.setColor(color);
     }
+
+    /**
+     * @apiNote  Internal use only , don't use it in your game context
+     */
     public void setStickPathEnabled(boolean stickPathEnabled) {
         this.stickPathEnabled = stickPathEnabled;
     }
 
-    public boolean isStickPathEnabled() {
+    private boolean isStickPathEnabled() {
         return stickPathEnabled;
     }
 
@@ -112,7 +131,8 @@ public abstract class GameStickView extends CardView  {
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        super.performLongClick();
+
+        /*Tolerated Motion*/
         float xTolerance = 150f;
         float yTolerance=  150f;
         switch (event.getAction()){
@@ -123,14 +143,27 @@ public abstract class GameStickView extends CardView  {
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
-                if(event.getX() < (xOrigin- xTolerance) || event.getX()<=0){
-                    steerLT(Math.abs(event.getX()/100));
+
+                if(event.getX() < (xOrigin- xTolerance) || event.getX()<0){
+                    /* due to java pixel coordinate plane */
+                    /* get the math absolute of the pulseX to prevent negative numbers because the direction of touch Motion towards zeroX*/
+                    /*divide that by 25 that's the 1/4 of the RT side(that's divided by 100) */
+                    steerLT(Math.abs(event.getX()/25));
                 }else if(event.getX() > xOrigin+ xTolerance ){
+                    /* due to java pixel coordinate plane */
+                    /* no need get the math absolute of the pulseX to prevent negative numbers because you haven't crossed zeroX*/
+                    /*divide that by 100 that's the 4 times of the LT side(that's divided by 25) */
                     steerRT(event.getX()/100);
                 }
-                if(event.getY() < (yOrigin- yTolerance) || event.getY()<=0 ){
-                    accelerate(Math.abs(event.getY()/100));
+                if(event.getY() < (yOrigin- yTolerance) || event.getY()<0 ){
+                    /* due to java pixel coordinate plane */
+                    /* get the math absolute of the pulseY to prevent negative numbers because the direction of touch Motion towards zeroY*/
+                    /*divide that by 25 that's the 1/4 of the reverseTwitch side(that's divided by 100) */
+                    accelerate(Math.abs(event.getY()/25));
                 }else if(event.getY() > (yOrigin + yTolerance)){
+                    /* due to java pixel coordinate plane */
+                    /* no need to get the math absolute of the pulseY to prevent negative numbers because you haven't crossed zeroY*/
+                    /*divide that by 100 that's the 4 times of the accelerate side(that's divided by 25) */
                     reverseTwitch(event.getY()/100);
                 }
 
@@ -146,10 +179,9 @@ public abstract class GameStickView extends CardView  {
                 neutralizeState(xOrigin/100,yOrigin/100);
                 invalidate();
         }
-
-//        System.out.println(event.getX()/2+" , "+event.getY()/2);
         return true;
     }
+
 
     private void neutralizeStick() {
         /* reset the path preparing for a new motion path */
@@ -177,32 +209,29 @@ public abstract class GameStickView extends CardView  {
     }
 
     /**
-     * Internal use only- don't call from your class
-     * @param pulse
+     * @apiNote Internal use only- don't call from your class
+     * @param pulse the acceleration pulse
      */
     public abstract void accelerate(float pulse);
     /**
-     * Internal use only- don't call from your class
-     * @param pulse
+     * @apiNote Internal use only- don't call from your class
+     * @param pulse the reverse steering pulse
      */
     public abstract void reverseTwitch(float pulse);
     /**
-     * Internal use only- don't call from your class
-     * @param pulse
+     * @apiNote Internal use only- don't call from your class
+     * @param pulse the right steering pulse
      */
     public abstract void steerRT(float pulse);
     /**
-     * Internal use only- don't call from your class
-     * @param pulse
+     * @apiNote Internal use only- don't call from your class
+     * @param pulse the left steering pulse
      */
     public abstract void steerLT(float pulse);
     /**
-     * Internal use only- don't call from your class
-     * @param pulseX
-     * @param pulseY
+     * @apiNote Internal use only- don't call from your class
+     * @param pulseX the steady state xPulse of the GameStick
+     * @param pulseY the steady state yPulse of the GameStick
      */
     public abstract void neutralizeState(float pulseX,float pulseY);
-
     }
-
-

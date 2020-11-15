@@ -21,7 +21,7 @@ Step 1. Add it in your root build.gradle at the end of repositories :
 Step 2. Add the dependency :
 ```gradle
 	dependencies {
-	        implementation 'com.github.Scrappers-glitch:JmEGamePad:1.2'
+	        implementation 'com.github.Scrappers-glitch:JmEGamePad:1.x.x'
 	}
 ```
 Step 3. If you are using JME(JmonkeyEngine3.3.2-Stable) then :

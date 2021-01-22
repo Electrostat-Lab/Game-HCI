@@ -1,8 +1,8 @@
-# JmEGamePad 1.2 #
+# Superior Extended Engine 1.2 # ![](https://github.com/Scrappers-glitch/Superior-Extended-Engine/blob/master/GamePad/src/main/java/com/scrappers/jmeGamePad/Attachments/LogoMod1.png)
+
 ### GamePad Library for Android Games running java/Kotlin ###
 
-![](https://jitpack.io/v/Scrappers-glitch/JmEGamePad.svg)](https://jitpack.io/#Scrappers-glitch/JmEGamePad)
-![](https://github.com/Scrappers-glitch/Superior-Extended-Engine/blob/master/GamePad/src/main/java/com/scrappers/jmeGamePad/Attachments/LogoMod1.png)
+[![](https://jitpack.io/v/Scrappers-glitch/JmEGamePad.svg)(https://jitpack.io/#Scrappers-glitch/JmEGamePad)]
 
 ## [Video about this Library ](https://youtu.be/-fifyREL2Yo) ##
 ## [JmeGamePad on a JmeVehiclesExample,Example of Responsive layout](https://youtu.be/LZkmWAvh9j0) ##

@@ -5,9 +5,8 @@ plugins {
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.2"
-
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 22
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -35,4 +34,9 @@ dependencies {
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    implementation "org.jmonkeyengine:jme3-core:3.3.2-stable"
+    implementation "org.jmonkeyengine:jme3-effects:3.3.2-stable"
+    implementation "org.jmonkeyengine:jme3-android-native:3.3.2-stable"
+    implementation "org.jmonkeyengine:jme3-lwjgl:3.3.2-stable"
+    implementation 'com.github.stephengold:Minie:3.1.0-test2'
 }

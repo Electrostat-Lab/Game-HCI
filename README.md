@@ -203,5 +203,16 @@ DEFAULT BUTTONS QUARTER_SCREEN Config
 
 ![QUARTER_SCREEN Config](https://i.imgur.com/gEo45K2.png)
 
+## What's New ?
+
+## BugFixes:
+
+
+
+## NEW COLLECTION:
+
+![](https://i.imgur.com/ytIm371.png)
+
+![](https://i.imgur.com/ZUh2sI0.png)
 
 

@@ -1,9 +1,13 @@
 package com.scrappers.jmeGamePad;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Icon;
 import android.os.Build;
+import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -11,27 +15,32 @@ import android.widget.ImageView;
 import com.scrappers.GamePad.R;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 
-@SuppressLint("ViewConstructor")
-public class GamePadView extends CardView {
-    private Activity appCompatActivity;
+public class GamePadView extends CardView  {
+    private AppCompatActivity appCompatActivity;
     private GameStickView gameStickView;
+    private GamePadBody gamePadBody;
+    private final int translationX =60;
     private static float GENERAL_PAD_CONFIG = 0.0f;
     public static final float TWO_THIRD_SCREEN = 2 / 3f;
     public static final float ONE_THIRD_SCREEN = 1 / 3f;
     public static final float QUARTER_SCREEN = 1 / 4f;
     public static final float HALF_SCREEN = 1 / 2f;
 
-    public static final String GAMEPAD_BUTTON_X = "X";
-    public static final String GAMEPAD_BUTTON_Y = "Y";
-    public static final String GAMEPAD_BUTTON_A = "A";
-    public static final String GAMEPAD_BUTTON_B = "B";
+    public static final int GAMEPAD_BUTTON_X = 'X';
+    public static final int GAMEPAD_BUTTON_Y = 'Y';
+    public static final int GAMEPAD_BUTTON_A = 'A';
+    public static final int GAMEPAD_BUTTON_B = 'B';
     public static final int DEFAULT_GAMEPAD_DOMAIN=R.drawable.gamepad_domain;
     public static final int DEFAULT_COLOR_STICK_DOMAIN=R.drawable.moving_stick_domain;
     public static final int FLIPPED_COLOR_STICK_DOMAIN=R.drawable.moving_stick_flipped_domain;
+    public static final int OPACIFIED_COLOR_STICK_DOMAIN=R.drawable.opacified_domain;
     public static final int NOTHING_IMAGE=R.drawable.nothing;
+    public static final int DEFAULT_BUTTONS=R.drawable.moving_stick;
     public static final int CRYSTAL_BUTTONS= R.drawable.crystal_buttons;
     public static final int CRYSTAL_QUADS=R.drawable.crystal_buttons_quad;
     public static final int MATERIALISTIC_BUTTONS=R.drawable.material_buttons;
@@ -39,23 +48,31 @@ public class GamePadView extends CardView {
     public static final int TEAL_HEXAS=R.drawable.teal_hexagons;
     public static final int TRIS_BUTTONS=R.drawable.tris_buttons;
 
-
     /**
      * Create a gamePadView instance that would hold gameStickView & PadButtons
      * @param appCompatActivity your activity instance #{{@see com.androidx.Activity}}
      * @param gameStickView an instance of a class extending #{{@link GameStickView}}
      */
-    public GamePadView(@NonNull Activity appCompatActivity, @NonNull GameStickView gameStickView) {
+    public GamePadView(@NonNull AppCompatActivity appCompatActivity, @NonNull GameStickView gameStickView) {
         super(appCompatActivity);
         setAppCompatActivity(appCompatActivity);
         setGameStickView(gameStickView);
     }
 
-    private void setGameStickView(GameStickView gameStickView) {
+    public GamePadView(@NonNull Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public GamePadView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+    }
+
+
+    public void setGameStickView(GameStickView gameStickView) {
         this.gameStickView = gameStickView;
     }
 
-    private void setAppCompatActivity(Activity appCompatActivity) {
+    public void setAppCompatActivity(AppCompatActivity appCompatActivity) {
         this.appCompatActivity = appCompatActivity;
     }
 
@@ -84,13 +101,14 @@ public class GamePadView extends CardView {
         GENERAL_PAD_CONFIG = CONFIG;
         /* set the location of the gamePad on the screen */
         this.setY(deviceDisplayMetrics.heightPixels - height*1.15f);
-        this.setX(60);
+        this.setX(translationX);
         /* set the dimensions of the gamePad*/
         LayoutParams layoutParams = new LayoutParams(deviceDisplayMetrics.widthPixels-50, (int) height);
         this.setLayoutParams(layoutParams);
 
         /*add the gamePad view to the activity jmeGame */
         appCompatActivity.addContentView(this, layoutParams);
+
         return this;
     }
     /**
@@ -117,8 +135,9 @@ public class GamePadView extends CardView {
         gameStickView.initializeGameStick(stickBackground, stickImage, stickSize);
     }
 
-    public void addControlButton(String buttonName,String correspondingGamePadButton, int backgroundDrawable, int drawableIcon, OnClickListener clickListener,OnLongClickListener longClickListener) {
+    public void addControlButton(String buttonName,int buttonID, int backgroundDrawable, int drawableIcon, OnClickListener clickListener,OnLongClickListener longClickListener) {
         ImageView controlButton = new ImageView(appCompatActivity);
+        controlButton.setId(buttonID);
         float buttonSize=GENERAL_PAD_CONFIG * 300f;
         ViewGroup.LayoutParams layoutParams = new LayoutParams((int) buttonSize, (int)buttonSize);
         controlButton.setLayoutParams(layoutParams);
@@ -129,7 +148,7 @@ public class GamePadView extends CardView {
         }
         controlButton.setOnClickListener(clickListener);
         controlButton.setOnLongClickListener(longClickListener);
-        switch (correspondingGamePadButton){
+        switch (buttonID){
             case GAMEPAD_BUTTON_X:
                 controlButton.setX((this.getGamePadWidth() - buttonSize * 4));
                 controlButton.setY((this.getGamePadHeight() - buttonSize * 2.25f));
@@ -148,9 +167,38 @@ public class GamePadView extends CardView {
                 controlButton.setY((this.getGamePadHeight() - buttonSize * 1.25f));
                 break;
         }
-
         this.addView(controlButton);
-
+    }
+    public void setButtonListener(int buttonID,OnClickListener onClickListener){
+        ImageView pushButton=findViewById(buttonID);
+        pushButton.setOnClickListener(onClickListener);
+    }
+    public void setButtonLongClickListener(int buttonID,OnLongClickListener onLongClickListener){
+        ImageView pushButton=findViewById(buttonID);
+        pushButton.setOnLongClickListener(onLongClickListener);
+    }
+    public void setButtonBackgroundDrawable(int buttonID,int drawable){
+        (findViewById(buttonID)).setBackground(ContextCompat.getDrawable(getContext(),drawable));
+    }
+    public void setButtonSrcDrawable(int buttonID,int drawable){
+        ((ImageView)findViewById(buttonID)).setImageDrawable(ContextCompat.getDrawable(getContext(),drawable));
+    }
+    public void setButtonSrcBitmap(int buttonID,String srcPath){
+        ((ImageView)findViewById(buttonID)).setImageBitmap(BitmapFactory.decodeFile(srcPath));
+    }
+    public void setButtonSrcIcon(int buttonID,String srcPath){
+        if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ){
+            ((ImageView)findViewById(buttonID)).setImageIcon(Icon.createWithFilePath(srcPath));
+        }
+    }
+    public ImageView getButtonById(int id){
+        return ((ImageView)findViewById(id));
+    }
+    public void initializeRotationSensor(){
+        gameStickView.initializeRotationSensor();
+    }
+    public void deInitializeSensors(){
+        gameStickView.deInitializeSensors();
     }
 
     /**
@@ -161,7 +209,7 @@ public class GamePadView extends CardView {
         return this.getLayoutParams().height;
     }
 
-    private int getGamePadWidth() {
+    public int getGamePadWidth() {
         return this.getLayoutParams().width;
     }
     /**
@@ -193,6 +241,7 @@ public class GamePadView extends CardView {
             this.setBackgroundTintList(ColorStateList.valueOf(color));
         }
     }
+
 
 
 }

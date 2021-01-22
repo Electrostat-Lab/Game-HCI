@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".JMESurfaceViewExampleActivity.JmESurfaceViewExample">
+    <!-- JmE Surface View -->
+    <com.scrappers.jmesurfaceview.JmESurfaceView
+        android:id="@+id/jmeSurfaceView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    <Button
+        android:id="@+id/test"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="7dp"
+        android:textColor="@color/pureWhite"
+        android:textAlignment="gravity"
+        android:gravity="top|center"
+        android:background="@mipmap/xmas"
+        android:text="@string/test_1" />
+
+
+    <!--    xml example of GameStick-->
+<!--    <com.myGame.JmEGamePadExample.GameStick-->
+<!--        android:id="@+id/gameStick"-->
+<!--        android:layout_width="150dp"-->
+<!--        android:layout_height="150dp"-->
+<!--        android:layout_alignParentBottom="true"-->
+<!--        />-->
+<!--    <SeekBar-->
+<!--        android:id="@+id/seeker"-->
+<!--        android:layout_width="200dp"-->
+<!--        android:layout_height="80dp"-->
+
+<!--        android:layout_marginStart="20dp"-->
+<!--        android:layout_marginTop="100dp"-->
+<!--        android:background="@drawable/gamepad_domain"-->
+
+<!--        android:backgroundTint="@color/fireEngineRed"-->
+<!--        android:progress="200"-->
+<!--        android:rotation="90"-->
+<!--        android:progressDrawable="@color/black"-->
+<!--        android:thumb="@drawable/crystal_buttons"-->
+<!--        android:thumbOffset="5dp"-->
+<!--        android:thumbTint="@color/fireEngineRed" />-->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginEnd="0dp"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/pause"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginStart="0dp"
+            android:background="@drawable/ic_twotone_pause_circle_filled_24"
+            android:gravity="center"
+            android:tooltipText="Vibrator"
+            tools:targetApi="o" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginEnd="0dp"
+        android:padding="20dp"
+        android:gravity="center">
+        <com.scrappers.jmeGamePad.Speedometer
+            android:id="@+id/speedometer"
+            android:layout_width="140dp"
+            android:layout_height="140dp" />
+
+    </LinearLayout>
+
+</RelativeLayout>

@@ -1,3 +1,4 @@
+include ':JmESurfaceView'
 include ':GamePad'
 include ':app'
 rootProject.name = "JmEGamePad"

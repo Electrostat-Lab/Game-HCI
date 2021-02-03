@@ -31,11 +31,10 @@ dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.2.1'
-    testImplementation 'junit:junit:4.+'
+    testImplementation 'junit:junit:4.13.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     implementation "org.jmonkeyengine:jme3-core:3.3.2-stable"
     implementation "org.jmonkeyengine:jme3-effects:3.3.2-stable"
     implementation "org.jmonkeyengine:jme3-android-native:3.3.2-stable"
-    implementation 'com.github.stephengold:Minie:3.1.0-test2'
 }

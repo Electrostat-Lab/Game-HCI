@@ -1,6 +1,5 @@
 package com.myGame.JMESurfaceViewExampleActivity;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -11,10 +10,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.jme3.app.state.MjpegFileWriter;
 import com.myGame.JmEGamePadExample.JmeGame;
 import com.myGame.R;
 import com.myGame.SystemVisibilityUI;
+import com.scrappers.jmeGamePad.MixerKnob;
 import com.scrappers.jmesurfaceview.Dialog.OptionPane;
 import com.scrappers.jmesurfaceview.JmESurfaceView;
 
@@ -28,6 +27,7 @@ public class JmESurfaceViewExample extends AppCompatActivity {
 
         final JmeGame jmeGame=new JmeGame(this);
         jmESurfaceView=findViewById(R.id.jmeSurfaceView);
+        jmESurfaceView.setIgnoreAssertions(true);
         jmESurfaceView.setEglBitsPerPixel(24);
         jmESurfaceView.setEglAlphaBits(0);
         jmESurfaceView.setEglDepthBits(16);
@@ -36,12 +36,18 @@ public class JmESurfaceViewExample extends AppCompatActivity {
         jmESurfaceView.setFrameRate(-1);
 
         jmESurfaceView.setJMEGame(jmeGame,JmESurfaceViewExample.this);
-        jmESurfaceView.startRenderer();
+        jmESurfaceView.startRenderer(20);
 
+        MixerKnob mixerKnob=this.findViewById(R.id.mixerKnob);
+        mixerKnob.initializeMixerKnob(0,R.drawable.knob_circle);
 
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
 
+    }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {

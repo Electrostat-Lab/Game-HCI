@@ -1,5 +1,6 @@
 package com.myGame.JmEGamePadExample;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.view.View;
 import android.widget.Toast;
@@ -61,6 +62,7 @@ public class JmeGame extends SimpleApplication {
     private GamePadView gamePadView;
     public JmeGame(AppCompatActivity appCompatActivity){
         this.appCompatActivity=appCompatActivity;
+
     }
 
     @Override
@@ -152,8 +154,12 @@ public class JmeGame extends SimpleApplication {
         gamePadView.addControlButton("BUTTON X",GamePadView.GAMEPAD_BUTTON_X , GamePadView.TRIS_BUTTONS,GamePadView.NOTHING_IMAGE,new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                gamePadShocker.shockLoser();
-                vehicle.brake(brakeForce);
+
+
+                appCompatActivity.startActivity(new Intent(appCompatActivity.getApplicationContext(), BluetoothLogic.class));
+
+
+
             }
         },null);
         gamePadView.addControlButton("BUTTON Y",GamePadView.GAMEPAD_BUTTON_Y , GamePadView.TRIS_BUTTONS,GamePadView.NOTHING_IMAGE,new View.OnClickListener() {

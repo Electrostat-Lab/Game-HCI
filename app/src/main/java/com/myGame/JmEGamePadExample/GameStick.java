@@ -1,14 +1,11 @@
 package com.myGame.JmEGamePadExample;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.util.AttributeSet;
 
-import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.control.VehicleControl;
 import com.jme3.math.FastMath;
-import com.scrappers.jmeGamePad.GameStickView;
+import com.scrappers.superiorExtendedEngine.gamePad.GameStickView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;

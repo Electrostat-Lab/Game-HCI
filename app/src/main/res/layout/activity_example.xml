@@ -6,7 +6,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".JMESurfaceViewExampleActivity.JmESurfaceViewExample">
     <!-- JmE Surface View -->
-    <com.scrappers.jmesurfaceview.JmESurfaceView
+    <com.scrappers.superiorExtendedEngine.jmeSurfaceView.JmESurfaceView
         android:id="@+id/jmeSurfaceView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
@@ -55,11 +55,12 @@
         android:layout_marginEnd="0dp"
         android:gravity="center">
 
-       <com.scrappers.jmeGamePad.MixerKnob
-           android:id="@+id/mixerKnob"
-           android:layout_width="200dp"
-           android:layout_height="200dp"
-           />
+      <ImageView
+          android:id="@+id/pause"
+          android:layout_width="100dp"
+          android:layout_height="100dp"
+          android:src="@drawable/ic_twotone_pause_circle_filled_24"
+          />
     </LinearLayout>
 
     <LinearLayout
@@ -71,7 +72,7 @@
         android:layout_marginEnd="0dp"
         android:padding="20dp"
         android:gravity="center">
-        <com.scrappers.jmeGamePad.Speedometer
+        <com.scrappers.superiorExtendedEngine.gamePad.Speedometer
             android:id="@+id/speedometer"
             android:layout_width="140dp"
             android:layout_height="140dp" />

@@ -10,8 +10,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/GamePad" />
-            <option value="$PROJECT_DIR$/JmESurfaceView" />
+            <option value="$PROJECT_DIR$/SuperiorPlugin" />
             <option value="$PROJECT_DIR$/app" />
           </set>
         </option>

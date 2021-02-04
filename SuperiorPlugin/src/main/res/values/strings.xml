@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">My JME Game</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="closeapp">closeApp</string>
+    <string name="ignore">ignore</string>
+    <string name="warning">Warning</string>
+</resources>

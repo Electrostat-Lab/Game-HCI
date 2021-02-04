@@ -43,10 +43,10 @@ import com.myGame.JmeEffects.MotionEffect;
 import com.myGame.JmeEffects.NitroState;
 import com.myGame.JmeEffects.PopUpEffect;
 import com.myGame.R;
-import com.scrappers.jmeGamePad.GamePadBody;
-import com.scrappers.jmeGamePad.GamePadView;
-import com.scrappers.jmeGamePad.GameStickView;
-import com.scrappers.jmeGamePad.Speedometer;
+import com.scrappers.superiorExtendedEngine.gamePad.GamePadBody;
+import com.scrappers.superiorExtendedEngine.gamePad.GamePadView;
+import com.scrappers.superiorExtendedEngine.gamePad.GameStickView;
+import com.scrappers.superiorExtendedEngine.gamePad.Speedometer;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -77,7 +77,7 @@ public class JmeGame extends SimpleApplication {
 //        addEnvLightProbe();
 
         /*LIBRARY CODE*/
-        /*run the gamePad Attachments & listeners from the android activity UI thread */
+        /*run the gamePad attachments & listeners from the android activity UI thread */
         /* create an instance of a class extending gameStickView to easily handle the listeners */
 
         /* xml example

@@ -5,12 +5,11 @@ import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import com.scrappers.jmeGamePad.BluetoothHelper.BluetoothActivity;
-import com.scrappers.jmeGamePad.BluetoothHelper.DataTransform;
+import com.scrappers.superiorExtendedEngine.bluetoothHelper.BluetoothActivity;
+import com.scrappers.superiorExtendedEngine.bluetoothHelper.DataTransform;
 
 import java.util.ArrayList;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 
 import androidx.annotation.Nullable;
 
@@ -22,10 +21,10 @@ public class BluetoothLogic extends BluetoothActivity {
         setOnDiscoveryActivation(new OnDiscoveryActivation() {
             @Override
             public void onDiscoverable() {
-                BluetoothLogic.this.registerAsServerSide(3);
+
             }
         });
-        setOnConnectionEstablished(new com.scrappers.jmeGamePad.BluetoothHelper.BluetoothActivity.OnConnectionEstablished() {
+        setOnConnectionEstablished(new com.scrappers.superiorExtendedEngine.bluetoothHelper.BluetoothActivity.OnConnectionEstablished() {
             @Override
             public void connectionSuccess(BluetoothSocket bluetoothSocket,boolean connectivity, UUID uuid, String SPDname) {
                 Toast.makeText(BluetoothLogic.this.getApplicationContext(), connectivity +" done "+uuid,Toast.LENGTH_LONG).show();
@@ -44,12 +43,11 @@ public class BluetoothLogic extends BluetoothActivity {
                 Toast.makeText(BluetoothLogic.this.getApplicationContext(), connectivity +" "+uuid,Toast.LENGTH_LONG).show();
             }
         });
-        setOnDeviceFound(new com.scrappers.jmeGamePad.BluetoothHelper.BluetoothActivity.OnDeviceFound() {
-            @Override
-            public void deviceFound(BluetoothDevice discoveredDevice, ArrayList<BluetoothDevice> discoveredDevices) {
-                System.out.println(discoveredDevice+" "+discoveredDevices);
+        setOnDeviceFound((discoveredDevice, discoveredDevices) -> {
+            System.out.println(discoveredDevice+" "+discoveredDevices);
 //                BluetoothLogic.this.stopDiscovery();
-               }
+            BluetoothLogic.this.registerAsClientSide(discoveredDevice,100);
+
         });
         setOnDiscoveryTerminated(new OnDiscoveryTerminated() {
             @Override

@@ -9,13 +9,14 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import com.myGame.JmEGamePadExample.JmeGame;
 import com.myGame.R;
 import com.myGame.SystemVisibilityUI;
-import com.scrappers.jmeGamePad.MixerKnob;
-import com.scrappers.jmesurfaceview.Dialog.OptionPane;
-import com.scrappers.jmesurfaceview.JmESurfaceView;
+import com.scrappers.superiorExtendedEngine.jmeSurfaceView.Dialog.OptionPane;
+import com.scrappers.superiorExtendedEngine.jmeSurfaceView.JmESurfaceView;
+
 
 public class JmESurfaceViewExample extends AppCompatActivity {
 
@@ -38,8 +39,38 @@ public class JmESurfaceViewExample extends AppCompatActivity {
         jmESurfaceView.setJMEGame(jmeGame,JmESurfaceViewExample.this);
         jmESurfaceView.startRenderer(20);
 
-        MixerKnob mixerKnob=this.findViewById(R.id.mixerKnob);
-        mixerKnob.initializeMixerKnob(0,R.drawable.knob_circle);
+        ImageView pause=findViewById(R.id.pause);
+        pause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final OptionPane optionPane=new OptionPane(JmESurfaceViewExample.this);
+                optionPane.showDialog(R.layout.dialog_exception, Gravity.CENTER);
+                optionPane.getAlertDialog().getWindow().setBackgroundDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.dialog_exception_background));
+                EditText errorContainer=optionPane.getInflater().findViewById(R.id.errorText);
+                errorContainer.setText("Are You sure ?");
+                ((Button)optionPane.getInflater().findViewById(R.id.closeApp)).setText("yes");
+                ((Button)optionPane.getInflater().findViewById(R.id.ignoreError)).setText("no");
+                optionPane.getInflater().findViewById(R.id.closeApp).setOnClickListener(
+                        new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                optionPane.getAlertDialog().dismiss();
+                                jmESurfaceView.getSimpleApplication().stop(jmESurfaceView.isGLThreadPaused());
+                                jmESurfaceView.getSimpleApplication().destroy();
+                                finish();
+                            }
+                        });
+
+
+                optionPane.getInflater().findViewById(R.id.ignoreError).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        optionPane.getAlertDialog().dismiss();
+                    }
+                });
+
+            }
+        });
 
     }
 
@@ -60,13 +91,13 @@ public class JmESurfaceViewExample extends AppCompatActivity {
     @Override
     public void onBackPressed() {
        final OptionPane optionPane=new OptionPane(JmESurfaceViewExample.this);
-        optionPane.showDialog(com.scrappers.jmesurfaceview.R.layout.dialog_exception, Gravity.CENTER);
-        optionPane.getAlertDialog().getWindow().setBackgroundDrawable(ContextCompat.getDrawable(getApplicationContext(), com.scrappers.jmesurfaceview.R.drawable.dialog_exception_background));
-        EditText errorContainer=optionPane.getInflater().findViewById(com.scrappers.jmesurfaceview.R.id.errorText);
+        optionPane.showDialog(R.layout.dialog_exception, Gravity.CENTER);
+        optionPane.getAlertDialog().getWindow().setBackgroundDrawable(ContextCompat.getDrawable(getApplicationContext(),R.drawable.dialog_exception_background));
+        EditText errorContainer=optionPane.getInflater().findViewById(R.id.errorText);
         errorContainer.setText("Are You sure ?");
-        ((Button)optionPane.getInflater().findViewById(com.scrappers.jmesurfaceview.R.id.closeApp)).setText("yes");
-        ((Button)optionPane.getInflater().findViewById(com.scrappers.jmesurfaceview.R.id.ignoreError)).setText("no");
-        optionPane.getInflater().findViewById(com.scrappers.jmesurfaceview.R.id.closeApp).setOnClickListener(
+        ((Button)optionPane.getInflater().findViewById(R.id.closeApp)).setText("yes");
+        ((Button)optionPane.getInflater().findViewById(R.id.ignoreError)).setText("no");
+        optionPane.getInflater().findViewById(R.id.closeApp).setOnClickListener(
             new View.OnClickListener() {
                      @Override
                      public void onClick(View view) {
@@ -78,7 +109,7 @@ public class JmESurfaceViewExample extends AppCompatActivity {
          });
 
 
-        optionPane.getInflater().findViewById(com.scrappers.jmesurfaceview.R.id.ignoreError).setOnClickListener(new View.OnClickListener() {
+        optionPane.getInflater().findViewById(R.id.ignoreError).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 optionPane.getAlertDialog().dismiss();

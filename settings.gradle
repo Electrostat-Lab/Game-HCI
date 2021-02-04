@@ -1,4 +1,3 @@
-include ':JmESurfaceView'
-include ':GamePad'
+include ':SuperiorPlugin'
 include ':app'
 rootProject.name = "JmEGamePad"

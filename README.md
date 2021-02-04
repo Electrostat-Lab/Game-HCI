@@ -1,5 +1,6 @@
-![](https://github.com/Scrappers-glitch/Superior-Extended-Engine/blob/master/GamePad/src/main/java/com/scrappers/jmeGamePad/Attachments/LogoMod1.png) 
-# Superior Extended Engine 1.2 
+ # Superior Extended Engine 1.2 
+
+![](https://github.com/Scrappers-glitch/Superior-Extended-Engine/blob/master/SuperiorPlugin/src/main/java/com/scrappers/superiorExtendedEngine/attachments/LogoMod1.png)
 
 ### GamePad Library for Android Games running java/Kotlin ###
 

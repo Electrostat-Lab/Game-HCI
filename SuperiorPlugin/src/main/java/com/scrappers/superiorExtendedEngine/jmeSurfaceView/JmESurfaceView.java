@@ -103,8 +103,6 @@ public class JmESurfaceView extends RelativeLayout implements SystemListener {
                     onExceptionThrown.Throw(e);
                 }
             }
-
-
         }
     }
 

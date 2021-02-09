@@ -41,10 +41,16 @@ public class JmESurfaceViewExample extends AppCompatActivity {
         jmESurfaceView.setOnExceptionThrown(System.out::println);
         ProgressEntity progressEntity=new ProgressEntity(this,jmESurfaceView);
         progressEntity.displayProgress();
-        progressEntity.getProgressBar().setBackground(ContextCompat.getDrawable(this,R.drawable.moving_stick_flipped_domain));
+        progressEntity.getSplashScreen().setBackgroundColor(ContextCompat.getColor(this,R.color.transparent));
+        progressEntity.getSplashScreen().setScaleX(2);
+        progressEntity.getSplashScreen().setScaleY(2);
+        progressEntity.getProgressBar().setBackground(ContextCompat.getDrawable(this,R.mipmap.xmas));
 //        ImageEntity imageEntity=new ImageEntity(this,jmESurfaceView);
 //        imageEntity.displayImageSplash(R.mipmap.xmas);
-        jmESurfaceView.setOnRendererCompleted(application -> progressEntity.hideProgress());
+        jmESurfaceView.setOnRendererCompleted(application -> {
+            progressEntity.hideProgress();
+            (findViewById(R.id.speedometer)).setVisibility(View.VISIBLE);
+        });
         jmESurfaceView.setJMEGame(jmeGame,JmESurfaceViewExample.this);
         jmESurfaceView.startRenderer(300);
         ImageView pause=findViewById(R.id.pause);

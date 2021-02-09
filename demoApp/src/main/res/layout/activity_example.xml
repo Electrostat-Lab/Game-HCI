@@ -74,6 +74,7 @@
         android:gravity="center">
         <com.scrappers.superiorExtendedEngine.gamePad.Speedometer
             android:id="@+id/speedometer"
+            android:visibility="invisible"
             android:layout_width="140dp"
             android:layout_height="140dp" />
 

@@ -38,14 +38,15 @@ public class JmESurfaceViewExample extends AppCompatActivity {
         jmESurfaceView.setEglSamples(0);
         jmESurfaceView.setEglStencilBits(0);
         jmESurfaceView.setFrameRate(-1);
-//        ProgressEntity progressEntity=new ProgressEntity(this,jmESurfaceView);
-//        progressEntity.displayProgress();
-        ImageEntity imageEntity=new ImageEntity(this,jmESurfaceView);
-        imageEntity.displayImageSplash(R.mipmap.xmas);
-        jmESurfaceView.setOnRendererCompleted(application -> imageEntity.hideSplash());
+        jmESurfaceView.setOnExceptionThrown(System.out::println);
+        ProgressEntity progressEntity=new ProgressEntity(this,jmESurfaceView);
+        progressEntity.displayProgress();
+        progressEntity.getProgressBar().setBackground(ContextCompat.getDrawable(this,R.drawable.moving_stick_flipped_domain));
+//        ImageEntity imageEntity=new ImageEntity(this,jmESurfaceView);
+//        imageEntity.displayImageSplash(R.mipmap.xmas);
+        jmESurfaceView.setOnRendererCompleted(application -> progressEntity.hideProgress());
         jmESurfaceView.setJMEGame(jmeGame,JmESurfaceViewExample.this);
         jmESurfaceView.startRenderer(300);
-
         ImageView pause=findViewById(R.id.pause);
         pause.setOnClickListener(v -> {
             final OptionPane optionPane=new OptionPane(JmESurfaceViewExample.this);

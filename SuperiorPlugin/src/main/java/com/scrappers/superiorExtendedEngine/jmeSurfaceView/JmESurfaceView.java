@@ -2,15 +2,8 @@ package com.scrappers.superiorExtendedEngine.jmeSurfaceView;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
-import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
-import android.view.Gravity;
-import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
 import com.jme3.app.SimpleApplication;
@@ -21,20 +14,12 @@ import com.jme3.system.AppSettings;
 import com.jme3.system.SystemListener;
 import com.jme3.system.android.JmeAndroidSystem;
 import com.jme3.system.android.OGLESContext;
-import com.scrappers.GamePad.R;
-import com.scrappers.superiorExtendedEngine.jmeSurfaceView.Dialog.OptionPane;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 /**
  * @author Pavly Gerges aka @pavl_g (A founder of Scrappers-glitch).
@@ -61,19 +46,17 @@ public class JmESurfaceView extends RelativeLayout implements SystemListener {
     private boolean emulateKeyBoard=true;
     private boolean emulateMouse=true;
     private boolean useJoyStickEvents=true;
-    private ProgressBar progressBar;
     private boolean isGLThreadPaused;
     private boolean ignoreAssertions;
     private final Handler handler=new Handler();
     private GLSurfaceView glSurfaceView;
     private OnRendererCompleted onRendererCompleted;
-    private AtomicInteger synthesizedTime=new AtomicInteger();
-
+    private final AtomicInteger synthesizedTime=new AtomicInteger();
+    private OnExceptionThrown onExceptionThrown;
 
     public JmESurfaceView(@NonNull Context context) {
         super(context);
     }
-
     public JmESurfaceView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
@@ -81,38 +64,9 @@ public class JmESurfaceView extends RelativeLayout implements SystemListener {
     public JmESurfaceView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
-
     public void setJMEGame(SimpleApplication simpleApplication,AppCompatActivity appCompatActivity){
         this.simpleApplication=simpleApplication;
         this.appCompatActivity=appCompatActivity;
-    }
-    public void showErrorDialog(String errorMessage){
-        OptionPane optionPane=new OptionPane(appCompatActivity);
-        optionPane.showDialog(R.layout.dialog_exception, Gravity.CENTER);
-        optionPane.getAlertDialog().getWindow().setBackgroundDrawable(ContextCompat.getDrawable(this.getContext(),R.drawable.dialog_exception_background));
-        EditText errorContainer=optionPane.getInflater().findViewById(R.id.errorText);
-        errorContainer.setText(errorMessage);
-
-        optionPane.getInflater().findViewById(R.id.closeApp).setOnClickListener(view -> {
-            optionPane.getAlertDialog().dismiss();
-            simpleApplication.stop(isGLThreadPaused());
-            simpleApplication.destroy();
-            appCompatActivity.finish();
-        });
-        optionPane.getInflater().findViewById(R.id.ignoreError).setOnClickListener(view -> optionPane.getAlertDialog().dismiss());
-    }
-    private void showProgress(){
-        progressBar=new ProgressBar(this.getContext());
-        DisplayMetrics displayMetrics=new DisplayMetrics();
-        appCompatActivity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        progressBar.setLayoutParams(new LayoutParams(displayMetrics.widthPixels/4,displayMetrics.widthPixels/4));
-
-        progressBar.setX((float) (displayMetrics.widthPixels/2 - progressBar.getLayoutParams().width/2));
-        progressBar.setY((float)(displayMetrics.heightPixels/2 - progressBar.getLayoutParams().height/2));
-        this.addView(progressBar);
-    }
-    private void hideProgress(){
-        this.removeView(progressBar);
     }
     public void startRenderer(int delayMillis) {
         if ( simpleApplication != null ){
@@ -145,7 +99,9 @@ public class JmESurfaceView extends RelativeLayout implements SystemListener {
                 /*post delay the renderer join into the UI thread*/
                 handler.postDelayed(new RendererThread(),delayMillis);
             } catch (Exception e) {
-                e.printStackTrace();
+                if( onExceptionThrown !=null){
+                    onExceptionThrown.Throw(e);
+                }
             }
 
 
@@ -153,7 +109,6 @@ public class JmESurfaceView extends RelativeLayout implements SystemListener {
     }
 
     private class RendererThread implements Runnable{
-
         @Override
         public void run() {
             JmESurfaceView.this.addView(glSurfaceView);
@@ -190,7 +145,9 @@ public class JmESurfaceView extends RelativeLayout implements SystemListener {
                     simpleApplication.update();
                 }
             } catch (AssertionError e) {
-                e.printStackTrace();
+                if( onExceptionThrown !=null){
+                    onExceptionThrown.Throw(e);
+                }
             }
         }
         int timeToPlay=synthesizedTime.addAndGet(1);
@@ -387,5 +344,12 @@ public class JmESurfaceView extends RelativeLayout implements SystemListener {
 
     public void setOnRendererCompleted(OnRendererCompleted onRendererCompleted) {
         this.onRendererCompleted = onRendererCompleted;
+    }
+    public interface OnExceptionThrown{
+        void Throw(Throwable e);
+    }
+
+    public void setOnExceptionThrown(OnExceptionThrown onExceptionThrown) {
+        this.onExceptionThrown = onExceptionThrown;
     }
 }

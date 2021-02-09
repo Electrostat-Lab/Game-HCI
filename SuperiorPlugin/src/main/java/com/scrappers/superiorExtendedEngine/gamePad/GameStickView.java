@@ -13,6 +13,7 @@ import android.hardware.SensorManager;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -24,7 +25,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 
-public class GameStickView extends CardView implements SensorEventListener {
+public class GameStickView extends CardView implements SensorEventListener , View.OnTouchListener {
 
     private ImageView stick;
     private AppCompatActivity appCompatActivity;
@@ -43,6 +44,8 @@ public class GameStickView extends CardView implements SensorEventListener {
     private final float[] orientationResults=new float[3];
     private Speedometer speedometer;
     private SimpleApplication game;
+    private float baseRadius=0f;
+    private float radius=0f;
 
     /**
      * create a gameStickView & OverRide its abstract methods(gameStickView Listeners).
@@ -99,6 +102,7 @@ public class GameStickView extends CardView implements SensorEventListener {
     /**
      * @apiNote  Internal use only , don't use it in your game context
      */
+    @SuppressLint("ClickableViewAccessibility")
     public void initializeGameStick(int stickBackground, int stickImage, int stickSize){
 
         /* declare the origin of the gameStick */
@@ -111,6 +115,11 @@ public class GameStickView extends CardView implements SensorEventListener {
         xOrigin=(float)this.getLayoutParams().width/2f - (float) stickSize/2f;
         /* middleYOfBall = lengthY(viewHeight)/2f - radius =lengthY/2f - stickHeight(stickSize)/2f*/
         yOrigin=(float)this.getLayoutParams().height/2f -(float) stickSize/2f;
+        radius=(float)Math.min(this.getLayoutParams().width,this.getLayoutParams().height)/2;
+        baseRadius=(float) Math.min(this.getLayoutParams().width,this.getLayoutParams().height)/4;
+
+        this.setTag(this.getClass().getName());
+        this.setOnTouchListener(this);
 
         stick=new ImageView(appCompatActivity);
         stick.setBackground(ContextCompat.getDrawable(appCompatActivity,stickBackground));
@@ -124,6 +133,8 @@ public class GameStickView extends CardView implements SensorEventListener {
         neutralizeStick();
         /* add the stick to the stickView CardView */
         this.addView(stick);
+
+
     }
 
     /**
@@ -193,59 +204,6 @@ public class GameStickView extends CardView implements SensorEventListener {
     }
 
 
-    @SuppressLint("ClickableViewAccessibility")
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-
-        /*Tolerated Motion*/
-        float xTolerance = 150f;
-        float yTolerance=  150f;
-        switch (event.getAction()){
-            case MotionEvent.ACTION_DOWN:
-                if(isStickPathEnabled()){
-                    simulateStickExtension(event.getX(), event.getY());
-                    invalidate();
-                }
-                break;
-            case MotionEvent.ACTION_MOVE:
-                if(event.getX() < (xOrigin- xTolerance) || event.getX()<0){
-                    /* due to java pixel coordinate plane */
-                    /* get the math absolute of the pulseX to prevent negative numbers because the direction of touch Motion towards zeroX*/
-                    /*divide that by 25 that's the 1/4 of the RT side(that's divided by 100) */
-                    steerLT(Math.abs(event.getX()/25));
-                }else if(event.getX() > xOrigin+ xTolerance ){
-                    /* due to java pixel coordinate plane */
-                    /* no need get the math absolute of the pulseX to prevent negative numbers because you haven't crossed zeroX*/
-                    /*divide that by 100 that's the 4 times of the LT side(that's divided by 25) */
-                    steerRT(-event.getX()/100);
-                }
-                if(event.getY() < (yOrigin- yTolerance) || event.getY()<0 ){
-                    /* due to java pixel coordinate plane */
-                    /* get the math absolute of the pulseY to prevent negative numbers because the direction of touch Motion towards zeroY*/
-                    /*divide that by 25 that's the 1/4 of the reverseTwitch side(that's divided by 100) */
-                    accelerate(Math.abs(event.getY()/25));
-                }else if(event.getY() > (yOrigin + yTolerance)){
-                    /* due to java pixel coordinate plane */
-                    /* no need to get the math absolute of the pulseY to prevent negative numbers because you haven't crossed zeroY*/
-                    /*divide that by 100 that's the 4 times of the accelerate side(that's divided by 25) */
-                    reverseTwitch(event.getY()/100);
-                }
-
-                if(isStickPathEnabled()){
-                    applyMotionOnStickExtension(x, y, event.getX(), event.getY());
-                }
-                moveStick(event.getX(), event.getY());
-                invalidate();
-
-                break;
-            default:
-                neutralizeStick();
-                neutralizeState(xOrigin/100,yOrigin/100);
-                neutralizeStateLogger.getLog(xOrigin/100,yOrigin/100);
-                invalidate();
-        }
-        return true;
-    }
 
     private void neutralizeStick() {
         /* reset the path preparing for a new motion path */
@@ -256,10 +214,8 @@ public class GameStickView extends CardView implements SensorEventListener {
     }
 
     private void moveStick(float x , float y){
-       if( y>10 && x>10 && x<this.getWidth()/1.2f && y<this.getHeight()/1.2f ){
            stick.setX(x);
            stick.setY(y);
-       }
     }
 
     private void simulateStickExtension(float x,float y){
@@ -375,6 +331,77 @@ public class GameStickView extends CardView implements SensorEventListener {
     }
     public void deInitializeSensors(){
         sensorManager.unregisterListener(this);
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        if(String.valueOf(v.getTag()).equals(this.getClass().getName())){
+            /*Tolerated Motion*/
+            float xTolerance = 150f;
+            float yTolerance = 150f;
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    if ( isStickPathEnabled() ){
+                        simulateStickExtension(event.getX(), event.getY());
+                        invalidate();
+                    }
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    float userDisplacement=(float) Math.sqrt(Math.pow(event.getX()-xOrigin,2)
+                                                     + Math.pow(event.getY()-yOrigin,2));
+                        if ( event.getX() < (xOrigin - xTolerance) || event.getX() < 0 ){
+                            /* due to java pixel coordinate plane */
+                            /* get the math absolute of the pulseX to prevent negative numbers because the direction of touch Motion towards zeroX*/
+                            /*divide that by 25 that's the 1/4 of the RT side(that's divided by 100) */
+                            steerLT(Math.abs(event.getX() / 25));
+                        } else if ( event.getX() > xOrigin + xTolerance ){
+                            /* due to java pixel coordinate plane */
+                            /* no need get the math absolute of the pulseX to prevent negative numbers because you haven't crossed zeroX*/
+                            /*divide that by 100 that's the 4 times of the LT side(that's divided by 25) */
+                            steerRT(-event.getX() / 100);
+                        }
+                        if ( event.getY() < (yOrigin - yTolerance) || event.getY() < 0 ){
+                            /* due to java pixel coordinate plane */
+                            /* get the math absolute of the pulseY to prevent negative numbers because the direction of touch Motion towards zeroY*/
+                            /*divide that by 25 that's the 1/4 of the reverseTwitch side(that's divided by 100) */
+                            accelerate(Math.abs(event.getY() / 25));
+                        } else if ( event.getY() > (yOrigin + yTolerance) ){
+                            /* due to java pixel coordinate plane */
+                            /* no need to get the math absolute of the pulseY to prevent negative numbers because you haven't crossed zeroY*/
+                            /*divide that by 100 that's the 4 times of the accelerate side(that's divided by 25) */
+                            reverseTwitch(event.getY() / 100);
+                        }
+
+                        if ( isStickPathEnabled() ){
+                            applyMotionOnStickExtension(x, y, event.getX(), event.getY());
+                        }
+                    /*check if the user displacement is above or below the radius*/
+                    if(userDisplacement<radius){
+                        /*move the stick to where the user presses*/
+                        moveStick(event.getX(), event.getY());
+                    }else {
+                        /*if the displacement is outside of the circle(>radius) ->
+                        * From the similarity rule of right angled triangles between the displacement tri & the origins tri :
+                        *
+                        * d/r = (event.getX() - xOrigin)/baseRadius =
+                        *
+                        * */
+
+                        float ratio=baseRadius/userDisplacement;
+                        moveStick(xOrigin + (event.getX() - xOrigin)*ratio,yOrigin+(event.getY()-yOrigin)*ratio);
+                    }
+                    invalidate();
+                    break;
+                default:
+                    neutralizeStick();
+                    neutralizeState(xOrigin / 100, yOrigin / 100);
+                    neutralizeStateLogger.getLog(xOrigin / 100, yOrigin / 100);
+                    invalidate();
+            }
+            return true;
+        }else{
+            return false;
+        }
     }
 
     /**

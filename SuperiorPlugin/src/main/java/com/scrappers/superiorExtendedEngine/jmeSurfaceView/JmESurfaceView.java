@@ -2,7 +2,10 @@ package com.scrappers.superiorExtendedEngine.jmeSurfaceView;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
+import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -26,6 +29,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,6 +40,11 @@ import androidx.core.content.ContextCompat;
  * @author Pavly Gerges aka @pavl_g (A founder of Scrappers-glitch).
  * A CardView Class Holder that holds a #{{@link GLSurfaceView}} using #{{@link OGLESContext}} as a renderer to render
  * a JME game on an android view for custom xmL designs.
+ *
+ * @apiNote the main idea of #{@link JmESurfaceView} class is to start a jMonkeyEngine application in a SystemListener#{@link SystemListener} context in a GL thread ,
+ * then the GLSurfaceView holding the GL thread joins the UI thread with a delay of user's choice using a #{@link Handler} , during the delay , the game runs normally in the GL thread(but without coming up on the UI)
+ * and the user has the ability to handle a couple of actions asynchronously as displaying a progress bar #{@link com.scrappers.superiorExtendedEngine.jmeSurfaceView.splashScreen.ProgressEntity} or
+ * an image as a splash screen #{@link com.scrappers.superiorExtendedEngine.jmeSurfaceView.splashScreen.ImageEntity} or even play a preface game music of choice #{@link com.scrappers.superiorExtendedEngine.gamePad.GamePadBody.GamePadSoundEffects}.
  */
 public class JmESurfaceView extends RelativeLayout implements SystemListener {
 
@@ -54,8 +63,12 @@ public class JmESurfaceView extends RelativeLayout implements SystemListener {
     private boolean useJoyStickEvents=true;
     private ProgressBar progressBar;
     private boolean isGLThreadPaused;
-    private ScheduledFuture<GLSurfaceView> glSurfaceViewFuture;
     private boolean ignoreAssertions;
+    private final Handler handler=new Handler();
+    private GLSurfaceView glSurfaceView;
+    private OnRendererCompleted onRendererCompleted;
+    private AtomicInteger synthesizedTime=new AtomicInteger();
+
 
     public JmESurfaceView(@NonNull Context context) {
         super(context);
@@ -72,7 +85,6 @@ public class JmESurfaceView extends RelativeLayout implements SystemListener {
     public void setJMEGame(SimpleApplication simpleApplication,AppCompatActivity appCompatActivity){
         this.simpleApplication=simpleApplication;
         this.appCompatActivity=appCompatActivity;
-        showProgress();
     }
     public void showErrorDialog(String errorMessage){
         OptionPane optionPane=new OptionPane(appCompatActivity);
@@ -82,10 +94,10 @@ public class JmESurfaceView extends RelativeLayout implements SystemListener {
         errorContainer.setText(errorMessage);
 
         optionPane.getInflater().findViewById(R.id.closeApp).setOnClickListener(view -> {
-           optionPane.getAlertDialog().dismiss();
-           simpleApplication.stop(isGLThreadPaused());
-           simpleApplication.destroy();
-           appCompatActivity.finish();
+            optionPane.getAlertDialog().dismiss();
+            simpleApplication.stop(isGLThreadPaused());
+            simpleApplication.destroy();
+            appCompatActivity.finish();
         });
         optionPane.getInflater().findViewById(R.id.ignoreError).setOnClickListener(view -> optionPane.getAlertDialog().dismiss());
     }
@@ -97,70 +109,61 @@ public class JmESurfaceView extends RelativeLayout implements SystemListener {
 
         progressBar.setX((float) (displayMetrics.widthPixels/2 - progressBar.getLayoutParams().width/2));
         progressBar.setY((float)(displayMetrics.heightPixels/2 - progressBar.getLayoutParams().height/2));
-        this.addView(progressBar,0);
+        this.addView(progressBar);
     }
     private void hideProgress(){
         this.removeView(progressBar);
     }
-    public void startRenderer(int delayMillis){
-        /*enclosing the renderer thread in a FutureAsync task from the UI Thread*/
-        ScheduledThreadPoolExecutor executor=new ScheduledThreadPoolExecutor(2);
-        glSurfaceViewFuture= executor.schedule(new RendererThread(),delayMillis, TimeUnit.MILLISECONDS);
-        try {
-            if( glSurfaceViewFuture.get()!=null){
-                /* add the openGL view to the cardView/FrameLayout from the future thread*/
-                JmESurfaceView.this.addView(glSurfaceViewFuture.get(), 1);
+    public void startRenderer(int delayMillis) {
+        if ( simpleApplication != null ){
+            try {
+                /*initialize App Settings & start the Game*/
+                appSettings = new AppSettings(true);
+                appSettings.setAudioRenderer(audioRendererType);
+                appSettings.setResolution(JmESurfaceView.this.getLayoutParams().width, JmESurfaceView.this.getLayoutParams().height);
+                appSettings.setAlphaBits(eglAlphaBits);
+                appSettings.setDepthBits(eglDepthBits);
+                appSettings.setSamples(eglSamples);
+                appSettings.setStencilBits(eglStencilBits);
+                appSettings.setBitsPerPixel(eglBitsPerPixel);
+                appSettings.setEmulateKeyboard(emulateKeyBoard);
+                appSettings.setEmulateMouse(emulateMouse);
+                appSettings.setUseJoysticks(useJoyStickEvents);
+                simpleApplication.setSettings(appSettings);
+                /*start jme game context*/
+                simpleApplication.start();
+                /*attach the game to JmE OpenGL.Renderer context */
+                OGLESContext oglesContext = (OGLESContext) simpleApplication.getContext();
+                /*create a glSurfaceView that will hold the renderer thread*/
+                glSurfaceView = oglesContext.createView(JmESurfaceView.this.getContext());
+                /*set the current view as the system engine thread view for future uses*/
+                JmeAndroidSystem.setView(JmESurfaceView.this);
+                /*set JME system Listener to initialize game , update , requestClose & destroy on closure*/
+                oglesContext.setSystemListener(JmESurfaceView.this);
+                /* set the glSurfaceView to fit the widget */
+                glSurfaceView.setLayoutParams(new LayoutParams(JmESurfaceView.this.getLayoutParams().width, JmESurfaceView.this.getLayoutParams().height));
+                /*post delay the renderer join into the UI thread*/
+                handler.postDelayed(new RendererThread(),delayMillis);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
+
+
         }
     }
 
-    private class RendererThread implements Callable<GLSurfaceView>{
-        private GLSurfaceView glSurfaceView;
+    private class RendererThread implements Runnable{
+
         @Override
-        public GLSurfaceView call() {
-            Looper.prepare();
-            if ( simpleApplication != null ){
-                try {
-                    /*initialize App Settings & start the Game*/
-                    appSettings = new AppSettings(true);
-                    appSettings.setAudioRenderer(audioRendererType);
-                    appSettings.setResolution(JmESurfaceView.this.getLayoutParams().width, JmESurfaceView.this.getLayoutParams().height);
-                    appSettings.setAlphaBits(eglAlphaBits);
-                    appSettings.setDepthBits(eglDepthBits);
-                    appSettings.setSamples(eglSamples);
-                    appSettings.setStencilBits(eglStencilBits);
-                    appSettings.setBitsPerPixel(eglBitsPerPixel);
-                    appSettings.setEmulateKeyboard(emulateKeyBoard);
-                    appSettings.setEmulateMouse(emulateMouse);
-                    appSettings.setUseJoysticks(useJoyStickEvents);
-                    simpleApplication.setSettings(appSettings);
-                    /*start jme game context*/
-                    simpleApplication.start();
-                    /*attach the game to JmE OpenGL.Renderer context */
-                    OGLESContext oglesContext = (OGLESContext) simpleApplication.getContext();
-                    /*create a glSurfaceView that will hold the renderer thread*/
-                    glSurfaceView = oglesContext.createView(JmESurfaceView.this.getContext());
-                    /*set the current view as the system engine thread view for future uses*/
-                    JmeAndroidSystem.setView(JmESurfaceView.this);
-                    /*set JME system Listener to initialize game , update , requestClose & destroy on closure*/
-                    oglesContext.setSystemListener(JmESurfaceView.this);
-                    /* set the glSurfaceView to fit the widget */
-                    glSurfaceView.setLayoutParams(new LayoutParams(JmESurfaceView.this.getLayoutParams().width, JmESurfaceView.this.getLayoutParams().height));
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-            return glSurfaceView;
+        public void run() {
+            JmESurfaceView.this.addView(glSurfaceView);
         }
     }
 
     @Override
     public void initialize() {
         if(simpleApplication !=null){
-            simpleApplication.initialize();
-            hideProgress();
+            simpleApplication.enqueue(() -> simpleApplication.initialize());
         }
 
     }
@@ -178,28 +181,33 @@ public class JmESurfaceView extends RelativeLayout implements SystemListener {
             return;
         }
         if(!isIgnoreAssertions()){
-            try {
-                if ( glSurfaceViewFuture.get() != null ){
-                    simpleApplication.update();
-                }
-            } catch (ExecutionException | InterruptedException e) {
-                e.printStackTrace();
+            if ( glSurfaceView != null ){
+                simpleApplication.update();
             }
         }else{
             try {
-                if ( glSurfaceViewFuture.get() != null ){
+                if ( glSurfaceView != null ){
                     simpleApplication.update();
                 }
-            } catch (ExecutionException | InterruptedException | AssertionError e) {
+            } catch (AssertionError e) {
                 e.printStackTrace();
             }
         }
+        int timeToPlay=synthesizedTime.addAndGet(1);
+        if(timeToPlay==20){
+            appCompatActivity.runOnUiThread(() -> {
+                if ( onRendererCompleted != null ){
+                    onRendererCompleted.onRenderCompletion(simpleApplication);
+                }
+            });
+        }
+
     }
 
     @Override
     public void requestClose(boolean esc) {
         if(simpleApplication !=null){
-            simpleApplication.requestClose(esc);
+            simpleApplication.enqueue(() -> simpleApplication.requestClose(esc));
         }
     }
 
@@ -372,5 +380,12 @@ public class JmESurfaceView extends RelativeLayout implements SystemListener {
 
     public void setGLThreadPaused(boolean GLThreadPaused) {
         isGLThreadPaused = GLThreadPaused;
+    }
+    public interface OnRendererCompleted{
+        void onRenderCompletion(SimpleApplication application);
+    }
+
+    public void setOnRendererCompleted(OnRendererCompleted onRendererCompleted) {
+        this.onRendererCompleted = onRendererCompleted;
     }
 }

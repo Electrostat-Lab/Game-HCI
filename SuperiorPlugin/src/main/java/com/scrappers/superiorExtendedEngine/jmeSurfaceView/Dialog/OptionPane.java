@@ -1,5 +1,6 @@
 package com.scrappers.superiorExtendedEngine.jmeSurfaceView.Dialog;
 
+import android.os.Looper;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -19,7 +20,6 @@ public class OptionPane {
             AlertDialog.Builder builder=new AlertDialog.Builder(context);
             inflater=context.getLayoutInflater().inflate(designedLayout,null);
             builder.setView(inflater);
-
             alertDialog=builder.create();
             assert  alertDialog.getWindow() !=null;
             alertDialog.getWindow().setGravity(gravity);

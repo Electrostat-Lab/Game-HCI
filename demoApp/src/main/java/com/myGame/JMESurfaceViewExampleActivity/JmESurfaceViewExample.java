@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import android.annotation.SuppressLint;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -11,14 +12,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
-import com.jme3.app.SimpleApplication;
 import com.myGame.JmEGamePadExample.JmeGame;
 import com.myGame.R;
 import com.myGame.SystemVisibilityUI;
+import com.scrappers.superiorExtendedEngine.gamePad.GamePadBody;
 import com.scrappers.superiorExtendedEngine.jmeSurfaceView.Dialog.OptionPane;
 import com.scrappers.superiorExtendedEngine.jmeSurfaceView.JmESurfaceView;
-import com.scrappers.superiorExtendedEngine.jmeSurfaceView.splashScreen.ImageEntity;
-import com.scrappers.superiorExtendedEngine.jmeSurfaceView.splashScreen.ProgressEntity;
+import com.scrappers.superiorExtendedEngine.jmeSurfaceView.splashScreen.SplashScreen;
 
 
 public class JmESurfaceViewExample extends AppCompatActivity {
@@ -39,16 +39,17 @@ public class JmESurfaceViewExample extends AppCompatActivity {
         jmESurfaceView.setEglStencilBits(0);
         jmESurfaceView.setFrameRate(-1);
         jmESurfaceView.setOnExceptionThrown(System.out::println);
-        ProgressEntity progressEntity=new ProgressEntity(this,jmESurfaceView);
-        progressEntity.displayProgress();
-        progressEntity.getSplashScreen().setBackgroundColor(ContextCompat.getColor(this,R.color.transparent));
-        progressEntity.getSplashScreen().setScaleX(2);
-        progressEntity.getSplashScreen().setScaleY(2);
-        progressEntity.getProgressBar().setBackground(ContextCompat.getDrawable(this,R.mipmap.xmas));
-//        ImageEntity imageEntity=new ImageEntity(this,jmESurfaceView);
-//        imageEntity.displayImageSplash(R.mipmap.xmas);
+        SplashScreen splashScreen =new SplashScreen(this,jmESurfaceView);
+        splashScreen.setOnSplashScreenDisplayed((splashScreen1)->{
+            GamePadBody.GamePadSoundEffects gamePadSoundEffects=new GamePadBody.GamePadSoundEffects(JmESurfaceViewExample.this);
+            gamePadSoundEffects.initializeSoundEffects();
+            gamePadSoundEffects.playEffect(R.raw.intro);
+        });
+        splashScreen.displayProgressedSplash();
+        splashScreen.getSplashScreen().setBackground(ContextCompat.getDrawable(this,R.mipmap.power1));
+
         jmESurfaceView.setOnRendererCompleted(application -> {
-            progressEntity.hideProgress();
+            splashScreen.hideSplashScreen();
             (findViewById(R.id.speedometer)).setVisibility(View.VISIBLE);
         });
         jmESurfaceView.setJMEGame(jmeGame,JmESurfaceViewExample.this);

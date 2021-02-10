@@ -14,6 +14,7 @@ import com.jme3.system.AppSettings;
 import com.jme3.system.SystemListener;
 import com.jme3.system.android.JmeAndroidSystem;
 import com.jme3.system.android.OGLESContext;
+import com.scrappers.superiorExtendedEngine.jmeSurfaceView.splashScreen.SplashScreen;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -28,8 +29,8 @@ import androidx.appcompat.app.AppCompatActivity;
  *
  * @apiNote the main idea of #{@link JmESurfaceView} class is to start a jMonkeyEngine application in a SystemListener#{@link SystemListener} context in a GL thread ,
  * then the GLSurfaceView holding the GL thread joins the UI thread with a delay of user's choice using a #{@link Handler} , during the delay , the game runs normally in the GL thread(but without coming up on the UI)
- * and the user has the ability to handle a couple of actions asynchronously as displaying a progress bar #{@link com.scrappers.superiorExtendedEngine.jmeSurfaceView.splashScreen.ProgressEntity} or
- * an image as a splash screen #{@link com.scrappers.superiorExtendedEngine.jmeSurfaceView.splashScreen.ImageEntity} or even play a preface game music of choice #{@link com.scrappers.superiorExtendedEngine.gamePad.GamePadBody.GamePadSoundEffects}.
+ * and the user has the ability to handle a couple of actions asynchronously as displaying a progress bar #{@link SplashScreen} or
+ * an image or even play a preface game music of choice #{@link com.scrappers.superiorExtendedEngine.gamePad.GamePadBody.GamePadSoundEffects}.
  */
 public class JmESurfaceView extends RelativeLayout implements SystemListener {
 

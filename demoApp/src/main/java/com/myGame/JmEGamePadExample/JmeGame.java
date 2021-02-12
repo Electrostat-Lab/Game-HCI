@@ -87,7 +87,6 @@ public class JmeGame extends SimpleApplication {
             controlButtonsView.addControlButton("X",ControlButtonsView.GAMEPAD_BUTTON_X,R.drawable.tris_buttons,R.drawable.nothing)
             .setOnClickListener(v -> {
                         appCompatActivity.startActivity(new Intent(appCompatActivity.getApplicationContext(), BluetoothLogic.class));
-
             });
             controlButtonsView.addControlButton("Y",ControlButtonsView.GAMEPAD_BUTTON_Y,R.drawable.tris_buttons,R.drawable.nothing);
             controlButtonsView.addControlButton("A",ControlButtonsView.GAMEPAD_BUTTON_A,R.drawable.tris_buttons,R.drawable.nothing)
@@ -133,24 +132,24 @@ public class JmeGame extends SimpleApplication {
         AmbientLight a=new AmbientLight();
         a.setColor(new ColorRGBA(0.6f, 0.7f, 0.7f, 0.2f).mult(2));
 
-        Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        material.setTexture("ColorMap", assetManager.loadTexture("RocketLeauge/assets/Textures/soccerTex.jpg"));
+//        Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+//        material.setTexture("ColorMap", assetManager.loadTexture("RocketLeauge/assets/Textures/soccerTex.jpg"));
 
-        Material soccerPlayGround = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-        soccerPlayGround.setFloat("ShadowIntensity",2f);
-        soccerPlayGround.setVector3("LightDir",new Vector3f(1,-20,1));
-        soccerPlayGround.setInt("FilterMode",4);
-        soccerPlayGround.setFloat("PCFEdge",0.1f);
-        soccerPlayGround.setFloat("ShadowMapSize",0.1f);
-        soccerPlayGround.setTexture("EnvMap",assetManager.loadTexture("RocketLeauge/assets/Textures/sky.jpg"));
-//        soccerPlayGround.selectTechnique("PostShadow",getRenderManager());
-
-//        soccerPlayGround.setTexture("DiffuseMap", assetManager.loadTexture("RocketLeauge/assets/Textures/soccer.jpg"));
-        soccerPlayGround.setBoolean("UseMaterialColors",true);
-
-        soccerPlayGround.setColor("Ambient",ColorRGBA.LightGray);
-        soccerPlayGround.setColor("Specular",ColorRGBA.LightGray);
-        soccerPlayGround.setFloat("Shininess",1f);
+//        Material soccerPlayGround = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+//        soccerPlayGround.setFloat("ShadowIntensity",2f);
+//        soccerPlayGround.setVector3("LightDir",new Vector3f(1,-20,1));
+//        soccerPlayGround.setInt("FilterMode",4);
+//        soccerPlayGround.setFloat("PCFEdge",0.1f);
+//        soccerPlayGround.setFloat("ShadowMapSize",0.1f);
+//        soccerPlayGround.setTexture("EnvMap",assetManager.loadTexture("RocketLeauge/assets/Textures/sky.jpg"));
+////        soccerPlayGround.selectTechnique("PostShadow",getRenderManager());
+//
+////        soccerPlayGround.setTexture("DiffuseMap", assetManager.loadTexture("RocketLeauge/assets/Textures/soccer.jpg"));
+//        soccerPlayGround.setBoolean("UseMaterialColors",true);
+//
+//        soccerPlayGround.setColor("Ambient",ColorRGBA.LightGray);
+//        soccerPlayGround.setColor("Specular",ColorRGBA.LightGray);
+//        soccerPlayGround.setFloat("Shininess",1f);
         Spatial floorGeometry = assetManager.loadModel("RocketLeauge/assets/Scenes/town/main.scene");
         DirectionalLight directionalLight=new DirectionalLight(new Vector3f(-3,-floorGeometry.getLocalScale().getY()*4,-3).normalize());
         directionalLight.setColor(ColorRGBA.White.mult(2f));
@@ -158,8 +157,9 @@ public class JmeGame extends SimpleApplication {
         rootNode.addLight(directionalLight);
 
         floorGeometry.setLocalTranslation(0f,-10f,0f);
-        floorGeometry.setLocalScale(20f);
+        floorGeometry.setLocalScale(10f);
         RigidBodyControl rigidBodyControl=new RigidBodyControl(CollisionShapeFactory.createMeshShape(floorGeometry),0);
+        floorGeometry.setCullHint(Spatial.CullHint.Never);
         rigidBodyControl.setFriction(20f);
         floorGeometry.addControl(rigidBodyControl);
         rootNode.attachChild(floorGeometry);

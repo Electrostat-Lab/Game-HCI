@@ -1,18 +1,11 @@
 package com.myGame.JmEGamePadExample;
 
-import android.content.Context;
-import android.util.AttributeSet;
-
 import com.jme3.bullet.control.VehicleControl;
 import com.jme3.math.FastMath;
 import com.scrappers.superiorExtendedEngine.gamePad.GameStickView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
-
-public class GameStick extends GameStickView {
+public class GameStick implements GameStickView.GameStickListeners {
     
     private VehicleControl vehicleControl;
     private final float accelerationForce = FastMath.pow(5, 3.5f);
@@ -27,18 +20,6 @@ public class GameStick extends GameStickView {
         return accelerationForce;
     }
 
-    public GameStick(AppCompatActivity appCompatActivity) {
-        super(appCompatActivity);
-    }
-
-    public GameStick(@NonNull Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    public GameStick(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-    }
-
 
     public void setVehicleControl(VehicleControl vehicleControl) {
         this.vehicleControl = vehicleControl;
@@ -50,7 +31,6 @@ public class GameStick extends GameStickView {
 
     @Override
     public void accelerate(final float pulse) {
-        super.accelerate(pulse);
         accelerationValue+=pulse;
         accelerationValue+=accelerationForce;
         vehicleControl.accelerate(accelerationValue);
@@ -58,7 +38,6 @@ public class GameStick extends GameStickView {
 
     @Override
     public void reverseTwitch(float pulse) {
-        super.reverseTwitch(pulse);
         vehicleControl.accelerate(-accelerationForce*2);
         vehicleControl.brake(brakeForce/2);
     }

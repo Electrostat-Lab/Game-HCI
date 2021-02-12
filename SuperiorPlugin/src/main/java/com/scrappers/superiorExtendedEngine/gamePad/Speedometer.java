@@ -9,6 +9,7 @@ import com.jme3.app.Application;
 import com.jme3.app.state.BaseAppState;
 import com.scrappers.GamePad.R;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 
@@ -72,10 +73,12 @@ public class Speedometer extends CardView {
 
     public static class InertialListener extends BaseAppState {
         private final Speedometer speedometer;
+        private final AppCompatActivity appCompatActivity;
         private static final float inertialMaxTime=0.3f;
         private float inertialTime=0f;
-        public InertialListener(Speedometer speedometer){
+        public InertialListener(Speedometer speedometer,AppCompatActivity appCompatActivity){
             this.speedometer=speedometer;
+            this.appCompatActivity=appCompatActivity;
         }
         @Override
         protected void initialize(Application app) {
@@ -105,9 +108,11 @@ public class Speedometer extends CardView {
                     return;
                 }
                 if(speedometer.getSpeedCursor().getProgress() > 0){
-                    speedometer.getSpeedCursor().setProgress(speedometer.getSpeedCursor().getProgress() - 5);
-                    speedometer.getDigitalScreen().setText(String.valueOf(
-                            Math.max((Integer.parseInt(speedometer.getDigitalScreen().getText().toString()) - 5), 0)));
+                    appCompatActivity.runOnUiThread(()->{
+                        speedometer.getSpeedCursor().setProgress(speedometer.getSpeedCursor().getProgress() - 5);
+                        speedometer.getDigitalScreen().setText(String.valueOf(
+                                Math.max((Integer.parseInt(speedometer.getDigitalScreen().getText().toString()) - 5), 0)));
+                    });
                 }
                 inertialTime=0f;
             }

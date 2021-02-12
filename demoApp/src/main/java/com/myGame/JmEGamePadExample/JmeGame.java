@@ -2,8 +2,6 @@ package com.myGame.JmEGamePadExample;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.view.View;
-import android.widget.Toast;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.AssetManager;
@@ -26,7 +24,6 @@ import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
-import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
@@ -34,17 +31,11 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Cylinder;
 import com.jme3.scene.shape.Sphere;
-import com.jme3.shadow.CompareMode;
-import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.texture.Texture;
 import com.jme3.util.SkyFactory;
-import com.myGame.JmeEffects.DoughNutState;
-import com.myGame.JmeEffects.MotionEffect;
 import com.myGame.JmeEffects.NitroState;
-import com.myGame.JmeEffects.PopUpEffect;
 import com.myGame.R;
-import com.scrappers.superiorExtendedEngine.gamePad.GamePadBody;
-import com.scrappers.superiorExtendedEngine.gamePad.GamePadView;
+import com.scrappers.superiorExtendedEngine.gamePad.ControlButtonsView;
 import com.scrappers.superiorExtendedEngine.gamePad.GameStickView;
 import com.scrappers.superiorExtendedEngine.gamePad.Speedometer;
 
@@ -59,11 +50,12 @@ public class JmeGame extends SimpleApplication {
     private final Vector3f rushForce = Vector3f.UNIT_XYZ;
     private Spatial chassis;
     private final AppCompatActivity appCompatActivity;
-    private GamePadView gamePadView;
+    private GameStickView gameStick;
+
     public JmeGame(AppCompatActivity appCompatActivity){
         this.appCompatActivity=appCompatActivity;
-
     }
+
 
     @Override
     public void simpleInitApp() {
@@ -73,139 +65,50 @@ public class JmeGame extends SimpleApplication {
         addSky();
         createPhysicsTestWorld(rootNode, getAssetManager(), bulletAppState.getPhysicsSpace());
         buildPlayer();
-
 //        addEnvLightProbe();
-
         /*LIBRARY CODE*/
         /*run the gamePad attachments & listeners from the android activity UI thread */
         /* create an instance of a class extending gameStickView to easily handle the listeners */
-
-        /* xml example
-        GameStick gameStick = appCompatActivity.findViewById(R.id.gameStick);
-        /* set the vehicle Control
-        gameStick.setVehicleControl(vehicle);
+        gameStick = appCompatActivity.findViewById(R.id.gameStickView);
+        GameStick gameStick1=new GameStick();
+        gameStick1.setVehicleControl(vehicle);
+        gameStick.setGameStickListeners(gameStick1);
         gameStick.setAppCompatActivity(appCompatActivity);
+        gameStick.initializeRotationSensor();
         gameStick.initializeStickPath();
-        gameStick.setStickPathEnabled(true);
         gameStick.setMotionPathColor(Color.WHITE);
-        gameStick.initializeGameStickHolder(GamePadView.FLIPPED_COLOR_STICK_DOMAIN);
-        gameStick.initializeGameStick(GamePadView.NOTHING_IMAGE,GamePadView.TRIS_BUTTONS,120);
-        */
-        /* android view instance example */
-        appCompatActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                final GamePadBody.GamePadShocker gamePadShocker=new GamePadBody.GamePadShocker(appCompatActivity);
-                gamePadShocker.initializeGamePadShocker();
-
-                final GamePadBody.GamePadSoundEffects gamePadSoundEffects=new GamePadBody.GamePadSoundEffects(appCompatActivity);
-                gamePadSoundEffects.initializeSoundEffects();
-
-                final GameStick gameStick=new GameStick(appCompatActivity);
-                gameStick.initializeStickPath();
-                gameStick.setNeutralizeStateLoggerListener(new GameStickView.NeutralizeStateLogger() {
-                    @Override
-                    public void getLog(float pulseX, float pulseY) {
-                        System.out.println("Neutralize State = ("+pulseX+","+pulseY+")");
-                    }
-                });
-
-                gameStick.setStickPathEnabled(true);
-                gameStick.setVehicleControl(vehicle);
-                gameStick.initializeRotationSensor();
-                /* create a gamePadView instance of cardView/FrameLayout to display gamePad Component */
-                gamePadView=new GamePadView(appCompatActivity,gameStick);
-                /* Initialize GamePad Parts*/
-                gamePadView.initializeGamePad(GamePadView.DEFAULT_GAMEPAD_DOMAIN,GamePadView.ONE_THIRD_SCREEN)
-                        .initializeGameStickHolder(GamePadView.FLIPPED_COLOR_STICK_DOMAIN)
-                        .initializeGameStick(R.drawable.ic_baseline_videogame_asset_24,GamePadView.NOTHING_IMAGE,150);
-                gamePadView.initializeRotationSensor();
-                /*initialize the gameStick track */
-                gamePadView.setMotionPathColor(Color.WHITE);
-                gamePadView.setMotionPathStrokeWidth(10);
-                gamePadView.setStickPathEnabled(true);
-                /* initialize pad buttons & listeners A,B,X,Y */
-                gamePadView.addControlButton("BUTTON A",GamePadView.GAMEPAD_BUTTON_A ,GamePadView.TRIS_BUTTONS,GamePadView.NOTHING_IMAGE,new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        vehicle.applyCentralImpulse(jumpForce);
-                        Toast.makeText(appCompatActivity,"Custom Shocks",Toast.LENGTH_LONG).show();
-                        gamePadShocker.generateShocks(10,300,30);
-                        gamePadSoundEffects.playEffect( GamePadBody.GamePadSoundEffects.WINNER_SOUND);
-                        Node wheel1=(Node) ((Node)rootNode.getChild("vehicleNode")).getChild("wheel 3 node");
-                        Node wheel2=(Node) ((Node)rootNode.getChild("vehicleNode")).getChild("wheel 4 node");
-                        stateManager.attach(new PopUpEffect(assetManager,wheel1,wheel2,Vector3f.UNIT_Y.negate(),"doughNut",ColorRGBA.Cyan,ColorRGBA.Yellow));
-                        Node wheel3=(Node) ((Node)rootNode.getChild("vehicleNode")).getChild("wheel 1 node");
-                        Node wheel4=(Node) ((Node)rootNode.getChild("vehicleNode")).getChild("wheel 2 node");
-                        stateManager.attach(new PopUpEffect(assetManager,wheel3,wheel4,Vector3f.UNIT_Y.negate(),"doughNut2",ColorRGBA.Cyan,ColorRGBA.Yellow));
-                    }
-                },null);
-                gamePadView.addControlButton("Nitro",GamePadView.GAMEPAD_BUTTON_B , GamePadView.TRIS_BUTTONS,GamePadView.NOTHING_IMAGE,new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Quaternion quaternion=new Quaternion().fromAngleAxis(FastMath.HALF_PI/2,Vector3f.UNIT_Z);
-                        cam.setRotation(quaternion);
-                        vehicle.applyCentralImpulse(vehicle.getLinearVelocity().mult(150));
-                        Node nitroNode=((Node)((Node) chassis).getChild("nitro"));
-                        NitroState nitroState=new NitroState(assetManager,nitroNode,Vector3f.UNIT_Z.negate(),"nitroEffect",new ColorRGBA(0f, 1f, 1f, 0.8f),new ColorRGBA(251f / 255f, 130f / 255f, 0f, 0.1f));
-                        nitroState.setViewPort(viewPort);
-                        stateManager.attach(nitroState);
-
-                    }
-                },null);
-                gamePadView.addControlButton("BUTTON X",GamePadView.GAMEPAD_BUTTON_X , GamePadView.TRIS_BUTTONS,GamePadView.NOTHING_IMAGE,new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-
-
+        gameStick.initializeGameStickHolder(ControlButtonsView.FLIPPED_COLOR_STICK_DOMAIN);
+        gameStick.initializeGameStick(ControlButtonsView.NOTHING_IMAGE,ControlButtonsView.TRIS_BUTTONS,120);
+        Speedometer speedometer=appCompatActivity.findViewById(R.id.speedometer);
+        speedometer.initializeMeter(Speedometer.CIRCULAR_PROGRESS,Speedometer.METER_1);
+        gameStick.createSpeedometerLink(speedometer,JmeGame.this);
+        gameStick.applySpeedometerInertia();
+        ControlButtonsView controlButtonsView=appCompatActivity.findViewById(R.id.gamePadbtns);
+            controlButtonsView.addControlButton("X",ControlButtonsView.GAMEPAD_BUTTON_X,R.drawable.tris_buttons,R.drawable.nothing)
+            .setOnClickListener(v -> {
                         appCompatActivity.startActivity(new Intent(appCompatActivity.getApplicationContext(), BluetoothLogic.class));
 
-
-
-                    }
-                },null);
-                gamePadView.addControlButton("BUTTON Y",GamePadView.GAMEPAD_BUTTON_Y , GamePadView.TRIS_BUTTONS,GamePadView.NOTHING_IMAGE,new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        vehicle.brake(brakeForce);
-                        if (gameStick.getAccelerationValue()>gameStick.getAccelerationForce() *50){
-                            gamePadShocker.shockWinner();
-                            gameStick.setAccelerationValue(0f);
-                            Node wheel1 = (Node) ((Node) rootNode.getChild("vehicleNode")).getChild("wheel 3 node");
-                            Node wheel2 = (Node) ((Node) rootNode.getChild("vehicleNode")).getChild("wheel 4 node");
-                            stateManager.attach(new DoughNutState(assetManager, wheel1, wheel2, Vector3f.UNIT_Y.setZ(vehicle.getAngularVelocity().negate().getZ()), "doughNut", ColorRGBA.White, ColorRGBA.Brown));
-                        }
-                    }
-                },null);
-
-                appCompatActivity.findViewById(R.id.test).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        gamePadShocker.shockWinner();
-                        try {
-                            gamePadSoundEffects.loopEffect( 3,GamePadBody.GamePadSoundEffects.WINNER_SOUND);
-                        } catch (IllegalStateException e) {
-                            e.printStackTrace();
-                        }
-                        Toast.makeText(appCompatActivity,"Test 1 JMESurfaceView , JMEGamePad\n" +
-                                "DUAL SHOCK",Toast.LENGTH_LONG).show();
-                    }
-                });
-
-                Speedometer speedometer=appCompatActivity.findViewById(R.id.speedometer);
-                speedometer.initializeMeter(Speedometer.CIRCULAR_PROGRESS,Speedometer.METER_1);
-                gameStick.createSpeedometerLink(speedometer,JmeGame.this);
-                gameStick.applySpeedometerInertia();
-            }
-        });
-
+            });
+            controlButtonsView.addControlButton("Y",ControlButtonsView.GAMEPAD_BUTTON_Y,R.drawable.tris_buttons,R.drawable.nothing);
+            controlButtonsView.addControlButton("A",ControlButtonsView.GAMEPAD_BUTTON_A,R.drawable.tris_buttons,R.drawable.nothing)
+            .setOnClickListener(v -> {
+                    vehicle.applyCentralImpulse(jumpForce);
+            });
+            controlButtonsView.addControlButton("B",ControlButtonsView.GAMEPAD_BUTTON_B,R.drawable.tris_buttons,R.drawable.nothing)
+            .setOnClickListener(v -> {
+                    vehicle.applyCentralImpulse(vehicle.getLinearVelocity().mult(150));
+                    Node nitroNode=((Node)((Node) chassis).getChild("nitro"));
+                    NitroState nitroState=new NitroState(assetManager,nitroNode,Vector3f.UNIT_Z.negate(),"nitroEffect",new ColorRGBA(0f, 1f, 1f, 0.8f),new ColorRGBA(251f / 255f, 130f / 255f, 0f, 0.1f));
+                    nitroState.setViewPort(viewPort);
+                    stateManager.attach(nitroState);
+            });
     }
 
     @Override
     public void destroy() {
-        /* deInitializeSensor Service on app exit , to be used with other apps */
-        if(gamePadView!=null){
-            gamePadView.deInitializeSensors();
+//        /* deInitializeSensor Service on app exit , to be used with other apps */
+        if( gameStick !=null){
+            gameStick.deInitializeSensors();
         }
     }
 
@@ -230,7 +133,6 @@ public class JmeGame extends SimpleApplication {
         AmbientLight a=new AmbientLight();
         a.setColor(new ColorRGBA(0.6f, 0.7f, 0.7f, 0.2f).mult(2));
 
-
         Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         material.setTexture("ColorMap", assetManager.loadTexture("RocketLeauge/assets/Textures/soccerTex.jpg"));
 
@@ -243,30 +145,30 @@ public class JmeGame extends SimpleApplication {
         soccerPlayGround.setTexture("EnvMap",assetManager.loadTexture("RocketLeauge/assets/Textures/sky.jpg"));
 //        soccerPlayGround.selectTechnique("PostShadow",getRenderManager());
 
-        soccerPlayGround.setTexture("DiffuseMap", assetManager.loadTexture("RocketLeauge/assets/Textures/soccer.jpg"));
+//        soccerPlayGround.setTexture("DiffuseMap", assetManager.loadTexture("RocketLeauge/assets/Textures/soccer.jpg"));
         soccerPlayGround.setBoolean("UseMaterialColors",true);
 
         soccerPlayGround.setColor("Ambient",ColorRGBA.LightGray);
         soccerPlayGround.setColor("Specular",ColorRGBA.LightGray);
         soccerPlayGround.setFloat("Shininess",1f);
-
-        floorGeometry=assetManager.loadModel("RocketLeauge/assets/Scenes/SoccerPlayGround.j3o");
-        floorGeometry.setMaterial(soccerPlayGround);
+        Spatial floorGeometry = assetManager.loadModel("RocketLeauge/assets/Scenes/town/main.scene");
         DirectionalLight directionalLight=new DirectionalLight(new Vector3f(-3,-floorGeometry.getLocalScale().getY()*4,-3).normalize());
         directionalLight.setColor(ColorRGBA.White.mult(2f));
         floorGeometry.addLight(a);
         rootNode.addLight(directionalLight);
 
         floorGeometry.setLocalTranslation(0f,-10f,0f);
-        floorGeometry.setLocalScale(15f,floorGeometry.getLocalScale().getY()*4,20f);
-        floorGeometry.addControl(new RigidBodyControl(CollisionShapeFactory.createMeshShape(floorGeometry),0));
+        floorGeometry.setLocalScale(20f);
+        RigidBodyControl rigidBodyControl=new RigidBodyControl(CollisionShapeFactory.createMeshShape(floorGeometry),0);
+        rigidBodyControl.setFriction(20f);
+        floorGeometry.addControl(rigidBodyControl);
         rootNode.attachChild(floorGeometry);
         space.add(floorGeometry);
 
         //ball sphere with mesh collision shape
         Sphere sphere = new Sphere(15, 15, 5f);
-        sphereGeometry = new Geometry("Sphere", sphere);
-        sphereGeometry.setMaterial(createMat(ColorRGBA.White,"RocketLeauge/assets/Textures/soccerTex.jpg",sphereGeometry));
+        Geometry sphereGeometry = new Geometry("Sphere", sphere);
+        sphereGeometry.setMaterial(createMat(ColorRGBA.White,"RocketLeauge/assets/Textures/soccerTex.jpg", sphereGeometry));
         sphereGeometry.setLocalTranslation(0f, -5f, 0f);
         sphereGeometry.setShadowMode(RenderQueue.ShadowMode.Cast);
 
@@ -280,30 +182,25 @@ public class JmeGame extends SimpleApplication {
         rootNode.attachChild(sphereGeometry);
         space.add(sphereGeometry);
 
-        DirectionalLightShadowRenderer dlsr=new DirectionalLightShadowRenderer(assetManager,512,1);
-        dlsr.setLight(directionalLight);
-        dlsr.setShadowIntensity(0.2f);
-        dlsr.setLambda(0.55f);
-        dlsr.setShadowCompareMode(CompareMode.Hardware);
-        dlsr.setShadowZExtend(23f);
-        dlsr.setShadowZFadeLength(8f);
-        floorGeometry.setShadowMode(RenderQueue.ShadowMode.Receive);
-        viewPort.addProcessor(dlsr);
-
-
+//        DirectionalLightShadowRenderer dlsr=new DirectionalLightShadowRenderer(assetManager,512,1);
+//        dlsr.setLight(directionalLight);
+//        dlsr.setShadowIntensity(0.2f);
+//        dlsr.setLambda(0.55f);
+//        dlsr.setShadowCompareMode(CompareMode.Hardware);
+//        dlsr.setShadowZExtend(23f);
+//        dlsr.setShadowZFadeLength(8f);
+//        floorGeometry.setShadowMode(RenderQueue.ShadowMode.Receive);
+//        viewPort.addProcessor(dlsr);
     }
-    Spatial floorGeometry;
-    Geometry sphereGeometry;
+
     private void addPointLight(Spatial node,Vector3f position,ColorRGBA colorRGBA){
         PointLight pointLight=new PointLight();
         pointLight.setColor(colorRGBA);
         pointLight.setPosition(position);
         pointLight.setRadius(2000);
-
         node.addLight(pointLight);
     }
     private void addEnvLightProbe(){
-
         EnvironmentCamera envCam=new EnvironmentCamera();
         stateManager.attach(envCam);
         envCam.initialize(stateManager,this);
@@ -312,8 +209,7 @@ public class JmeGame extends SimpleApplication {
         lightProbe.setPosition(new Vector3f(0,20,0));
         rootNode.addLight(lightProbe);
     }
-    MotionEffect motionEffect;
-    ChaseCamera chaseCam;
+
     private void buildPlayer() {
         cam.setFrustumFar(2000f);
         Material mat = new Material(getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
@@ -353,8 +249,8 @@ public class JmeGame extends SimpleApplication {
         vehicle.setPhysicsLocation(new Vector3f(20f,5f,10f));
         //add a chaseCam tomove the cam with the object
 
-        chaseCam=new ChaseCamera(cam, vehicleNode);
-        chaseCam.setDefaultDistance(-18f);
+        ChaseCamera chaseCam = new ChaseCamera(cam, vehicleNode);
+        chaseCam.setDefaultDistance(-20f);
         chaseCam.registerWithInput(inputManager);
         chaseCam.setDragToRotate(true);
         //setting suspension values for wheels, this can be a bit tricky
@@ -419,23 +315,10 @@ public class JmeGame extends SimpleApplication {
         vehicleNode.attachChild(node4);
         rootNode.attachChild(vehicleNode);
 
-        setWheelFrictionSlip(20f);
-
         getPhysicsSpace().add(vehicle);
         DirectionalLight directionalLight=new DirectionalLight(new Vector3f(2,2,2).mult(50).normalize());
         directionalLight.setColor(ColorRGBA.White);
         vehicleNode.addLight(directionalLight);
-
-
-
-
-
-    }
-
-    private void setWheelFrictionSlip(float frictionSlip) {
-        for(int nOfWheel=0;nOfWheel<vehicle.getNumWheels();nOfWheel++) {
-            vehicle.getWheel(nOfWheel).setFrictionSlip(frictionSlip);
-        }
     }
 
     public Material createMat(ColorRGBA colorRGBA,String Tex,Spatial node){

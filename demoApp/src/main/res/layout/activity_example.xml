@@ -24,28 +24,26 @@
 
 
     <!--    xml example of GameStick-->
-<!--    <com.myGame.JmEGamePadExample.GameStick-->
-<!--        android:id="@+id/gameStick"-->
-<!--        android:layout_width="150dp"-->
-<!--        android:layout_height="150dp"-->
-<!--        android:layout_alignParentBottom="true"-->
-<!--        />-->
-<!--    <SeekBar-->
-<!--        android:id="@+id/seeker"-->
-<!--        android:layout_width="200dp"-->
-<!--        android:layout_height="80dp"-->
+    <com.scrappers.superiorExtendedEngine.gamePad.GameStickView
+        android:id="@+id/gameStickView"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp"
+        android:layout_marginStart="30dp"
+        android:visibility="invisible"
+        />
 
-<!--        android:layout_marginStart="20dp"-->
-<!--        android:layout_marginTop="100dp"-->
-<!--        android:background="@drawable/gamepad_domain"-->
-
-<!--        android:backgroundTint="@color/fireEngineRed"-->
-<!--        android:progress="200"-->
-<!--        android:rotation="90"-->
-<!--        android:progressDrawable="@color/black"-->
-<!--        android:thumb="@drawable/crystal_buttons"-->
-<!--        android:thumbOffset="5dp"-->
-<!--        android:thumbTint="@color/fireEngineRed" />-->
+    <com.scrappers.superiorExtendedEngine.gamePad.ControlButtonsView
+        android:id="@+id/gamePadbtns"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="30dp"
+        android:layout_marginBottom="30dp"
+        android:visibility="invisible"
+         />
 
     <LinearLayout
         android:layout_width="match_parent"

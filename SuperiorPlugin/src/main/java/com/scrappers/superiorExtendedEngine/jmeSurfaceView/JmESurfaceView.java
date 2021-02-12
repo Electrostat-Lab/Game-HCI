@@ -30,7 +30,7 @@ import androidx.appcompat.app.AppCompatActivity;
  * @apiNote the main idea of #{@link JmESurfaceView} class is to start a jMonkeyEngine application in a SystemListener#{@link SystemListener} context in a GL thread ,
  * then the GLSurfaceView holding the GL thread joins the UI thread with a delay of user's choice using a #{@link Handler} , during the delay , the game runs normally in the GL thread(but without coming up on the UI)
  * and the user has the ability to handle a couple of actions asynchronously as displaying a progress bar #{@link SplashScreen} or
- * an image or even play a preface game music of choice #{@link com.scrappers.superiorExtendedEngine.gamePad.GamePadBody.GamePadSoundEffects}.
+ * an image or even play a preface game music of choice #{@link com.scrappers.superiorExtendedEngine.gamePad.ControlButtonsView.GamePadSoundEffects}.
  */
 public class JmESurfaceView extends RelativeLayout implements SystemListener {
 
@@ -54,6 +54,7 @@ public class JmESurfaceView extends RelativeLayout implements SystemListener {
     private OnRendererCompleted onRendererCompleted;
     private final AtomicInteger synthesizedTime=new AtomicInteger();
     private OnExceptionThrown onExceptionThrown;
+    private int delayMillis=0;
 
     public JmESurfaceView(@NonNull Context context) {
         super(context);
@@ -70,6 +71,7 @@ public class JmESurfaceView extends RelativeLayout implements SystemListener {
         this.appCompatActivity=appCompatActivity;
     }
     public void startRenderer(int delayMillis) {
+        this.delayMillis=delayMillis;
         if ( simpleApplication != null ){
             try {
                 /*initialize App Settings & start the Game*/
@@ -150,7 +152,7 @@ public class JmESurfaceView extends RelativeLayout implements SystemListener {
             }
         }
         int timeToPlay=synthesizedTime.addAndGet(1);
-        if(timeToPlay==20){
+        if(timeToPlay==delayMillis){
             appCompatActivity.runOnUiThread(() -> {
                 if ( onRendererCompleted != null ){
                     onRendererCompleted.onRenderCompletion(simpleApplication);

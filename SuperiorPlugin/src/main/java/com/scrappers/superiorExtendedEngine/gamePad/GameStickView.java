@@ -37,7 +37,6 @@ public class GameStickView extends CardView implements SensorEventListener , Vie
     private float y;
     private boolean stickPathEnabled;
     private SensorManager sensorManager;
-    private  NeutralizeStateLogger neutralizeStateLogger;
     private final float[] rotationMatrix=new float[9];
     private final float[] accelerometerValues =new float[3];
     private final float[] magneticFieldValues =new float[3];
@@ -46,6 +45,7 @@ public class GameStickView extends CardView implements SensorEventListener , Vie
     private SimpleApplication game;
     private float baseRadius=0f;
     private float radius=0f;
+    private GameStickListeners gameStickListeners;
 
     /**
      * create a gameStickView & OverRide its abstract methods(gameStickView Listeners).
@@ -70,33 +70,14 @@ public class GameStickView extends CardView implements SensorEventListener , Vie
     }
 
     /**
-     * @apiNote  Internal use only , don't use it in your game context
-     */
-    public void initializeGameStickHolder(GamePadView gamePadView, float GAMEPAD_CONFIG, int stickViewBackground){
-        /*setting the background of the gameStickView ,elevation,focus behaviour */
-        this.setBackground(ContextCompat.getDrawable(appCompatActivity,stickViewBackground));
-        this.setClipToOutline(true);
-        this.setElevation(40.20f);
-        /* get the StickViewSize(mainly height) */
-        DisplayMetrics deviceDisplayMetrics=new DisplayMetrics();
-        appCompatActivity.getWindowManager().getDefaultDisplay().getMetrics(deviceDisplayMetrics);
-        float stickViewSize=deviceDisplayMetrics.heightPixels * GAMEPAD_CONFIG;
-
-        LayoutParams dimensionalAttrs=new LayoutParams((int)stickViewSize,(int)stickViewSize);
-        this.setLayoutParams(dimensionalAttrs);
-        /* set the location of the gameStickView into the GamePadView*/
-        this.setY(gamePadView.getGamePadHeight()-stickViewSize);
-        /* add the gameStickView to the gamePad */
-        gamePadView.addView(this);
-    }
-
-    /**
      * @apiNote  use this to initialize GameStickView independent use of the gamePadView
      */
     public void initializeGameStickHolder(int stickViewBackground){
-        /*setting the background of the gameStickView ,elevation,focus behaviour */
-        this.setBackground(ContextCompat.getDrawable(appCompatActivity,stickViewBackground));
-        this.setElevation(40.20f);
+        appCompatActivity.runOnUiThread(()-> {
+            /*setting the background of the gameStickView ,elevation,focus behaviour */
+            this.setBackground(ContextCompat.getDrawable(appCompatActivity, stickViewBackground));
+            this.setElevation(40.20f);
+        });
     }
 
     /**
@@ -104,37 +85,36 @@ public class GameStickView extends CardView implements SensorEventListener , Vie
      */
     @SuppressLint("ClickableViewAccessibility")
     public void initializeGameStick(int stickBackground, int stickImage, int stickSize){
-
-        /* declare the origin of the gameStick */
+        appCompatActivity.runOnUiThread(()-> {
+            /* declare the origin of the gameStick */
 
         /* by subtracting half of the stickBall size(ball radius) from half of the width of the GameStick Stick(lengthX) to ensure good centerization
         , because if you only get the width half of the gameStickView without subtracting the half os the stickBallSize(radius)
         then you would end up with the stickBall upper Left corner located at the center of the gameStick & not the whole Stick*/
 
-        /* middleXOfBall = lengthX(viewWidth)/2f - radius = lengthX/2f - stickWidth(stickSize)/2f */
-        xOrigin=(float)this.getLayoutParams().width/2f - (float) stickSize/2f;
-        /* middleYOfBall = lengthY(viewHeight)/2f - radius =lengthY/2f - stickHeight(stickSize)/2f*/
-        yOrigin=(float)this.getLayoutParams().height/2f -(float) stickSize/2f;
-        radius=(float)Math.min(this.getLayoutParams().width,this.getLayoutParams().height)/2;
-        baseRadius=(float) Math.min(this.getLayoutParams().width,this.getLayoutParams().height)/4;
+            /* middleXOfBall = lengthX(viewWidth)/2f - radius = lengthX/2f - stickWidth(stickSize)/2f */
+            xOrigin = (float) this.getLayoutParams().width / 2f - (float) stickSize / 2f;
+            /* middleYOfBall = lengthY(viewHeight)/2f - radius =lengthY/2f - stickHeight(stickSize)/2f*/
+            yOrigin = (float) this.getLayoutParams().height / 2f - (float) stickSize / 2f;
+            radius = (float) Math.min(this.getLayoutParams().width, this.getLayoutParams().height) / 2;
+            baseRadius = (float) Math.min(this.getLayoutParams().width, this.getLayoutParams().height) / 4;
 
-        this.setTag(this.getClass().getName());
-        this.setOnTouchListener(this);
+            this.setTag(this.getClass().getName());
+            this.setOnTouchListener(this);
 
-        stick=new ImageView(appCompatActivity);
-        stick.setBackground(ContextCompat.getDrawable(appCompatActivity,stickBackground));
-        stick.setImageDrawable(ContextCompat.getDrawable(appCompatActivity,stickImage));
-        stick.setClipToOutline(true);
-        stick.setFocusable(false);
-        /* set stick attrs*/
-        LayoutParams stickDimensionalAttrs=new LayoutParams(stickSize,stickSize);
-        stick.setLayoutParams(stickDimensionalAttrs);
-        /* neutralize the stick at the first site set x & y origin */
-        neutralizeStick();
-        /* add the stick to the stickView CardView */
-        this.addView(stick);
-
-
+            stick = new ImageView(appCompatActivity);
+            stick.setBackground(ContextCompat.getDrawable(appCompatActivity, stickBackground));
+            stick.setImageDrawable(ContextCompat.getDrawable(appCompatActivity, stickImage));
+            stick.setClipToOutline(true);
+            stick.setFocusable(false);
+            /* set stick attrs*/
+            LayoutParams stickDimensionalAttrs = new LayoutParams(stickSize, stickSize);
+            stick.setLayoutParams(stickDimensionalAttrs);
+            /* neutralize the stick at the first site set x & y origin */
+            neutralizeStick();
+            /* add the stick to the stickView CardView */
+            this.addView(stick);
+        });
     }
 
     /**
@@ -191,80 +171,50 @@ public class GameStickView extends CardView implements SensorEventListener , Vie
     }
     public void applySpeedometerInertia(){
         /*for more thread safety*/
-            game.getStateManager().attach(new Speedometer.InertialListener(speedometer));
+        game.enqueue(()->game.getStateManager().attach(new Speedometer.InertialListener(speedometer,appCompatActivity)));
     }
     private void incrementSpeedometer(){
         if(speedometer==null){
             return;
         }
         if(speedometer.getSpeedCursor().getProgress() < Speedometer.PROGRESS_MAX){
-            speedometer.getSpeedCursor().setProgress(speedometer.getSpeedCursor().getProgress() + 1);
-            speedometer.getDigitalScreen().setText(String.valueOf(new int[]{Integer.parseInt(speedometer.getDigitalScreen().getText().toString()) + 1}[0]));
+            appCompatActivity.runOnUiThread(()-> {
+                speedometer.getSpeedCursor().setProgress(speedometer.getSpeedCursor().getProgress() + 1);
+                speedometer.getDigitalScreen().setText(String.valueOf(new int[]{Integer.parseInt(speedometer.getDigitalScreen().getText().toString()) + 1}[0]));
+            });
         }
     }
 
 
 
     private void neutralizeStick() {
-        /* reset the path preparing for a new motion path */
-        stickPath.reset();
-        /* set the default x & y for the Stick */
-        stick.setX(xOrigin);
-        stick.setY(yOrigin);
+        appCompatActivity.runOnUiThread(()-> {
+            /* reset the path preparing for a new motion path */
+            stickPath.reset();
+            /* set the default x & y for the Stick */
+            stick.setX(xOrigin);
+            stick.setY(yOrigin);
+        });
     }
 
     private void moveStick(float x , float y){
-           stick.setX(x);
-           stick.setY(y);
+        appCompatActivity.runOnUiThread(()-> {
+            stick.setX(x);
+            stick.setY(y);
+        });
     }
 
     private void simulateStickExtension(float x,float y){
         this.x=x;
         this.y=y;
-        stickPath.moveTo(x,y);
+        appCompatActivity.runOnUiThread(()-> {
+            stickPath.moveTo(x, y);
+        });
     }
     private void applyMotionOnStickExtension(float oldX, float oldY, float newX, float newY){
-        stickPath.quadTo(oldX,oldY,newX,newY);
-    }
-
-
-    /**
-     * @apiNote Internal use only- don't call from your class
-     * @param pulse the acceleration pulse
-     */
-    public void accelerate(float pulse){
-        /*increment the speedometer*/
-        incrementSpeedometer();
-    }
-    /**
-     * @apiNote Internal use only- don't call from your class
-     * @param pulse the reverse steering pulse
-     */
-    public void reverseTwitch(float pulse){
-        /*increment the speedometer*/
-        incrementSpeedometer();
-    }
-    /**
-     * @apiNote Internal use only- don't call from your class
-     * @param pulse the right steering pulse
-     */
-    public void steerRT(float pulse){
-        throw new RuntimeException("OverRide steerRT method to use it !");
-    }
-    /**
-     * @apiNote Internal use only- don't call from your class
-     * @param pulse the left steering pulse
-     */
-    public void steerLT(float pulse){
-        throw new RuntimeException("OverRide steerLT method to use it !");
-    }
-    /**
-     * @apiNote Internal use only- don't call from your class
-     * @param pulseX the steady state xPulse of the GameStick
-     * @param pulseY the steady state yPulse of the GameStick
-     */
-    public void neutralizeState(float pulseX,float pulseY){
-        throw new RuntimeException("OverRide neutralizeState method to use it !");
+        appCompatActivity.runOnUiThread(()-> {
+            stickPath.quadTo(oldX, oldY, newX, newY);
+        });
     }
 
     /**
@@ -275,9 +225,13 @@ public class GameStickView extends CardView implements SensorEventListener , Vie
         /* doing interval(threshold) to start steering from ; ie ]-12,12[ are kept spare of steer listeners
         note : there are no mathematical formula fo these values , they are captured from physical testing & personal conclusions*/
         if( pulse<-12){
-            steerRT(pulse/10);
+            if(gameStickListeners!=null){
+                gameStickListeners.steerRT(pulse / 10);
+            }
         } else if(pulse>12){
-            steerLT(pulse/10);
+            if(gameStickListeners!=null){
+                gameStickListeners.steerLT(pulse / 10);
+            }
         }
 
     }
@@ -353,23 +307,33 @@ public class GameStickView extends CardView implements SensorEventListener , Vie
                             /* due to java pixel coordinate plane */
                             /* get the math absolute of the pulseX to prevent negative numbers because the direction of touch Motion towards zeroX*/
                             /*divide that by 25 that's the 1/4 of the RT side(that's divided by 100) */
-                            steerLT(Math.abs(event.getX() / 25));
+                            if(gameStickListeners!=null){
+                                gameStickListeners.steerLT(Math.abs(event.getX() / 25));
+                            }
                         } else if ( event.getX() > xOrigin + xTolerance ){
                             /* due to java pixel coordinate plane */
                             /* no need get the math absolute of the pulseX to prevent negative numbers because you haven't crossed zeroX*/
                             /*divide that by 100 that's the 4 times of the LT side(that's divided by 25) */
-                            steerRT(-event.getX() / 100);
+                            if(gameStickListeners!=null){
+                                gameStickListeners.steerRT(-event.getX() / 100);
+                            }
                         }
                         if ( event.getY() < (yOrigin - yTolerance) || event.getY() < 0 ){
                             /* due to java pixel coordinate plane */
                             /* get the math absolute of the pulseY to prevent negative numbers because the direction of touch Motion towards zeroY*/
                             /*divide that by 25 that's the 1/4 of the reverseTwitch side(that's divided by 100) */
-                            accelerate(Math.abs(event.getY() / 25));
+                            if(gameStickListeners!=null){
+                                gameStickListeners.accelerate(Math.abs(event.getY() / 25));
+                            }
+                            incrementSpeedometer();
                         } else if ( event.getY() > (yOrigin + yTolerance) ){
                             /* due to java pixel coordinate plane */
                             /* no need to get the math absolute of the pulseY to prevent negative numbers because you haven't crossed zeroY*/
                             /*divide that by 100 that's the 4 times of the accelerate side(that's divided by 25) */
-                            reverseTwitch(event.getY() / 100);
+                            if(gameStickListeners!=null){
+                                gameStickListeners.reverseTwitch(event.getY() / 100);
+                            }
+                            incrementSpeedometer();
                         }
 
                         if ( isStickPathEnabled() ){
@@ -386,7 +350,6 @@ public class GameStickView extends CardView implements SensorEventListener , Vie
                         * d/r = (event.getX() - xOrigin)/baseRadius =
                         *
                         * */
-
                         float ratio=baseRadius/userDisplacement;
                         moveStick(xOrigin + (event.getX() - xOrigin)*ratio,yOrigin+(event.getY()-yOrigin)*ratio);
                     }
@@ -394,8 +357,9 @@ public class GameStickView extends CardView implements SensorEventListener , Vie
                     break;
                 default:
                     neutralizeStick();
-                    neutralizeState(xOrigin / 100, yOrigin / 100);
-                    neutralizeStateLogger.getLog(xOrigin / 100, yOrigin / 100);
+                    if(gameStickListeners!=null){
+                        gameStickListeners.neutralizeState(xOrigin / 100, yOrigin / 100);
+                    }
                     invalidate();
             }
             return true;
@@ -404,23 +368,15 @@ public class GameStickView extends CardView implements SensorEventListener , Vie
         }
     }
 
-    /**
-     *
-     * @apiNote Custom listener Interface for Logging & custom callings
-     * =>this is not a part of the lib development
-     * =>IDK , may be just for training , but you can still use it instead of the neutralize Listener Anonymously
-     */
-    public interface NeutralizeStateLogger{
-        void getLog(float pulseX,float pulseY);
+    public interface GameStickListeners{
+        void accelerate(float pulse);
+        void reverseTwitch(float pulse);
+        void steerRT(float pulse);
+        void steerLT(float pulse);
+        void neutralizeState(float pulseX,float pulseY);
     }
 
-    /**
-     * set the custom listener interface for the neutralize state manner
-     * =>this is not a part of the lib development
-     * =>IDK , may be just for training , but you can still use it instead of the neutralize Listener Anonymously
-     * @param neutralizeStateLogger an instance of a class implementing #{{@link NeutralizeStateLogger}} interface or an anonymously created class
-     */
-    public void setNeutralizeStateLoggerListener(NeutralizeStateLogger neutralizeStateLogger){
-        this.neutralizeStateLogger=neutralizeStateLogger;
+    public void setGameStickListeners(GameStickListeners gameStickListeners) {
+        this.gameStickListeners = gameStickListeners;
     }
 }

@@ -1,47 +1,125 @@
 package com.scrappers.superiorExtendedEngine.gamePad;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Icon;
 import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.CountDownTimer;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
-import android.view.MotionEvent;
+import android.util.AttributeSet;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import com.scrappers.GamePad.R;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 
-@SuppressLint("ViewConstructor")
-public class GamePadBody extends CardView {
-    private final AppCompatActivity activity;
-    public GamePadBody(@NonNull AppCompatActivity activity) {
-        super(activity);
-        this.activity=activity;
+public class ControlButtonsView extends RelativeLayout {
+    public static final int GAMEPAD_BUTTON_X = 'X';
+    public static final int GAMEPAD_BUTTON_Y = 'Y';
+    public static final int GAMEPAD_BUTTON_A = 'A';
+    public static final int GAMEPAD_BUTTON_B = 'B';
+    public static final int DEFAULT_GAMEPAD_DOMAIN=R.drawable.gamepad_domain;
+    public static final int DEFAULT_COLOR_STICK_DOMAIN=R.drawable.moving_stick_domain;
+    public static final int FLIPPED_COLOR_STICK_DOMAIN=R.drawable.moving_stick_flipped_domain;
+    public static final int OPACIFIED_COLOR_STICK_DOMAIN=R.drawable.opacified_domain;
+    public static final int NOTHING_IMAGE=R.drawable.nothing;
+    public static final int DEFAULT_BUTTONS=R.drawable.moving_stick;
+    public static final int CRYSTAL_BUTTONS= R.drawable.crystal_buttons;
+    public static final int CRYSTAL_QUADS=R.drawable.crystal_buttons_quad;
+    public static final int MATERIALISTIC_BUTTONS=R.drawable.material_buttons;
+    public static final int MATERIALISTIC_QUADS=R.drawable.material_buttons_quad;
+    public static final int TEAL_HEXAS=R.drawable.teal_hexagons;
+    public static final int TRIS_BUTTONS=R.drawable.tris_buttons;
+
+
+    public ControlButtonsView(@NonNull Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
     }
-    public void initializeGamePadBody(GamePadView gamePadView, GameStickView gameStickView,int translationX){
-        LayoutParams layoutParams=new LayoutParams((gamePadView.getGamePadWidth() - (gameStickView.getLayoutParams().width )),gamePadView.getGamePadHeight());
-        this.setLayoutParams(layoutParams);
-        this.setX(gameStickView.getLayoutParams().width + translationX);
-        this.setY(0);
-        gamePadView.addView(this);
+
+    public ControlButtonsView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
     }
 
+    public ImageView addControlButton(String buttonName,int buttonID, int backgroundDrawable, int drawableIcon){
+            ImageView controlButton = new ImageView(this.getContext());
+            controlButton.setId(buttonID);
+            ViewGroup.LayoutParams layoutParams = new LayoutParams(this.getLayoutParams().width /3, this.getLayoutParams().height/3);
+            controlButton.setLayoutParams(layoutParams);
+            controlButton.setImageDrawable(ContextCompat.getDrawable(this.getContext(), drawableIcon));
+            controlButton.setBackground(ContextCompat.getDrawable(this.getContext(), backgroundDrawable));
+        if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ){
+                controlButton.setTooltipText(buttonName);
+            }
+            switch (buttonID){
+                case GAMEPAD_BUTTON_X:
+                    controlButton.setX(0f);
+                    controlButton.setY(layoutParams.height);
+                    break;
+                case GAMEPAD_BUTTON_B:
+                    controlButton.setX(layoutParams.width*2);
+                    controlButton.setY(layoutParams.height);
+                    break;
 
-    @SuppressLint("ClickableViewAccessibility")
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        return false;
+                case GAMEPAD_BUTTON_Y:
+                    controlButton.setX(layoutParams.width);
+                    controlButton.setY(0f);
+                    break;
+                case GAMEPAD_BUTTON_A:
+                    controlButton.setX(layoutParams.width);
+                    controlButton.setY(layoutParams.height*2);
+                    break;
+            }
+            this.addView(controlButton);
+        return controlButton;
+    }
+    public void setButtonListener(int buttonID,OnClickListener onClickListener){
+        ImageView pushButton=findViewById(buttonID);
+        pushButton.setOnClickListener(onClickListener);
+    }
+    public void setButtonLongClickListener(int buttonID,OnLongClickListener onLongClickListener){
+        ImageView pushButton=findViewById(buttonID);
+        pushButton.setOnLongClickListener(onLongClickListener);
+    }
+    public void setButtonBackgroundDrawable(int buttonID,int drawable){
+        (findViewById(buttonID)).setBackground(ContextCompat.getDrawable(getContext(),drawable));
+    }
+    public void setButtonSrcDrawable(int buttonID,int drawable){
+        ((ImageView)findViewById(buttonID)).setImageDrawable(ContextCompat.getDrawable(getContext(),drawable));
+    }
+    public void setButtonSrcBitmap(int buttonID,String srcPath){
+        ((ImageView)findViewById(buttonID)).setImageBitmap(BitmapFactory.decodeFile(srcPath));
+    }
+    public void setButtonSrcIcon(int buttonID,String srcPath){
+        if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ){
+            ((ImageView)findViewById(buttonID)).setImageIcon(Icon.createWithFilePath(srcPath));
+        }
+    }
+    /**
+     * Internal use only
+     *
+     */
+    public int getGamePadHeight() {
+        return this.getLayoutParams().height;
     }
 
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        return super.onInterceptTouchEvent(ev);
+    public int getGamePadWidth() {
+        return this.getLayoutParams().width;
+    }
+    public void setButtonsStyle(int backgroundDrawable){
+        this.setBackground(ContextCompat.getDrawable(this.getContext(), backgroundDrawable));
+    }
+    public void setButtonsColor(int color){
+        this.setBackgroundTintList(ColorStateList.valueOf(color));
     }
 
     public static class GamePadShocker {
@@ -231,5 +309,4 @@ public class GamePadBody extends CardView {
         }
 
     }
-
 }

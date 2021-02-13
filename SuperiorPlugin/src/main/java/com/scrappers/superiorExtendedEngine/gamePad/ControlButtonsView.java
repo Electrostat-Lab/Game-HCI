@@ -24,6 +24,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 public class ControlButtonsView extends RelativeLayout {
+    private final Context context;
     public static final int GAMEPAD_BUTTON_X = 'X';
     public static final int GAMEPAD_BUTTON_Y = 'Y';
     public static final int GAMEPAD_BUTTON_A = 'A';
@@ -42,16 +43,20 @@ public class ControlButtonsView extends RelativeLayout {
     public static final int TRIS_BUTTONS=R.drawable.tris_buttons;
 
 
+
     public ControlButtonsView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        this.context=context;
     }
 
     public ControlButtonsView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        this.context=context;
     }
 
     public ImageView addControlButton(String buttonName,int buttonID, int backgroundDrawable, int drawableIcon){
-            ImageView controlButton = new ImageView(this.getContext());
+        ImageView controlButton = new ImageView(this.getContext());
+        ((AppCompatActivity)context).runOnUiThread(()->{
             controlButton.setId(buttonID);
             ViewGroup.LayoutParams layoutParams = new LayoutParams(this.getLayoutParams().width /3, this.getLayoutParams().height/3);
             controlButton.setLayoutParams(layoutParams);
@@ -80,6 +85,7 @@ public class ControlButtonsView extends RelativeLayout {
                     break;
             }
             this.addView(controlButton);
+        });
         return controlButton;
     }
     public void setButtonListener(int buttonID,OnClickListener onClickListener){

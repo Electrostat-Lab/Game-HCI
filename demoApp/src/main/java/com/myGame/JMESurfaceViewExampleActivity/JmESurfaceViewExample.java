@@ -53,8 +53,8 @@ public class JmESurfaceViewExample extends AppCompatActivity {
             (findViewById(R.id.speedometer)).setVisibility(View.VISIBLE);
             (findViewById(R.id.gamePadbtns)).setVisibility(View.VISIBLE);
         });
-        jmESurfaceView.setJMEGame(jmeGame,JmESurfaceViewExample.this);
-        jmESurfaceView.startRenderer(300);
+        jmESurfaceView.setJMEGame(jmeGame);
+        jmESurfaceView.startRenderer(100);
         ImageView pause=findViewById(R.id.pause);
         pause.setOnClickListener(v -> {
             final OptionPane optionPane=new OptionPane(JmESurfaceViewExample.this);

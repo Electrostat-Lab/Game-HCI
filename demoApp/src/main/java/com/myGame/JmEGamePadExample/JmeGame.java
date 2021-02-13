@@ -25,12 +25,18 @@ import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
+import com.jme3.post.FilterPostProcessor;
+import com.jme3.post.filters.BloomFilter;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Cylinder;
 import com.jme3.scene.shape.Sphere;
+import com.jme3.shadow.CompareMode;
+import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.texture.Texture;
 import com.jme3.util.SkyFactory;
 import com.myGame.JmeEffects.NitroState;
@@ -73,7 +79,6 @@ public class JmeGame extends SimpleApplication {
         GameStick gameStick1=new GameStick();
         gameStick1.setVehicleControl(vehicle);
         gameStick.setGameStickListeners(gameStick1);
-        gameStick.setAppCompatActivity(appCompatActivity);
         gameStick.initializeRotationSensor();
         gameStick.initializeStickPath();
         gameStick.setMotionPathColor(Color.WHITE);
@@ -81,8 +86,7 @@ public class JmeGame extends SimpleApplication {
         gameStick.initializeGameStick(ControlButtonsView.NOTHING_IMAGE,ControlButtonsView.TRIS_BUTTONS,120);
         Speedometer speedometer=appCompatActivity.findViewById(R.id.speedometer);
         speedometer.initializeMeter(Speedometer.CIRCULAR_PROGRESS,Speedometer.METER_1);
-        gameStick.createSpeedometerLink(speedometer,JmeGame.this);
-        gameStick.applySpeedometerInertia();
+        gameStick.createSpeedometerLink(speedometer,JmeGame.this,vehicle,0.25f);
         ControlButtonsView controlButtonsView=appCompatActivity.findViewById(R.id.gamePadbtns);
             controlButtonsView.addControlButton("X",ControlButtonsView.GAMEPAD_BUTTON_X,R.drawable.tris_buttons,R.drawable.nothing)
             .setOnClickListener(v -> {
@@ -151,13 +155,15 @@ public class JmeGame extends SimpleApplication {
 //        soccerPlayGround.setColor("Specular",ColorRGBA.LightGray);
 //        soccerPlayGround.setFloat("Shininess",1f);
         Spatial floorGeometry = assetManager.loadModel("RocketLeauge/assets/Scenes/town/main.scene");
+
         DirectionalLight directionalLight=new DirectionalLight(new Vector3f(-3,-floorGeometry.getLocalScale().getY()*4,-3).normalize());
-        directionalLight.setColor(ColorRGBA.White.mult(2f));
+        directionalLight.setColor(ColorRGBA.White.mult(1.5f));
         floorGeometry.addLight(a);
         rootNode.addLight(directionalLight);
 
         floorGeometry.setLocalTranslation(0f,-10f,0f);
         floorGeometry.setLocalScale(10f);
+
         RigidBodyControl rigidBodyControl=new RigidBodyControl(CollisionShapeFactory.createMeshShape(floorGeometry),0);
         floorGeometry.setCullHint(Spatial.CullHint.Never);
         rigidBodyControl.setFriction(20f);
@@ -191,6 +197,15 @@ public class JmeGame extends SimpleApplication {
 //        dlsr.setShadowZFadeLength(8f);
 //        floorGeometry.setShadowMode(RenderQueue.ShadowMode.Receive);
 //        viewPort.addProcessor(dlsr);
+
+        BloomFilter bloomFilter=new BloomFilter();
+        bloomFilter.setDownSamplingFactor(2);
+        bloomFilter.setExposurePower(3);
+        bloomFilter.setBloomIntensity(1f);
+        bloomFilter.setBlurScale(0.2f);
+        FilterPostProcessor filterPostProcessor=new FilterPostProcessor(assetManager);
+        filterPostProcessor.addFilter(bloomFilter);
+        viewPort.addProcessor(filterPostProcessor);
     }
 
     private void addPointLight(Spatial node,Vector3f position,ColorRGBA colorRGBA){

@@ -9,7 +9,7 @@ public class GameStick implements GameStickView.GameStickListeners {
     
     private VehicleControl vehicleControl;
     private final float accelerationForce = FastMath.pow(5, 3.5f);
-    private final float brakeForce = 300f;
+    private static final float brakeForce = 300f;
     private float accelerationValue = 0;
 
     public float getAccelerationValue() {
@@ -34,6 +34,8 @@ public class GameStick implements GameStickView.GameStickListeners {
         accelerationValue+=pulse;
         accelerationValue+=accelerationForce;
         vehicleControl.accelerate(accelerationValue);
+        System.out.println(vehicleControl.getLinearVelocity().getZ());
+
     }
 
     @Override
@@ -45,7 +47,6 @@ public class GameStick implements GameStickView.GameStickListeners {
     @Override
     public void steerRT(final float pulse) {
                 vehicleControl.steer(pulse/8);
-
     }
 
     @Override

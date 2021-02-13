@@ -11,13 +11,13 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.bullet.control.VehicleControl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -28,7 +28,6 @@ import androidx.core.content.ContextCompat;
 public class GameStickView extends CardView implements SensorEventListener , View.OnTouchListener {
 
     private ImageView stick;
-    private AppCompatActivity appCompatActivity;
     private float xOrigin;
     private float yOrigin;
     private Path stickPath;
@@ -41,20 +40,12 @@ public class GameStickView extends CardView implements SensorEventListener , Vie
     private final float[] accelerometerValues =new float[3];
     private final float[] magneticFieldValues =new float[3];
     private final float[] orientationResults=new float[3];
-    private Speedometer speedometer;
-    private SimpleApplication game;
     private float baseRadius=0f;
     private float radius=0f;
     private GameStickListeners gameStickListeners;
 
-    /**
-     * create a gameStickView & OverRide its abstract methods(gameStickView Listeners).
-     * @param appCompatActivity activity instance
-     * @apiNote in order to ensure a proper use , extend this class better than using anonymous class instance.
-     */
-    public GameStickView(AppCompatActivity appCompatActivity) {
-        super(appCompatActivity);
-        this.appCompatActivity=appCompatActivity;
+    public GameStickView(Context context) {
+        super(context);
     }
 
     public GameStickView(@NonNull Context context, @Nullable AttributeSet attrs) {
@@ -65,17 +56,13 @@ public class GameStickView extends CardView implements SensorEventListener , Vie
         super(context, attrs, defStyleAttr);
     }
 
-    public void setAppCompatActivity(AppCompatActivity appCompatActivity) {
-        this.appCompatActivity = appCompatActivity;
-    }
-
     /**
      * @apiNote  use this to initialize GameStickView independent use of the gamePadView
      */
     public void initializeGameStickHolder(int stickViewBackground){
-        appCompatActivity.runOnUiThread(()-> {
+        ((AppCompatActivity)getContext()).runOnUiThread(()-> {
             /*setting the background of the gameStickView ,elevation,focus behaviour */
-            this.setBackground(ContextCompat.getDrawable(appCompatActivity, stickViewBackground));
+            this.setBackground(ContextCompat.getDrawable(getContext(), stickViewBackground));
             this.setElevation(40.20f);
         });
     }
@@ -85,7 +72,7 @@ public class GameStickView extends CardView implements SensorEventListener , Vie
      */
     @SuppressLint("ClickableViewAccessibility")
     public void initializeGameStick(int stickBackground, int stickImage, int stickSize){
-        appCompatActivity.runOnUiThread(()-> {
+        ((AppCompatActivity)getContext()).runOnUiThread(()-> {
             /* declare the origin of the gameStick */
 
         /* by subtracting half of the stickBall size(ball radius) from half of the width of the GameStick Stick(lengthX) to ensure good centerization
@@ -102,9 +89,9 @@ public class GameStickView extends CardView implements SensorEventListener , Vie
             this.setTag(this.getClass().getName());
             this.setOnTouchListener(this);
 
-            stick = new ImageView(appCompatActivity);
-            stick.setBackground(ContextCompat.getDrawable(appCompatActivity, stickBackground));
-            stick.setImageDrawable(ContextCompat.getDrawable(appCompatActivity, stickImage));
+            stick = new ImageView(getContext());
+            stick.setBackground(ContextCompat.getDrawable(getContext(), stickBackground));
+            stick.setImageDrawable(ContextCompat.getDrawable(getContext(), stickImage));
             stick.setClipToOutline(true);
             stick.setFocusable(false);
             /* set stick attrs*/
@@ -165,30 +152,26 @@ public class GameStickView extends CardView implements SensorEventListener , Vie
             canvas.drawPath(stickPath, stickBrush);
         }
     }
-    public void createSpeedometerLink(Speedometer speedometer, SimpleApplication game){
-        this.speedometer=speedometer;
-        this.game=game;
-    }
-    public void applySpeedometerInertia(){
-        /*for more thread safety*/
-        game.enqueue(()->game.getStateManager().attach(new Speedometer.InertialListener(speedometer,appCompatActivity)));
-    }
-    private void incrementSpeedometer(){
-        if(speedometer==null){
-            return;
-        }
-        if(speedometer.getSpeedCursor().getProgress() < Speedometer.PROGRESS_MAX){
-            appCompatActivity.runOnUiThread(()-> {
-                speedometer.getSpeedCursor().setProgress(speedometer.getSpeedCursor().getProgress() + 1);
-                speedometer.getDigitalScreen().setText(String.valueOf(new int[]{Integer.parseInt(speedometer.getDigitalScreen().getText().toString()) + 1}[0]));
-            });
-        }
-    }
 
+    /**
+     * Creates a Vehicle~GameStick~Speedometer linkage of data & remote method invocations.
+     * @param speedometer speedometer instance
+     * @param game jmeGame instance
+     * @param vehicleControl your vehicle control instance defined in a jme game
+     * @param inertialThreshold is basically an float number , multiply this number
+     *                          by the Linear velocity of the vehicle in the direction of Z-axis, so as the result is the virtual speed displayed on the speedometer
+     *                          calculated from the linear velocity of the car in the direction of Z axis (front of the car/back of the car).
+     */
+    public void createSpeedometerLink(Speedometer speedometer, SimpleApplication game, VehicleControl vehicleControl,float inertialThreshold){
+        /*for more thread safety*/
+        Speedometer.InertialListener inertialListener= new Speedometer.InertialListener(speedometer,((AppCompatActivity)getContext()),vehicleControl);
+        inertialListener.setThreshold(inertialThreshold);
+        game.enqueue(()->game.getStateManager().attach(inertialListener));
+    }
 
 
     private void neutralizeStick() {
-        appCompatActivity.runOnUiThread(()-> {
+        ((AppCompatActivity)getContext()).runOnUiThread(()-> {
             /* reset the path preparing for a new motion path */
             stickPath.reset();
             /* set the default x & y for the Stick */
@@ -198,7 +181,7 @@ public class GameStickView extends CardView implements SensorEventListener , Vie
     }
 
     private void moveStick(float x , float y){
-        appCompatActivity.runOnUiThread(()-> {
+        ((AppCompatActivity)getContext()).runOnUiThread(()-> {
             stick.setX(x);
             stick.setY(y);
         });
@@ -207,12 +190,12 @@ public class GameStickView extends CardView implements SensorEventListener , Vie
     private void simulateStickExtension(float x,float y){
         this.x=x;
         this.y=y;
-        appCompatActivity.runOnUiThread(()-> {
+        ((AppCompatActivity)getContext()).runOnUiThread(()-> {
             stickPath.moveTo(x, y);
         });
     }
     private void applyMotionOnStickExtension(float oldX, float oldY, float newX, float newY){
-        appCompatActivity.runOnUiThread(()-> {
+        ((AppCompatActivity)getContext()).runOnUiThread(()-> {
             stickPath.quadTo(oldX, oldY, newX, newY);
         });
     }
@@ -269,14 +252,14 @@ public class GameStickView extends CardView implements SensorEventListener , Vie
      */
     public void initializeRotationSensor(){
         try {
-            sensorManager = (SensorManager) appCompatActivity.getSystemService(Context.SENSOR_SERVICE);
+            sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
             if ( sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null && sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)!=null){
                 Sensor accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
                 Sensor magneticFieldSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
                 sensorManager.registerListener(this, accelerometerSensor,SensorManager.SENSOR_DELAY_NORMAL);
                 sensorManager.registerListener(this, magneticFieldSensor,SensorManager.SENSOR_DELAY_NORMAL);
             } else {
-                Toast.makeText(appCompatActivity, "Please ensure your device is supported !", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "Please ensure your device is supported !", Toast.LENGTH_LONG).show();
             }
         }catch (Exception error){
             error.printStackTrace();
@@ -325,7 +308,6 @@ public class GameStickView extends CardView implements SensorEventListener , Vie
                             if(gameStickListeners!=null){
                                 gameStickListeners.accelerate(Math.abs(event.getY() / 25));
                             }
-                            incrementSpeedometer();
                         } else if ( event.getY() > (yOrigin + yTolerance) ){
                             /* due to java pixel coordinate plane */
                             /* no need to get the math absolute of the pulseY to prevent negative numbers because you haven't crossed zeroY*/
@@ -333,9 +315,7 @@ public class GameStickView extends CardView implements SensorEventListener , Vie
                             if(gameStickListeners!=null){
                                 gameStickListeners.reverseTwitch(event.getY() / 100);
                             }
-                            incrementSpeedometer();
                         }
-
                         if ( isStickPathEnabled() ){
                             applyMotionOnStickExtension(x, y, event.getX(), event.getY());
                         }

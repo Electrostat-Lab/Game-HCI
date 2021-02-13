@@ -37,7 +37,6 @@ public class JmESurfaceView extends RelativeLayout implements SystemListener {
     private SimpleApplication simpleApplication;
     protected String audioRendererType = AppSettings.ANDROID_OPENAL_SOFT;
     private AppSettings appSettings;
-    private AppCompatActivity appCompatActivity;
     private int eglBitsPerPixel = 24;
     private int eglAlphaBits = 0;
     private int eglDepthBits = 16;
@@ -55,6 +54,7 @@ public class JmESurfaceView extends RelativeLayout implements SystemListener {
     private final AtomicInteger synthesizedTime=new AtomicInteger();
     private OnExceptionThrown onExceptionThrown;
     private int delayMillis=0;
+    private static final int TOLERANCE_TIMER=100;
 
     public JmESurfaceView(@NonNull Context context) {
         super(context);
@@ -66,11 +66,10 @@ public class JmESurfaceView extends RelativeLayout implements SystemListener {
     public JmESurfaceView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
-    public void setJMEGame(SimpleApplication simpleApplication,AppCompatActivity appCompatActivity){
+    public void setJMEGame(SimpleApplication simpleApplication){
         this.simpleApplication=simpleApplication;
-        this.appCompatActivity=appCompatActivity;
     }
-    public void startRenderer(int delayMillis) {
+    public synchronized void startRenderer(int delayMillis) {
         this.delayMillis=delayMillis;
         if ( simpleApplication != null ){
             try {
@@ -111,13 +110,13 @@ public class JmESurfaceView extends RelativeLayout implements SystemListener {
 
     private class RendererThread implements Runnable{
         @Override
-        public void run() {
+        public synchronized void run() {
             JmESurfaceView.this.addView(glSurfaceView);
         }
     }
 
     @Override
-    public void initialize() {
+    public synchronized void initialize() {
         if(simpleApplication !=null){
             simpleApplication.enqueue(() -> simpleApplication.initialize());
         }
@@ -132,7 +131,7 @@ public class JmESurfaceView extends RelativeLayout implements SystemListener {
     }
 
     @Override
-    public void update() {
+    public synchronized void update() {
         if(simpleApplication ==null){
             return;
         }
@@ -152,8 +151,8 @@ public class JmESurfaceView extends RelativeLayout implements SystemListener {
             }
         }
         int timeToPlay=synthesizedTime.addAndGet(1);
-        if(timeToPlay==delayMillis){
-            appCompatActivity.runOnUiThread(() -> {
+        if(timeToPlay==(delayMillis>100?(delayMillis-TOLERANCE_TIMER) :delayMillis)){
+            ((AppCompatActivity)getContext()).runOnUiThread(() -> {
                 if ( onRendererCompleted != null ){
                     onRendererCompleted.onRenderCompletion(simpleApplication);
                 }

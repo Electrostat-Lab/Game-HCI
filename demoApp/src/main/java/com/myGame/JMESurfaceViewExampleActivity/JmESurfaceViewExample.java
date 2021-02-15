@@ -15,7 +15,7 @@ import com.myGame.JmEGamePadExample.JmeGame;
 import com.myGame.R;
 import com.myGame.SystemVisibilityUI;
 import com.scrappers.superiorExtendedEngine.gamePad.ControlButtonsView;
-import com.scrappers.superiorExtendedEngine.jmeSurfaceView.Dialog.OptionPane;
+import com.scrappers.superiorExtendedEngine.jmeSurfaceView.dialog.OptionPane;
 import com.scrappers.superiorExtendedEngine.jmeSurfaceView.JmESurfaceView;
 import com.scrappers.superiorExtendedEngine.jmeSurfaceView.splashScreen.SplashScreen;
 

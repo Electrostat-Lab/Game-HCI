@@ -24,7 +24,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 public class ControlButtonsView extends RelativeLayout {
-    private final Context context;
     public static final int GAMEPAD_BUTTON_X = 'X';
     public static final int GAMEPAD_BUTTON_Y = 'Y';
     public static final int GAMEPAD_BUTTON_A = 'A';
@@ -41,22 +40,29 @@ public class ControlButtonsView extends RelativeLayout {
     public static final int MATERIALISTIC_QUADS=R.drawable.material_buttons_quad;
     public static final int TEAL_HEXAS=R.drawable.teal_hexagons;
     public static final int TRIS_BUTTONS=R.drawable.tris_buttons;
+    public static final int X_BUTTON_ALPHA=R.drawable.x_button_alpha;
+    public static final int X_BUTTON_OUTLINE=R.drawable.x_button_outline;
+    public static final int Y_BUTTON_ALPHA=R.drawable.y_button_alpha;
+    public static final int Y_BUTTON_OUTLINE=R.drawable.y_button_outline;
+    public static final int A_BUTTON_ALPHA=R.drawable.a_button_alpha;
+    public static final int A_BUTTON_OUTLINE=R.drawable.a_button_outline;
+    public static final int B_BUTTON_ALPHA=R.drawable.b_button_alpha;
+    public static final int B_BUTTON_OUTLINE=R.drawable.b_button_outline;
+    public static final int STICK_DASHES=R.drawable.stick_dash;
 
 
 
     public ControlButtonsView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        this.context=context;
     }
 
     public ControlButtonsView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        this.context=context;
     }
 
     public ImageView addControlButton(String buttonName,int buttonID, int backgroundDrawable, int drawableIcon){
         ImageView controlButton = new ImageView(this.getContext());
-        ((AppCompatActivity)context).runOnUiThread(()->{
+        ((AppCompatActivity)getContext()).runOnUiThread(()->{
             controlButton.setId(buttonID);
             ViewGroup.LayoutParams layoutParams = new LayoutParams(this.getLayoutParams().width /3, this.getLayoutParams().height/3);
             controlButton.setLayoutParams(layoutParams);

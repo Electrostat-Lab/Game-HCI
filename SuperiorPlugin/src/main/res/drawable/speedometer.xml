@@ -16,10 +16,9 @@
         android:gradientRadius="250dp"
         />
     <stroke
-        android:dashGap="15dp"
+        android:dashGap="20dp"
         android:dashWidth="50dp"
-        android:width="15dp"
+        android:width="5dp"
         android:color="@color/fireEngineRed"
         />
-
 </shape>

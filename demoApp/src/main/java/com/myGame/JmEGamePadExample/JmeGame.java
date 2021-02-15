@@ -82,22 +82,20 @@ public class JmeGame extends SimpleApplication {
         gameStick.initializeRotationSensor();
         gameStick.initializeStickPath();
         gameStick.setMotionPathColor(Color.WHITE);
-        gameStick.initializeGameStickHolder(ControlButtonsView.FLIPPED_COLOR_STICK_DOMAIN);
-        gameStick.initializeGameStick(ControlButtonsView.NOTHING_IMAGE,ControlButtonsView.TRIS_BUTTONS,120);
+        gameStick.initializeGameStickHolder(ControlButtonsView.NOTHING_IMAGE);
+        gameStick.initializeGameStick(ControlButtonsView.DEFAULT_BUTTONS,ControlButtonsView.STICK_DASHES,180);
         Speedometer speedometer=appCompatActivity.findViewById(R.id.speedometer);
         speedometer.initializeMeter(Speedometer.CIRCULAR_PROGRESS,Speedometer.METER_1);
         gameStick.createSpeedometerLink(speedometer,JmeGame.this,vehicle,0.25f);
         ControlButtonsView controlButtonsView=appCompatActivity.findViewById(R.id.gamePadbtns);
-            controlButtonsView.addControlButton("X",ControlButtonsView.GAMEPAD_BUTTON_X,R.drawable.tris_buttons,R.drawable.nothing)
-            .setOnClickListener(v -> {
-                        appCompatActivity.startActivity(new Intent(appCompatActivity.getApplicationContext(), BluetoothLogic.class));
-            });
-            controlButtonsView.addControlButton("Y",ControlButtonsView.GAMEPAD_BUTTON_Y,R.drawable.tris_buttons,R.drawable.nothing);
-            controlButtonsView.addControlButton("A",ControlButtonsView.GAMEPAD_BUTTON_A,R.drawable.tris_buttons,R.drawable.nothing)
+            controlButtonsView.addControlButton("X",ControlButtonsView.GAMEPAD_BUTTON_X,ControlButtonsView.DEFAULT_BUTTONS,ControlButtonsView.X_BUTTON_ALPHA)
+            .setOnClickListener(v -> appCompatActivity.startActivity(new Intent(appCompatActivity.getApplicationContext(), BluetoothLogic.class)));
+            controlButtonsView.addControlButton("Y",ControlButtonsView.GAMEPAD_BUTTON_Y,ControlButtonsView.DEFAULT_BUTTONS,ControlButtonsView.Y_BUTTON_ALPHA);
+            controlButtonsView.addControlButton("A",ControlButtonsView.GAMEPAD_BUTTON_A,ControlButtonsView.DEFAULT_BUTTONS,ControlButtonsView.A_BUTTON_ALPHA)
             .setOnClickListener(v -> {
                     vehicle.applyCentralImpulse(jumpForce);
             });
-            controlButtonsView.addControlButton("B",ControlButtonsView.GAMEPAD_BUTTON_B,R.drawable.tris_buttons,R.drawable.nothing)
+            controlButtonsView.addControlButton("B",ControlButtonsView.GAMEPAD_BUTTON_B,ControlButtonsView.DEFAULT_BUTTONS,ControlButtonsView.B_BUTTON_ALPHA)
             .setOnClickListener(v -> {
                     vehicle.applyCentralImpulse(vehicle.getLinearVelocity().mult(150));
                     Node nitroNode=((Node)((Node) chassis).getChild("nitro"));

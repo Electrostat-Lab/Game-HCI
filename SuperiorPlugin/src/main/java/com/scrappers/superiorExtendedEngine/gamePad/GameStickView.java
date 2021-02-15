@@ -40,7 +40,8 @@ public class GameStickView extends CardView implements SensorEventListener , Vie
     private final float[] accelerometerValues =new float[3];
     private final float[] magneticFieldValues =new float[3];
     private final float[] orientationResults=new float[3];
-    private float baseRadius=0f;
+    private float xTolerance = 150f;
+    private float yTolerance = 150f;
     private float radius=0f;
     private GameStickListeners gameStickListeners;
 
@@ -57,7 +58,8 @@ public class GameStickView extends CardView implements SensorEventListener , Vie
     }
 
     /**
-     * @apiNote  use this to initialize GameStickView independent use of the gamePadView
+     * initializes game Stick holder
+     * @param stickViewBackground background drawable
      */
     public void initializeGameStickHolder(int stickViewBackground){
         ((AppCompatActivity)getContext()).runOnUiThread(()-> {
@@ -68,23 +70,29 @@ public class GameStickView extends CardView implements SensorEventListener , Vie
     }
 
     /**
-     * @apiNote  Internal use only , don't use it in your game context
+     * Initializes the gameStick view that would move the vehicle along the way
+     * this is a brief way of calculations (for the illustrations) only :->
+     * @apiNote <img src='image.png' width=300 height=200/>
+     * @param stickBackground background drawable for the game Stick
+     * @param stickImage the game Stick image
+     * @param stickSize the stick size ( preferred : 100 , 150 , 200 ); in px
+     *
      */
     @SuppressLint("ClickableViewAccessibility")
     public void initializeGameStick(int stickBackground, int stickImage, int stickSize){
         ((AppCompatActivity)getContext()).runOnUiThread(()-> {
             /* declare the origin of the gameStick */
 
-        /* by subtracting half of the stickBall size(ball radius) from half of the width of the GameStick Stick(lengthX) to ensure good centerization
-        , because if you only get the width half of the gameStickView without subtracting the half os the stickBallSize(radius)
-        then you would end up with the stickBall upper Left corner located at the center of the gameStick & not the whole Stick*/
+            /* by subtracting half of the stickBall size(ball radius) from half of the width of the GameStick Stick(lengthX) to ensure good centerization
+            , because if you only get the width half of the gameStickView without subtracting the half of the stickBallSize(radius)
+            then you would end up with the stickBall upper Left corner located at the center of the gameStick & not the whole Stick*/
 
             /* middleXOfBall = lengthX(viewWidth)/2f - radius = lengthX/2f - stickWidth(stickSize)/2f */
             xOrigin = (float) this.getLayoutParams().width / 2f - (float) stickSize / 2f;
             /* middleYOfBall = lengthY(viewHeight)/2f - radius =lengthY/2f - stickHeight(stickSize)/2f*/
             yOrigin = (float) this.getLayoutParams().height / 2f - (float) stickSize / 2f;
-            radius = (float) Math.min(this.getLayoutParams().width, this.getLayoutParams().height) / 2;
-            baseRadius = (float) Math.min(this.getLayoutParams().width, this.getLayoutParams().height) / 4;
+            /*get the minimum between width & height...why? because this will handle the rectangular shaped gameStick*/
+            radius = Math.min(xOrigin,yOrigin);
 
             this.setTag(this.getClass().getName());
             this.setOnTouchListener(this);
@@ -273,9 +281,6 @@ public class GameStickView extends CardView implements SensorEventListener , Vie
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         if(String.valueOf(v.getTag()).equals(this.getClass().getName())){
-            /*Tolerated Motion*/
-            float xTolerance = 150f;
-            float yTolerance = 150f;
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     if ( isStickPathEnabled() ){
@@ -284,8 +289,6 @@ public class GameStickView extends CardView implements SensorEventListener , Vie
                     }
                     break;
                 case MotionEvent.ACTION_MOVE:
-                    float userDisplacement=(float) Math.sqrt(Math.pow(event.getX()-xOrigin,2)
-                                                     + Math.pow(event.getY()-yOrigin,2));
                         if ( event.getX() < (xOrigin - xTolerance) || event.getX() < 0 ){
                             /* due to java pixel coordinate plane */
                             /* get the math absolute of the pulseX to prevent negative numbers because the direction of touch Motion towards zeroX*/
@@ -319,19 +322,40 @@ public class GameStickView extends CardView implements SensorEventListener , Vie
                         if ( isStickPathEnabled() ){
                             applyMotionOnStickExtension(x, y, event.getX(), event.getY());
                         }
+                    float userDisplacement=(float) Math.sqrt(Math.pow(event.getX()-xOrigin,2)
+                            + Math.pow(event.getY()-yOrigin,2));
                     /*check if the user displacement is above or below the radius*/
                     if(userDisplacement<radius){
                         /*move the stick to where the user presses*/
                         moveStick(event.getX(), event.getY());
                     }else {
-                        /*if the displacement is outside of the circle(>radius) ->
+                        /*if the displacement is outside of the circle(>radius)
+                                        -> the approach is to try to
+                                        scale the large triangle formed by the userDisplacement into a smaller triangle
+                                        created by the circle radius with the same angles of motion.
                         * From the similarity rule of right angled triangles between the displacement tri & the origins tri :
-                        *
-                        * d/r = (event.getX() - xOrigin)/baseRadius =
-                        *
+                        * the magnitude of the ratio represents : the ratio between the 2 triangles or what's meant by SCALE FACTOR
+                        * which means if we want to scale tri-ABC to be tri-XYZ , then , tri-ABC * SCALE_FACTOR(ratio) = tri-XYZ.
                         * */
-                        float ratio=baseRadius/userDisplacement;
-                        moveStick(xOrigin + (event.getX() - xOrigin)*ratio,yOrigin+(event.getY()-yOrigin)*ratio);
+                        float scaleFactor= radius /userDisplacement;
+                        /*calculates length of parts outside the circle*/
+                        float offCircleX=event.getX() - radius;
+                        float offCircleY=event.getY() - radius;
+                        /*(xOrigin,yOrigin) represents the origin point of the user's displacement*/
+                        /*user's displacement vector = sqrt(Vx^2 + Vy^2) = sqrt(event.getX()^2 + event.getY()^2);
+                        *
+                        * so , starting from the user origin point of motion(xOrigin,yOrigin) & moving on to the circle frame
+                        *
+                        * calculating length from the origin(xOrigin,yOrigin) to the circle frame :
+                        *
+                        * Vx = xOrigin + modifiedUserTranslationX = xOrigin + userX * scaleFactor = radius + directionX(very low value representing direction in X-axis)
+                        * Vy = yOrigin + modifiedUserTranslationY = yOrigin + userY * scaleFactor = radius + directionY(very low value representing direction in Y-axis)
+                        *
+                        * where , userX = event.getX() - xOrigin = offCircleX
+                        *       , userY = event.getY() - yOrigin = offCircleY
+                         */
+                        moveStick(xOrigin+(offCircleX)*scaleFactor,yOrigin+(offCircleY)*scaleFactor);
+
                     }
                     invalidate();
                     break;
@@ -346,6 +370,14 @@ public class GameStickView extends CardView implements SensorEventListener , Vie
         }else{
             return false;
         }
+    }
+
+    public void setxTolerance(float xTolerance) {
+        this.xTolerance = xTolerance;
+    }
+
+    public void setyTolerance(float yTolerance) {
+        this.yTolerance = yTolerance;
     }
 
     public interface GameStickListeners{

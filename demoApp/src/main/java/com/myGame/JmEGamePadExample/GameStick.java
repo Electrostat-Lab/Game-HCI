@@ -34,7 +34,6 @@ public class GameStick implements GameStickView.GameStickListeners {
         accelerationValue+=pulse;
         accelerationValue+=accelerationForce;
         vehicleControl.accelerate(accelerationValue);
-        System.out.println(vehicleControl.getLinearVelocity().getZ());
 
     }
 

@@ -17,6 +17,8 @@ import com.jme3.system.android.OGLESContext;
 import com.scrappers.superiorExtendedEngine.jmeSurfaceView.splashScreen.SplashScreen;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,6 +38,7 @@ public class JmESurfaceView extends RelativeLayout implements SystemListener {
 
     private SimpleApplication simpleApplication;
     protected String audioRendererType = AppSettings.ANDROID_OPENAL_SOFT;
+    private static final Logger jmeSurfaceViewLogger=Logger.getLogger("JmeSurfaceView");
     private AppSettings appSettings;
     private int eglBitsPerPixel = 24;
     private int eglAlphaBits = 0;
@@ -103,6 +106,7 @@ public class JmESurfaceView extends RelativeLayout implements SystemListener {
             } catch (Exception e) {
                 if( onExceptionThrown !=null){
                     onExceptionThrown.Throw(e);
+                    jmeSurfaceViewLogger.log(Level.WARNING,e.getMessage());
                 }
             }
         }
@@ -112,6 +116,7 @@ public class JmESurfaceView extends RelativeLayout implements SystemListener {
         @Override
         public synchronized void run() {
             JmESurfaceView.this.addView(glSurfaceView);
+            jmeSurfaceViewLogger.log(Level.CONFIG,"JmeSurfaceView's joined the UI thread.......");
         }
     }
 
@@ -119,6 +124,8 @@ public class JmESurfaceView extends RelativeLayout implements SystemListener {
     public synchronized void initialize() {
         if(simpleApplication !=null){
             simpleApplication.enqueue(() -> simpleApplication.initialize());
+            /*log for display*/
+            jmeSurfaceViewLogger.log(Level.INFO,"JmeGame started in GLThread Asynchronously......");
         }
 
     }
@@ -154,11 +161,11 @@ public class JmESurfaceView extends RelativeLayout implements SystemListener {
         if(timeToPlay==(delayMillis>100?(delayMillis-TOLERANCE_TIMER) :delayMillis)){
             ((AppCompatActivity)getContext()).runOnUiThread(() -> {
                 if ( onRendererCompleted != null ){
+                    jmeSurfaceViewLogger.log(Level.INFO,"SplashScreen Dismissed , User Delay completed with 0 errors.......");
                     onRendererCompleted.onRenderCompletion(simpleApplication);
                 }
             });
         }
-
     }
 
     @Override

@@ -1,6 +1,5 @@
-package com.scrappers.superiorExtendedEngine.jmeSurfaceView.Dialog;
+package com.scrappers.superiorExtendedEngine.jmeSurfaceView.dialog;
 
-import android.os.Looper;
 import android.view.View;
 
 import androidx.annotation.NonNull;

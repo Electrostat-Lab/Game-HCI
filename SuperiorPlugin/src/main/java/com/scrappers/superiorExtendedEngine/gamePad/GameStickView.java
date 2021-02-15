@@ -339,6 +339,7 @@ public class GameStickView extends CardView implements SensorEventListener , Vie
                         * */
                         float scaleFactor= radius /userDisplacement;
                         /*calculates length of parts outside the circle*/
+                        /* why mincing the radius from the userX & userY -> because the userX & userY should be inside the circle frame (before radius)*/
                         float offCircleX=event.getX() - radius;
                         float offCircleY=event.getY() - radius;
                         /*(xOrigin,yOrigin) represents the origin point of the user's displacement*/

@@ -1,11 +1,11 @@
- # Superior Extended Engine 1.2 
+ # Superior Extended Engine 1.4
 
 ![](https://github.com/Scrappers-glitch/Superior-Extended-Engine/blob/master/SuperiorPlugin/src/main/java/com/scrappers/superiorExtendedEngine/attachments/LogoMod1.png)
 
 ### GamePad Library for Android Games running java/Kotlin ###
 
 
-## [Video about this Library ](https://youtu.be/-fifyREL2Yo) ##
+## [Video about this Library ](https://www.youtube.com/watch?v=0ev1ZC0iUKw) ##
 ## [JmeGamePad on a JmeVehiclesExample,Example of Responsive layout](https://youtu.be/LZkmWAvh9j0) ##
 
 ##### How to implement it into your Android project :

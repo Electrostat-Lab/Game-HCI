@@ -6,7 +6,6 @@
 
 
 ## [Video about this Library ](https://www.youtube.com/watch?v=0ev1ZC0iUKw) ##
-## [JmeGamePad on a JmeVehiclesExample,Example of Responsive layout](https://youtu.be/LZkmWAvh9j0) ##
 
 ##### How to implement it into your Android project :
 

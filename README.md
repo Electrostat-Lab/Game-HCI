@@ -26,3 +26,8 @@ Step 2. Add the dependency :
 	}
 ```
 
+![](https://github.com/Scrappers-glitch/Superior-Extended-Engine/blob/master/SuperiorPlugin/src/main/java/com/scrappers/superiorExtendedEngine/attachments/imageSEEDemo1.png)
+
+![](https://github.com/Scrappers-glitch/Superior-Extended-Engine/blob/master/SuperiorPlugin/src/main/java/com/scrappers/superiorExtendedEngine/attachments/imageSEEDemo2.png)
+
+![](https://github.com/Scrappers-glitch/Superior-Extended-Engine/blob/master/SuperiorPlugin/src/main/java/com/scrappers/superiorExtendedEngine/attachments/imageSEEDemo3.png)

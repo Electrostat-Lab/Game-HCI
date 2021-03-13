@@ -173,7 +173,7 @@ public class GameStickView extends CardView implements SensorEventListener , Vie
     public void createSpeedometerLink(Speedometer speedometer, SimpleApplication game, VehicleControl vehicleControl,float inertialThreshold){
         /*for more thread safety*/
         Speedometer.InertialListener inertialListener= new Speedometer.InertialListener(speedometer,((AppCompatActivity)getContext()),vehicleControl);
-        inertialListener.setThreshold(inertialThreshold);
+        inertialListener.setScaleFactor(inertialThreshold);
         game.enqueue(()->game.getStateManager().attach(inertialListener));
     }
 

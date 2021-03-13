@@ -10,15 +10,13 @@
         />
     <gradient
         android:type="radial"
-        android:startColor="@color/pureWhite"
-        android:centerColor="@color/black"
-        android:endColor="@color/black"
-        android:gradientRadius="250dp"
+        android:startColor="@color/opacifiedWhite"
+        android:centerColor="@color/opacifiedWhite"
+        android:endColor="@color/opacifiedWhite"
+        android:gradientRadius="200dp"
         />
     <stroke
-        android:dashGap="20dp"
-        android:dashWidth="50dp"
-        android:width="5dp"
-        android:color="@color/fireEngineRed"
+        android:width="3px"
+        android:color="@color/wood"
         />
 </shape>

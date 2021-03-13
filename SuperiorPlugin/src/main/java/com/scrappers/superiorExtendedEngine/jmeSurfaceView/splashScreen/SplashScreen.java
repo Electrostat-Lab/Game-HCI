@@ -4,7 +4,7 @@ import android.util.DisplayMetrics;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
-import com.scrappers.superiorExtendedEngine.jmeSurfaceView.JmESurfaceView;
+import com.scrappers.superiorExtendedEngine.jmeSurfaceView.JmeSurfaceView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
@@ -12,17 +12,17 @@ import androidx.cardview.widget.CardView;
 public class SplashScreen {
     private final ProgressBar progressBar;
     private final AppCompatActivity appCompatActivity;
-    private final JmESurfaceView jmESurfaceView;
+    private final JmeSurfaceView jmESurfaceView;
     private final CardView splashScreen;
     public OnSplashScreenDisplayed onSplashScreenDisplayed;
 
     /**
-     * Display custom splash screen of the user desire , during the renderer delay #{@link JmESurfaceView#startRenderer(int)}.
-     * @see  JmESurfaceView#startRenderer(int)
+     * Display custom splash screen of the user desire , during the renderer delay #{@link JmeSurfaceView#startRenderer(int)}.
+     * @see  JmeSurfaceView#startRenderer(int)
      * @param appCompatActivity the androidx activity
      * @param jmESurfaceView the jmeSurfaceView instance to link with.
      */
-    public SplashScreen(AppCompatActivity appCompatActivity, JmESurfaceView jmESurfaceView){
+    public SplashScreen(AppCompatActivity appCompatActivity, JmeSurfaceView jmESurfaceView){
         progressBar=new ProgressBar(appCompatActivity);
         splashScreen=new CardView(appCompatActivity);
         this.appCompatActivity=appCompatActivity;

@@ -18,11 +18,8 @@ public class BluetoothLogic extends BluetoothActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setDiscoveryTime(300);
-        setOnDiscoveryActivation(new OnDiscoveryActivation() {
-            @Override
-            public void onDiscoverable() {
+        setOnDiscoveryActivation(() -> {
 
-            }
         });
         setOnConnectionEstablished(new com.scrappers.superiorExtendedEngine.bluetoothHelper.BluetoothActivity.OnConnectionEstablished() {
             @Override
@@ -31,9 +28,9 @@ public class BluetoothLogic extends BluetoothActivity {
                 final DataTransform dataTransform=new DataTransform(bluetoothSocket);
                 dataTransform.setOnDataReceivedListener(new DataTransform.OnDataReceivedListener() {
                     @Override
-                    public void onDataReceived(String data) {
-                        Toast.makeText(getApplicationContext(),data,Toast.LENGTH_LONG).show();
-                        dataTransform.write("Done !");
+                    public <T> void onDataReceived(T data) {
+                        Toast.makeText(getApplicationContext(),new String((byte[]) data),Toast.LENGTH_LONG).show();
+                        dataTransform.write(2);
                     }
                 });
             }

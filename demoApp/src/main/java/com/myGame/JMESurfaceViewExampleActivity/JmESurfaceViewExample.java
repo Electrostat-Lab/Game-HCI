@@ -9,20 +9,20 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 
 import com.myGame.JmEGamePadExample.JmeGame;
 import com.myGame.R;
 import com.myGame.SystemVisibilityUI;
 import com.scrappers.superiorExtendedEngine.gamePad.ControlButtonsView;
 import com.scrappers.superiorExtendedEngine.jmeSurfaceView.dialog.OptionPane;
-import com.scrappers.superiorExtendedEngine.jmeSurfaceView.JmESurfaceView;
+import com.scrappers.superiorExtendedEngine.jmeSurfaceView.JmeSurfaceView;
 import com.scrappers.superiorExtendedEngine.jmeSurfaceView.splashScreen.SplashScreen;
+import com.scrappers.superiorExtendedEngine.misc.GullWing;
 
 
 public class JmESurfaceViewExample extends AppCompatActivity {
 
-    private JmESurfaceView jmESurfaceView;
+    private JmeSurfaceView jmESurfaceView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,32 +48,41 @@ public class JmESurfaceViewExample extends AppCompatActivity {
         splashScreen.getSplashScreen().setBackground(ContextCompat.getDrawable(this,R.mipmap.power1));
 
         jmESurfaceView.setOnRendererCompleted(application -> {
-            splashScreen.hideSplashScreen();
+            splashScreen.getSplashScreen().animate().
+                    setDuration(1000).
+                    rotation(90).
+                    withEndAction(splashScreen::hideSplashScreen);
             (findViewById(R.id.gameStickView)).setVisibility(View.VISIBLE);
             (findViewById(R.id.speedometer)).setVisibility(View.VISIBLE);
             (findViewById(R.id.gamePadbtns)).setVisibility(View.VISIBLE);
+            findViewById(R.id.steeringWheel).setVisibility(View.VISIBLE);
+            ((GullWing)findViewById(R.id.steeringWheel)).getHorn().setOnClickListener(v -> {
+                ControlButtonsView.GamePadSoundEffects gamePadSoundEffects=new ControlButtonsView.GamePadSoundEffects(JmESurfaceViewExample.this);
+                gamePadSoundEffects.initializeSoundEffects();
+                gamePadSoundEffects.playEffect(R.raw.horn);
+            });
         });
-        jmESurfaceView.setJMEGame(jmeGame);
+        jmESurfaceView.setSimpleApplication(jmeGame);
         jmESurfaceView.startRenderer(100);
-        ImageView pause=findViewById(R.id.pause);
-        pause.setOnClickListener(v -> {
-            final OptionPane optionPane=new OptionPane(JmESurfaceViewExample.this);
-            optionPane.showDialog(R.layout.dialog_exception, Gravity.CENTER);
-            optionPane.getAlertDialog().getWindow().setBackgroundDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.dialog_exception_background));
-            EditText errorContainer=optionPane.getInflater().findViewById(R.id.errorText);
-            errorContainer.setText("Are You sure ?");
-            ((Button)optionPane.getInflater().findViewById(R.id.closeApp)).setText("yes");
-            ((Button)optionPane.getInflater().findViewById(R.id.ignoreError)).setText("no");
-            optionPane.getInflater().findViewById(R.id.closeApp).setOnClickListener(
-                    view -> {
-                        optionPane.getAlertDialog().dismiss();
-                        jmESurfaceView.getSimpleApplication().stop(jmESurfaceView.isGLThreadPaused());
-                        jmESurfaceView.getSimpleApplication().destroy();
-                        finish();
-                    });
-            optionPane.getInflater().findViewById(R.id.ignoreError).setOnClickListener(view -> optionPane.getAlertDialog().dismiss());
-
-        });
+//        ImageView pause=findViewById(R.id.pause);
+//        pause.setOnClickListener(v -> {
+//            final OptionPane optionPane=new OptionPane(JmESurfaceViewExample.this);
+//            optionPane.showDialog(R.layout.dialog_exception, Gravity.CENTER);
+//            optionPane.getAlertDialog().getWindow().setBackgroundDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.dialog_exception_background));
+//            EditText errorContainer=optionPane.getInflater().findViewById(R.id.errorText);
+//            errorContainer.setText("Are You sure ?");
+//            ((Button)optionPane.getInflater().findViewById(R.id.closeApp)).setText("yes");
+//            ((Button)optionPane.getInflater().findViewById(R.id.ignoreError)).setText("no");
+//            optionPane.getInflater().findViewById(R.id.closeApp).setOnClickListener(
+//                    view -> {
+//                        optionPane.getAlertDialog().dismiss();
+//                        jmESurfaceView.getSimpleApplication().stop(jmESurfaceView.isGLThreadPaused());
+//                        jmESurfaceView.getSimpleApplication().destroy();
+//                        finish();
+//                    });
+//            optionPane.getInflater().findViewById(R.id.ignoreError).setOnClickListener(view -> optionPane.getAlertDialog().dismiss());
+//
+//        });
 
     }
 

@@ -4,13 +4,16 @@
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
     <color name="pureWhite">#FFFFFF</color>
+    <color name="wood">#9A5300</color>
+    <color name="greyPad">#A9AAA9</color>
     <color name="fireEngineRed">#ce2029</color>
     <color name="fireEngineOrange">#F57200</color>
-    <color name="black">#000000</color>
+    <color name="lightBlack">#333333</color>
     <color name="opacifiedWhite">#cccece</color>
     <color name="greenDash">#73FF16</color>
     <color name="greenDegree2">#488D07</color>
-
+    <color name="gold">#D4AF37</color>
     <color name="transparent">#00ffffff</color>
+    <color name="black">#000000</color>
 
 </resources>

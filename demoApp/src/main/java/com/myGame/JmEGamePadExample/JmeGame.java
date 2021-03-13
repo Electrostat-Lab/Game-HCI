@@ -25,18 +25,12 @@ import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
-import com.jme3.post.FilterPostProcessor;
-import com.jme3.post.filters.BloomFilter;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Cylinder;
 import com.jme3.scene.shape.Sphere;
-import com.jme3.shadow.CompareMode;
-import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.texture.Texture;
 import com.jme3.util.SkyFactory;
 import com.myGame.JmeEffects.NitroState;
@@ -44,8 +38,10 @@ import com.myGame.R;
 import com.scrappers.superiorExtendedEngine.gamePad.ControlButtonsView;
 import com.scrappers.superiorExtendedEngine.gamePad.GameStickView;
 import com.scrappers.superiorExtendedEngine.gamePad.Speedometer;
+import com.scrappers.superiorExtendedEngine.misc.GullWing;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 public class JmeGame extends SimpleApplication {
 
@@ -57,11 +53,11 @@ public class JmeGame extends SimpleApplication {
     private Spatial chassis;
     private final AppCompatActivity appCompatActivity;
     private GameStickView gameStick;
+    private ChaseCamera chaseCam;
 
     public JmeGame(AppCompatActivity appCompatActivity){
         this.appCompatActivity=appCompatActivity;
     }
-
 
     @Override
     public void simpleInitApp() {
@@ -71,22 +67,31 @@ public class JmeGame extends SimpleApplication {
         addSky();
         createPhysicsTestWorld(rootNode, getAssetManager(), bulletAppState.getPhysicsSpace());
         buildPlayer();
+
 //        addEnvLightProbe();
         /*LIBRARY CODE*/
         /*run the gamePad attachments & listeners from the android activity UI thread */
         /* create an instance of a class extending gameStickView to easily handle the listeners */
         gameStick = appCompatActivity.findViewById(R.id.gameStickView);
-        GameStick gameStick1=new GameStick();
+        final GameStick gameStick1=new GameStick();
+        gameStick1.setChaseCamera(chaseCam);
         gameStick1.setVehicleControl(vehicle);
         gameStick.setGameStickListeners(gameStick1);
-        gameStick.initializeRotationSensor();
+
+        final GullWing drivingWheelView =appCompatActivity.findViewById(R.id.steeringWheel);
+        drivingWheelView.initializeWheel();
+        drivingWheelView.initializeTachometer(gameStick,this,vehicle,3f);
+        drivingWheelView.setOnSteering(gameStick1);
+
+
         gameStick.initializeStickPath();
         gameStick.setMotionPathColor(Color.WHITE);
         gameStick.initializeGameStickHolder(ControlButtonsView.NOTHING_IMAGE);
         gameStick.initializeGameStick(ControlButtonsView.DEFAULT_BUTTONS,ControlButtonsView.STICK_DASHES,180);
         Speedometer speedometer=appCompatActivity.findViewById(R.id.speedometer);
-        speedometer.initializeMeter(Speedometer.CIRCULAR_PROGRESS,Speedometer.METER_1);
-        gameStick.createSpeedometerLink(speedometer,JmeGame.this,vehicle,0.25f);
+        speedometer.initialize();
+        speedometer.getSpeedometerDrawable().setStroke(3, ContextCompat.getColor(appCompatActivity,R.color.gold));
+        gameStick.createSpeedometerLink(speedometer,JmeGame.this,vehicle,1f);
         ControlButtonsView controlButtonsView=appCompatActivity.findViewById(R.id.gamePadbtns);
             controlButtonsView.addControlButton("X",ControlButtonsView.GAMEPAD_BUTTON_X,ControlButtonsView.DEFAULT_BUTTONS,ControlButtonsView.X_BUTTON_ALPHA)
             .setOnClickListener(v -> appCompatActivity.startActivity(new Intent(appCompatActivity.getApplicationContext(), BluetoothLogic.class)));
@@ -152,7 +157,7 @@ public class JmeGame extends SimpleApplication {
 //        soccerPlayGround.setColor("Ambient",ColorRGBA.LightGray);
 //        soccerPlayGround.setColor("Specular",ColorRGBA.LightGray);
 //        soccerPlayGround.setFloat("Shininess",1f);
-        Spatial floorGeometry = assetManager.loadModel("RocketLeauge/assets/Scenes/town/main.scene");
+        Spatial floorGeometry = loadPlayground();
 
         DirectionalLight directionalLight=new DirectionalLight(new Vector3f(-3,-floorGeometry.getLocalScale().getY()*4,-3).normalize());
         directionalLight.setColor(ColorRGBA.White.mult(1.5f));
@@ -196,14 +201,14 @@ public class JmeGame extends SimpleApplication {
 //        floorGeometry.setShadowMode(RenderQueue.ShadowMode.Receive);
 //        viewPort.addProcessor(dlsr);
 
-        BloomFilter bloomFilter=new BloomFilter();
-        bloomFilter.setDownSamplingFactor(2);
-        bloomFilter.setExposurePower(3);
-        bloomFilter.setBloomIntensity(1f);
-        bloomFilter.setBlurScale(0.2f);
-        FilterPostProcessor filterPostProcessor=new FilterPostProcessor(assetManager);
-        filterPostProcessor.addFilter(bloomFilter);
-        viewPort.addProcessor(filterPostProcessor);
+//        BloomFilter bloomFilter=new BloomFilter();
+//        bloomFilter.setDownSamplingFactor(2);
+//        bloomFilter.setExposurePower(3);
+//        bloomFilter.setBloomIntensity(1f);
+//        bloomFilter.setBlurScale(0.2f);
+//        FilterPostProcessor filterPostProcessor=new FilterPostProcessor(assetManager);
+//        filterPostProcessor.addFilter(bloomFilter);
+//        viewPort.addProcessor(filterPostProcessor);
     }
 
     private void addPointLight(Spatial node,Vector3f position,ColorRGBA colorRGBA){
@@ -224,7 +229,7 @@ public class JmeGame extends SimpleApplication {
     }
 
     private void buildPlayer() {
-        cam.setFrustumFar(2000f);
+        cam.setFrustumFar(500f);
         Material mat = new Material(getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
         mat.getAdditionalRenderState().setWireframe(false);
         mat.setColor("Color", ColorRGBA.Black);
@@ -261,16 +266,19 @@ public class JmeGame extends SimpleApplication {
         vehicleNode.addControl(vehicle);
         vehicle.setPhysicsLocation(new Vector3f(20f,5f,10f));
         //add a chaseCam tomove the cam with the object
+        chaseCam = new ChaseCamera(cam, vehicleNode);
+        chaseCam.setDefaultDistance(-25f);
 
-        ChaseCamera chaseCam = new ChaseCamera(cam, vehicleNode);
-        chaseCam.setDefaultDistance(-20f);
-        chaseCam.registerWithInput(inputManager);
-        chaseCam.setDragToRotate(true);
+        chaseCam.setDefaultVerticalRotation(-FastMath.PI/10);
+        chaseCam.setDefaultHorizontalRotation(-(FastMath.PI + FastMath.HALF_PI));
+        cam.setFrustumFar(2000);
+//        chaseCam.registerWithInput(inputManager);
+//        chaseCam.setDragToRotate(true);
         //setting suspension values for wheels, this can be a bit tricky
         //see also https://docs.google.com/Doc?docid=0AXVUZ5xw6XpKZGNuZG56a3FfMzU0Z2NyZnF4Zmo&hl=en
-        float stiffness =30.0f;//200=f1 car
-        float compValue = 0.5f; //(should be lower than damp)
-        float dampValue = 3f;
+        float stiffness =20.0f;//200=f1 car
+        float compValue = 2f; //(should be lower than damp)
+        float dampValue = 4f;
         //compression force of spring(Shock Producer)
         vehicle.setSuspensionCompression(compValue * 2.0f * FastMath.sqrt(stiffness));
         //stretch force of spring(Shock Absorber)
@@ -283,9 +291,12 @@ public class JmeGame extends SimpleApplication {
         Vector3f wheelAxle = new Vector3f(-6, 0, 0); // was -1, 0, 0
         float radius = 0.5f;
         float restLength = 0.1f;
+        //the offset between the car tyre & the chassis (vertical axle)
         float yOff = radius;
-        float xOff = 4*radius;
-        float zOff = 6.5f*radius;
+        //-0.3f(localScale of the above wheel part) = the offset between 2 wheels in the same axle ( horizontal axle)
+        float xOff = chassis.getLocalScale().getX()-0.3f;
+        //the offset between the front axle & the rear axle (depth axle)
+        float zOff = chassis.getLocalScale().getZ()+1;
 
         Cylinder wheelMesh = new Cylinder(16, 16, radius, radius * 0.5f, true);
 
@@ -367,5 +378,47 @@ public class JmeGame extends SimpleApplication {
     public void simpleUpdate(float tpf) {
 
     }
+    private Spatial loadPlayground() {
+        Material material = new Material(assetManager, "Common/MatDefs/Light/PBRLighting.j3md");
 
+        Texture baseColorMap = assetManager.loadTexture("RocketLeauge/assets/Textures/Ground/Marble/marble_01_diff_2k.png");
+        baseColorMap.setWrap(Texture.WrapMode.Repeat);
+
+        Texture roughnessMap = assetManager.loadTexture("RocketLeauge/assets/Textures/metalBareTex.jpg");
+        roughnessMap.setWrap(Texture.WrapMode.Repeat);
+
+        Texture aoMap = assetManager.loadTexture("RocketLeauge/assets/Textures/Dirt_Bottom-3072.jpg");
+        aoMap.setWrap(Texture.WrapMode.Repeat);
+
+        //Texture dispMap = assetManager.loadTexture("Textures/Ground/Marble/marble_01_disp_2k.png");
+        //dispMap.setWrap(Texture.WrapMode.Repeat);
+        Texture normalMap = assetManager.loadTexture("RocketLeauge/assets/Textures/Ground/Marble/marble_01_nor_2k.png");
+        normalMap.setWrap(Texture.WrapMode.Repeat);
+
+        material.setTexture("BaseColorMap", baseColorMap);
+        material.setTexture("RoughnessMap", roughnessMap);
+        material.setTexture("LightMap", aoMap);
+        //material.setTexture("ParallaxMap", dispMap);
+        material.setTexture("NormalMap", normalMap);
+        material.setFloat("NormalType", 1.0f);
+
+        // material.setColor("BaseColor", ColorRGBA.LightGray);
+        // material.setFloat("Roughness", 0.75f);
+        material.setFloat("Metallic", 0.001f);
+
+        // material.setBoolean("UseFog", true);
+        // material.setColor("FogColor", new ColorRGBA(0.5f, 0.6f, 0.7f, 1.0f));
+        // material.setFloat("ExpSqFog", 0.002f);
+        RenderState additional = material.getAdditionalRenderState();
+        additional.setFaceCullMode(RenderState.FaceCullMode.Off);
+
+        Spatial playground = assetManager.loadModel("RocketLeauge/assets/Scenes/vehicle-playground/vehicle-playground.j3o");
+        playground.setMaterial(material);
+
+        Node p = (Node) playground;
+        p.breadthFirstTraversal(spatial -> spatial.setShadowMode(RenderQueue.ShadowMode.CastAndReceive));
+
+        playground.setName("playground");
+        return playground;
+    }
 }

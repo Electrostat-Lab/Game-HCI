@@ -3,6 +3,7 @@
     <string name="action_settings">Settings</string>
     <string name="test_1">Test 1</string>
     <string name="jme_views">Jme_Views</string>
+    <string name="SEETitle">SuperiorPlugin Demo</string>
     <!-- Strings used for fragments for navigation -->
 
 </resources>

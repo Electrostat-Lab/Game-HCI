@@ -278,6 +278,9 @@ public class GameStickView extends CardView implements SensorEventListener , Vie
         sensorManager.unregisterListener(this);
     }
 
+    public SensorManager getSensorManager() {
+        return sensorManager;
+    }
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         if(String.valueOf(v.getTag()).equals(this.getClass().getName())){

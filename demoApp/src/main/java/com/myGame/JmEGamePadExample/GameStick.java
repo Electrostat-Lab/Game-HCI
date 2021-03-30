@@ -7,6 +7,8 @@ import com.scrappers.superiorExtendedEngine.gamePad.GameStickView;
 import com.scrappers.superiorExtendedEngine.misc.GullWing;
 import com.scrappers.superiorExtendedEngine.misc.UTurnView;
 
+import checkers.quals.DefaultLocation;
+
 
 public class GameStick implements GameStickView.GameStickListeners, GullWing.OnSteering {
 
@@ -59,17 +61,17 @@ public class GameStick implements GameStickView.GameStickListeners, GullWing.OnS
     @Override
     public void steerRT(float pulse) {
         vehicleControl.steer(pulse/10);
-        if(vehicleControl.getWheel(0).getEngineForce()>0f){
-            chaseCamera.setDefaultHorizontalRotation(chaseCamera.getHorizontalRotation() + (-pulse / 80));
-        }
+//        if(vehicleControl.getWheel(0).getEngineForce()>0f){
+//            chaseCamera.setDefaultHorizontalRotation(chaseCamera.getHorizontalRotation() + (-pulse / 80));
+//        }
     }
 
     @Override
     public void steerLT(float pulse) {
         vehicleControl.steer(pulse/8);
-        if(vehicleControl.getWheel(1).getEngineForce()>0f){
-            chaseCamera.setDefaultHorizontalRotation(chaseCamera.getHorizontalRotation() + (-pulse / 80));
-        }
+//        if(vehicleControl.getWheel(1).getEngineForce()>0f){
+//            chaseCamera.setDefaultHorizontalRotation(chaseCamera.getHorizontalRotation() + (-pulse / 80));
+//        }
     }
 
     @Override
@@ -81,28 +83,22 @@ public class GameStick implements GameStickView.GameStickListeners, GullWing.OnS
 
     @Override
     public void steerRight(float angle) {
-
         vehicleControl.steer(-angle/10);
-        if(vehicleControl.getWheel(0).getEngineForce()>0f){
-            chaseCamera.setDefaultHorizontalRotation(chaseCamera.getHorizontalRotation() + (-angle / 80));
-        }
+//        if(vehicleControl.getWheel(0).getEngineForce()>0f){
+//            chaseCamera.setDefaultHorizontalRotation(chaseCamera.getHorizontalRotation() + (-angle / 80));
+//        }
     }
 
     @Override
     public void steerLeft(float angle) {
         vehicleControl.steer(-angle/8);
-        if(vehicleControl.getWheel(1).getEngineForce()>0f){
-            chaseCamera.setDefaultHorizontalRotation(chaseCamera.getHorizontalRotation() + (-angle / 80));
-        }
+//        if(vehicleControl.getWheel(1).getEngineForce()>0f){
+//            chaseCamera.setDefaultHorizontalRotation(chaseCamera.getHorizontalRotation() + (-angle / 80));
+//        }
     }
 
     @Override
     public void neutralize(float angle) {
-
         vehicleControl.steer(angle);
-    }
-
-    public void setUturnView(UTurnView getuTurnView) {
-        this.uTurnView=getuTurnView;
     }
 }

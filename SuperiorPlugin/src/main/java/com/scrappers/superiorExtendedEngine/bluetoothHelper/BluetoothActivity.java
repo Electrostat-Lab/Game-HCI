@@ -178,7 +178,7 @@ public class BluetoothActivity extends AppCompatActivity{
         }
     }
 
-    private class BluetoothBroadCast extends  BroadcastReceiver {
+    private class BluetoothBroadCast extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()){
@@ -209,7 +209,7 @@ public class BluetoothActivity extends AppCompatActivity{
     /**
      * ServerSide System Authentication
      */
-    public class BluetoothServerSideSocket implements Callable<BluetoothServerSocket> {
+    private class BluetoothServerSideSocket implements Callable<BluetoothServerSocket> {
         private BluetoothServerSocket bluetoothServerSocket;
         private BluetoothSocket bluetoothSocket;
         @Override
@@ -222,7 +222,7 @@ public class BluetoothActivity extends AppCompatActivity{
             }
             return bluetoothServerSocket;
         }
-        public void connectWhenRequested(){
+        private void connectWhenRequested(){
             /*keep trying to accept as long as there's no external exception*/
             while (true){
                 try {
@@ -258,7 +258,7 @@ public class BluetoothActivity extends AppCompatActivity{
     /**
      * ClientSide System Authentication
      */
-    public class BluetoothClientSideSocket implements Callable<BluetoothSocket>{
+    private class BluetoothClientSideSocket implements Callable<BluetoothSocket>{
         private BluetoothSocket clientSideBluetoothSocket;
 
         public Callable<BluetoothSocket> registerBluetoothServerDevice(BluetoothDevice bluetoothDevice){

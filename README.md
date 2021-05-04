@@ -5,7 +5,7 @@
 ### GamePad Library for Android Games running java/Kotlin ###
 
 
-## [Video about this Library ](https://www.youtube.com/watch?v=0ev1ZC0iUKw) ##
+## [Video about this Library ](https://www.youtube.com/watch?v=Gp2JJ-PCI8c) ##
 
 ##### How to implement it into your Android project :
 

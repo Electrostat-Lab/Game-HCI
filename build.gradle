@@ -3,6 +3,8 @@ buildscript {
     repositories {
         google()
         jcenter()
+        mavenLocal()
+
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.2'
@@ -16,9 +18,8 @@ allprojects {
         google()
         jcenter()
         // hey you looking to add the GamePad don't forget this line
-        maven { url 'https://jitpack.io'
-        }
-
+        maven { url 'https://jitpack.io'}
+        mavenLocal()
     }
 }
 

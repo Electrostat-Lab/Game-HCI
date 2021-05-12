@@ -139,6 +139,9 @@ public class UiPager extends GridLayout {
         if(hasUiStates()){
             removeAllViews();
         }
+        if(!uiStates.values().isEmpty()){
+            uiStates.clear();
+        }
     }
     /**
      * Traverse over through UI-States & do things, w/o modifying #{@link UiPager#uiStates} stack size.

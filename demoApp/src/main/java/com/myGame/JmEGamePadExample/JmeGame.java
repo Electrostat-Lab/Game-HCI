@@ -25,12 +25,16 @@ import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
+import com.jme3.post.FilterPostProcessor;
+import com.jme3.post.filters.BloomFilter;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Cylinder;
 import com.jme3.scene.shape.Sphere;
+import com.jme3.shadow.CompareMode;
+import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.texture.Texture;
 import com.jme3.util.SkyFactory;
 import com.myGame.JmeEffects.NitroState;
@@ -64,10 +68,10 @@ public class JmeGame extends SimpleApplication {
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
         bulletAppState.setDebugEnabled(false);
+
         addSky();
         createPhysicsTestWorld(rootNode, getAssetManager(), bulletAppState.getPhysicsSpace());
         buildPlayer();
-
 //        addEnvLightProbe();
         /*LIBRARY CODE*/
         /*run the gamePad attachments & listeners from the android activity UI thread */
@@ -94,7 +98,7 @@ public class JmeGame extends SimpleApplication {
         gameStick.createSpeedometerLink(speedometer,JmeGame.this,vehicle,1f);
         ControlButtonsView controlButtonsView=appCompatActivity.findViewById(R.id.gamePadbtns);
             controlButtonsView.addControlButton("X",ControlButtonsView.GAMEPAD_BUTTON_X,ControlButtonsView.DEFAULT_BUTTONS,ControlButtonsView.X_BUTTON_ALPHA)
-            .setOnClickListener(v -> appCompatActivity.startActivity(new Intent(appCompatActivity.getApplicationContext(), BluetoothLogic.class)));
+            .setOnClickListener(v -> appCompatActivity.startActivity(new Intent(appCompatActivity.getApplicationContext(), LanLogic.class)));
             controlButtonsView.addControlButton("Y",ControlButtonsView.GAMEPAD_BUTTON_Y,ControlButtonsView.DEFAULT_BUTTONS,ControlButtonsView.Y_BUTTON_ALPHA);
             controlButtonsView.addControlButton("A",ControlButtonsView.GAMEPAD_BUTTON_A,ControlButtonsView.DEFAULT_BUTTONS,ControlButtonsView.A_BUTTON_ALPHA)
             .setOnClickListener(v -> {
@@ -113,7 +117,7 @@ public class JmeGame extends SimpleApplication {
     @Override
     public void destroy() {
 //        /* deInitializeSensor Service on app exit , to be used with other apps */
-        if( gameStick !=null){
+        if( gameStick.getSensorManager() !=null){
             gameStick.deInitializeSensors();
         }
     }
@@ -139,28 +143,28 @@ public class JmeGame extends SimpleApplication {
         AmbientLight a=new AmbientLight();
         a.setColor(new ColorRGBA(0.6f, 0.7f, 0.7f, 0.2f).mult(2));
 
-//        Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
 //        material.setTexture("ColorMap", assetManager.loadTexture("RocketLeauge/assets/Textures/soccerTex.jpg"));
 
-//        Material soccerPlayGround = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-//        soccerPlayGround.setFloat("ShadowIntensity",2f);
-//        soccerPlayGround.setVector3("LightDir",new Vector3f(1,-20,1));
-//        soccerPlayGround.setInt("FilterMode",4);
-//        soccerPlayGround.setFloat("PCFEdge",0.1f);
-//        soccerPlayGround.setFloat("ShadowMapSize",0.1f);
-//        soccerPlayGround.setTexture("EnvMap",assetManager.loadTexture("RocketLeauge/assets/Textures/sky.jpg"));
-////        soccerPlayGround.selectTechnique("PostShadow",getRenderManager());
-//
-////        soccerPlayGround.setTexture("DiffuseMap", assetManager.loadTexture("RocketLeauge/assets/Textures/soccer.jpg"));
-//        soccerPlayGround.setBoolean("UseMaterialColors",true);
-//
-//        soccerPlayGround.setColor("Ambient",ColorRGBA.LightGray);
-//        soccerPlayGround.setColor("Specular",ColorRGBA.LightGray);
-//        soccerPlayGround.setFloat("Shininess",1f);
-        Spatial floorGeometry = loadPlayground();
+        Material soccerPlayGround = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        soccerPlayGround.setFloat("ShadowIntensity",2f);
+        soccerPlayGround.setVector3("LightDir",new Vector3f(1,-20,1));
+        soccerPlayGround.setInt("FilterMode",4);
+        soccerPlayGround.setFloat("PCFEdge",0.1f);
+        soccerPlayGround.setFloat("ShadowMapSize",0.1f);
+        soccerPlayGround.setTexture("EnvMap",assetManager.loadTexture("RocketLeauge/assets/Textures/sky.jpg"));
+//        soccerPlayGround.selectTechnique("PostShadow",getRenderManager());
 
+//        soccerPlayGround.setTexture("DiffuseMap", assetManager.loadTexture("RocketLeauge/assets/Textures/soccer.jpg"));
+        soccerPlayGround.setBoolean("UseMaterialColors",true);
+
+        soccerPlayGround.setColor("Ambient",ColorRGBA.LightGray);
+        soccerPlayGround.setColor("Specular",ColorRGBA.LightGray);
+        soccerPlayGround.setFloat("Shininess",1f);
+        Spatial floorGeometry = assetManager.loadModel("RocketLeauge/assets/Scenes/town/main.scene");
+//        floorGeometry.setMaterial(soccerPlayGround);
         DirectionalLight directionalLight=new DirectionalLight(new Vector3f(-3,-floorGeometry.getLocalScale().getY()*4,-3).normalize());
-        directionalLight.setColor(ColorRGBA.White.mult(1.5f));
+        directionalLight.setColor(ColorRGBA.White.mult(1f));
         floorGeometry.addLight(a);
         rootNode.addLight(directionalLight);
 
@@ -176,6 +180,7 @@ public class JmeGame extends SimpleApplication {
 
         //ball sphere with mesh collision shape
         Sphere sphere = new Sphere(15, 15, 5f);
+
         Geometry sphereGeometry = new Geometry("Sphere", sphere);
         sphereGeometry.setMaterial(createMat(ColorRGBA.White,"RocketLeauge/assets/Textures/soccerTex.jpg", sphereGeometry));
         sphereGeometry.setLocalTranslation(0f, -5f, 0f);
@@ -184,31 +189,31 @@ public class JmeGame extends SimpleApplication {
         RigidBodyControl ballControl=new RigidBodyControl(new SphereCollisionShape(5f), 0.5f);
         ballControl.setFriction(2f);
         ballControl.setLinearVelocity(new Vector3f(0.2f,0.2f,0.2f));
-        ballControl.setRollingFriction(1f);
+//        ballControl.setRollingFriction(1f);
 
 
         sphereGeometry.addControl(ballControl);
         rootNode.attachChild(sphereGeometry);
         space.add(sphereGeometry);
 
-//        DirectionalLightShadowRenderer dlsr=new DirectionalLightShadowRenderer(assetManager,512,1);
-//        dlsr.setLight(directionalLight);
-//        dlsr.setShadowIntensity(0.2f);
-//        dlsr.setLambda(0.55f);
-//        dlsr.setShadowCompareMode(CompareMode.Hardware);
-//        dlsr.setShadowZExtend(23f);
-//        dlsr.setShadowZFadeLength(8f);
-//        floorGeometry.setShadowMode(RenderQueue.ShadowMode.Receive);
-//        viewPort.addProcessor(dlsr);
+        DirectionalLightShadowRenderer dlsr=new DirectionalLightShadowRenderer(assetManager,512,1);
+        dlsr.setLight(directionalLight);
+        dlsr.setShadowIntensity(0.2f);
+        dlsr.setLambda(0.55f);
+        dlsr.setShadowCompareMode(CompareMode.Hardware);
+        dlsr.setShadowZExtend(23f);
+        dlsr.setShadowZFadeLength(8f);
+        floorGeometry.setShadowMode(RenderQueue.ShadowMode.Receive);
+        viewPort.addProcessor(dlsr);
 
-//        BloomFilter bloomFilter=new BloomFilter();
-//        bloomFilter.setDownSamplingFactor(2);
-//        bloomFilter.setExposurePower(3);
-//        bloomFilter.setBloomIntensity(1f);
-//        bloomFilter.setBlurScale(0.2f);
-//        FilterPostProcessor filterPostProcessor=new FilterPostProcessor(assetManager);
-//        filterPostProcessor.addFilter(bloomFilter);
-//        viewPort.addProcessor(filterPostProcessor);
+        BloomFilter bloomFilter=new BloomFilter();
+        bloomFilter.setDownSamplingFactor(2);
+        bloomFilter.setExposurePower(3);
+        bloomFilter.setBloomIntensity(1f);
+        bloomFilter.setBlurScale(0.2f);
+        FilterPostProcessor filterPostProcessor=new FilterPostProcessor(assetManager);
+        filterPostProcessor.addFilter(bloomFilter);
+        viewPort.addProcessor(filterPostProcessor);
     }
 
     private void addPointLight(Spatial node,Vector3f position,ColorRGBA colorRGBA){
@@ -247,7 +252,7 @@ public class JmeGame extends SimpleApplication {
         chassis.setLocalTranslation(new Vector3f(0, 1.2f, 0));
         //colors
         ((Node) chassis).getChild("glass").setMaterial(createMat(ColorRGBA.Black,"",null));
-        ((Node) chassis).getChild("chassis").setMaterial(createMat(ColorRGBA.randomColor(), "",chassis));
+        ((Node) chassis).getChild("chassis").setMaterial(createMat(ColorRGBA.Cyan, "",chassis));
         ((Node) chassis).getChild("addOns").setMaterial(createMat(null, "RocketLeauge/assets/Textures/bronzeCopperTex.jpg",null));
         ((Node) chassis).getChild("nitro").setMaterial(createMat(new ColorRGBA(0f,0f,5f,1f), "RocketLeauge/assets/Textures/metalBareTex.jpg",null));
 
@@ -268,7 +273,7 @@ public class JmeGame extends SimpleApplication {
         //add a chaseCam tomove the cam with the object
         chaseCam = new ChaseCamera(cam, vehicleNode);
         chaseCam.setDefaultDistance(-25f);
-
+        chaseCam.registerWithInput(inputManager);
         chaseCam.setDefaultVerticalRotation(-FastMath.PI/10);
         chaseCam.setDefaultHorizontalRotation(-(FastMath.PI + FastMath.HALF_PI));
         cam.setFrustumFar(2000);
@@ -378,47 +383,47 @@ public class JmeGame extends SimpleApplication {
     public void simpleUpdate(float tpf) {
 
     }
-    private Spatial loadPlayground() {
-        Material material = new Material(assetManager, "Common/MatDefs/Light/PBRLighting.j3md");
-
-        Texture baseColorMap = assetManager.loadTexture("RocketLeauge/assets/Textures/Ground/Marble/marble_01_diff_2k.png");
-        baseColorMap.setWrap(Texture.WrapMode.Repeat);
-
-        Texture roughnessMap = assetManager.loadTexture("RocketLeauge/assets/Textures/metalBareTex.jpg");
-        roughnessMap.setWrap(Texture.WrapMode.Repeat);
-
-        Texture aoMap = assetManager.loadTexture("RocketLeauge/assets/Textures/Dirt_Bottom-3072.jpg");
-        aoMap.setWrap(Texture.WrapMode.Repeat);
-
-        //Texture dispMap = assetManager.loadTexture("Textures/Ground/Marble/marble_01_disp_2k.png");
-        //dispMap.setWrap(Texture.WrapMode.Repeat);
-        Texture normalMap = assetManager.loadTexture("RocketLeauge/assets/Textures/Ground/Marble/marble_01_nor_2k.png");
-        normalMap.setWrap(Texture.WrapMode.Repeat);
-
-        material.setTexture("BaseColorMap", baseColorMap);
-        material.setTexture("RoughnessMap", roughnessMap);
-        material.setTexture("LightMap", aoMap);
-        //material.setTexture("ParallaxMap", dispMap);
-        material.setTexture("NormalMap", normalMap);
-        material.setFloat("NormalType", 1.0f);
-
-        // material.setColor("BaseColor", ColorRGBA.LightGray);
-        // material.setFloat("Roughness", 0.75f);
-        material.setFloat("Metallic", 0.001f);
-
-        // material.setBoolean("UseFog", true);
-        // material.setColor("FogColor", new ColorRGBA(0.5f, 0.6f, 0.7f, 1.0f));
-        // material.setFloat("ExpSqFog", 0.002f);
-        RenderState additional = material.getAdditionalRenderState();
-        additional.setFaceCullMode(RenderState.FaceCullMode.Off);
-
-        Spatial playground = assetManager.loadModel("RocketLeauge/assets/Scenes/vehicle-playground/vehicle-playground.j3o");
-        playground.setMaterial(material);
-
-        Node p = (Node) playground;
-        p.breadthFirstTraversal(spatial -> spatial.setShadowMode(RenderQueue.ShadowMode.CastAndReceive));
-
-        playground.setName("playground");
-        return playground;
-    }
+//    private Spatial loadPlayground() {
+//        Material material = new Material(assetManager, "Common/MatDefs/Light/PBRLighting.j3md");
+//
+//        Texture baseColorMap = assetManager.loadTexture("RocketLeauge/assets/Textures/Ground/Marble/marble_01_diff_2k.png");
+//        baseColorMap.setWrap(Texture.WrapMode.Repeat);
+//
+//        Texture roughnessMap = assetManager.loadTexture("RocketLeauge/assets/Textures/metalBareTex.jpg");
+//        roughnessMap.setWrap(Texture.WrapMode.Repeat);
+//
+//        Texture aoMap = assetManager.loadTexture("RocketLeauge/assets/Textures/Dirt_Bottom-3072.jpg");
+//        aoMap.setWrap(Texture.WrapMode.Repeat);
+//
+//        //Texture dispMap = assetManager.loadTexture("Textures/Ground/Marble/marble_01_disp_2k.png");
+//        //dispMap.setWrap(Texture.WrapMode.Repeat);
+//        Texture normalMap = assetManager.loadTexture("RocketLeauge/assets/Textures/Ground/Marble/marble_01_nor_2k.png");
+//        normalMap.setWrap(Texture.WrapMode.Repeat);
+//
+//        material.setTexture("BaseColorMap", baseColorMap);
+//        material.setTexture("RoughnessMap", roughnessMap);
+//        material.setTexture("LightMap", aoMap);
+//        //material.setTexture("ParallaxMap", dispMap);
+//        material.setTexture("NormalMap", normalMap);
+//        material.setFloat("NormalType", 1.0f);
+//
+//        // material.setColor("BaseColor", ColorRGBA.LightGray);
+//        // material.setFloat("Roughness", 0.75f);
+//        material.setFloat("Metallic", 0.001f);
+//
+//        // material.setBoolean("UseFog", true);
+//        // material.setColor("FogColor", new ColorRGBA(0.5f, 0.6f, 0.7f, 1.0f));
+//        // material.setFloat("ExpSqFog", 0.002f);
+//        RenderState additional = material.getAdditionalRenderState();
+//        additional.setFaceCullMode(RenderState.FaceCullMode.Off);
+//
+//        Spatial playground = assetManager.loadModel("RocketLeauge/assets/Scenes/vehicle-playground/vehicle-playground.j3o");
+//        playground.setMaterial(material);
+//
+//        Node p = (Node) playground;
+//        p.breadthFirstTraversal(spatial -> spatial.setShadowMode(RenderQueue.ShadowMode.CastAndReceive));
+//
+//        playground.setName("playground");
+//        return playground;
+//    }
 }

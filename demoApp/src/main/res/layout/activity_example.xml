@@ -10,17 +10,6 @@
         android:id="@+id/jmeSurfaceView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-    <Button
-        android:id="@+id/test"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="7dp"
-        android:textColor="@color/pureWhite"
-        android:textAlignment="gravity"
-        android:gravity="top|center"
-        android:background="@mipmap/xmas"
-        android:text="@string/test_1" />
 
     <com.scrappers.superiorExtendedEngine.gamePad.ControlButtonsView
         android:id="@+id/gamePadbtns"

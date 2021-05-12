@@ -1,16 +1,11 @@
 package com.scrappers.superiorExtendedEngine.misc;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BlendMode;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.os.CountDownTimer;
 import android.util.AttributeSet;
-import android.view.View;
 
 import com.scrappers.GamePad.R;
 

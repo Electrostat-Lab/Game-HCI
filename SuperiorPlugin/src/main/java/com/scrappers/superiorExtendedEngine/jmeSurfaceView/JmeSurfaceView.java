@@ -1,7 +1,9 @@
 package com.scrappers.superiorExtendedEngine.jmeSurfaceView;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.opengl.GLSurfaceView;
 import android.os.Handler;
 import android.util.AttributeSet;
@@ -15,8 +17,6 @@ import com.jme3.system.AppSettings;
 import com.jme3.system.SystemListener;
 import com.jme3.system.android.JmeAndroidSystem;
 import com.jme3.system.android.OGLESContext;
-import com.scrappers.superiorExtendedEngine.jmeSurfaceView.dialog.OptionPane;
-import com.scrappers.superiorExtendedEngine.jmeSurfaceView.splashScreen.SplashScreen;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -26,22 +26,20 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 /**
- * A CardView Class Holder that holds a #{{@link GLSurfaceView}} using #{{@link OGLESContext}} as a renderer to render
- * a JME game on an android view for custom xmL designs.
- *
- * @apiNote the main idea of #{@link JmeSurfaceView} class is to start a jMonkeyEngine application in a SystemListener#{@link SystemListener} context in a GL thread ,
- * then the GLSurfaceView holding the GL thread joins the UI thread with a delay of user's choice using a #{@link Handler} , during the delay , the game runs normally in the GL thread(but without coming up on the UI)
- * and the user has the ability to handle a couple of actions asynchronously as displaying a progress bar #{@link SplashScreen} or
- * an image or even play a preface game music of choice #{@link com.scrappers.superiorExtendedEngine.gamePad.ControlButtonsView.GamePadSoundEffects}.
- *
+ * <b>A RelativeLayout Class Holder that holds a #{{@link GLSurfaceView}} using #{{@link OGLESContext}} as a renderer to render
+ * a JME game on an android view for custom xmL designs.</b>
+ * @apiNote The main idea of #{@link JmeSurfaceView} class is to start a jMonkeyEngine application in a SystemListener#{@link SystemListener} context in a GL_ES thread ,
+ * then the GLSurfaceView holding the GL_ES thread joins the UI thread with a delay of user's choice using a #{@link Handler} , during the delay , the game runs normally in the GL_ES thread(but without coming up on the UI)
+ * and the user has the ability to handle a couple of actions asynchronously as displaying a progress bar on a SplashScreen or
+ * an image or even play a preface game music of choice.
  * @author pavl_g.
  */
-public class JmeSurfaceView extends RelativeLayout implements SystemListener {
+public class JmeSurfaceView extends RelativeLayout implements SystemListener , DialogInterface.OnClickListener {
 
     /*using #{@link LegacyApplication} instead of #{@link SimpleApplication} to include all classes extends LegacyApplication*/
     private LegacyApplication legacyApplication;
     protected String audioRendererType = AppSettings.ANDROID_OPENAL_SOFT;
-    private static final Logger jmeSurfaceViewLogger=Logger.getLogger("JmeSurfaceView");
+    private static final Logger jmeSurfaceViewLogger = Logger.getLogger("JmeSurfaceView");
     private AppSettings appSettings;
     private int eglBitsPerPixel = 24;
     private int eglAlphaBits = 0;
@@ -49,22 +47,23 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
     private int eglSamples = 0;
     private int eglStencilBits = 0;
     private int frameRate = -1;
-    private boolean emulateKeyBoard=true;
-    private boolean emulateMouse=true;
-    private boolean useJoyStickEvents=true;
+    private boolean emulateKeyBoard = true;
+    private boolean emulateMouse = true;
+    private boolean useJoyStickEvents = true;
     private boolean isGLThreadPaused;
-    private boolean ignoreAssertions;
-    private final Handler handler=new Handler();
+    private final Handler handler = new Handler();
     private GLSurfaceView glSurfaceView;
     private OnRendererCompleted onRendererCompleted;
-    private final AtomicInteger synthesizedTime=new AtomicInteger();
+    private final AtomicInteger synthesizedTime = new AtomicInteger();
     private OnExceptionThrown onExceptionThrown;
-    private int delayMillis=0;
-    private static final int TOLERANCE_TIMER=100;
+    public static final int NO_DELAY = 1;
+    private int delayMillis = NO_DELAY;
+    private static final int TOLERANCE_TIMER = 100;
 
     public JmeSurfaceView(@NonNull Context context) {
         super(context);
     }
+
     public JmeSurfaceView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
@@ -72,18 +71,21 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
     public JmeSurfaceView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
+
     /**
-     * starts the jmeRenderer on a GlSurfaceView attached to a RelativeLayout
+     * starts the jmeRenderer on a GlSurfaceView attached to a RelativeLayout.
      * @param delayMillis delay of the appearance of jme game on the screen , this doesn't delay the renderer though.
+     * @apiNote use #{@link JmeSurfaceView#NO_DELAY} to disable the delay ,
+     * any values less than 1ms would be ignored & the delay would be disabled.
      */
-    public synchronized void startRenderer(int delayMillis) {
-        this.delayMillis=delayMillis;
-        if ( legacyApplication != null ){
+    public void startRenderer(int delayMillis) {
+        this.delayMillis = Math.max(NO_DELAY , delayMillis);
+        if (legacyApplication != null) {
             try {
                 /*initialize App Settings & start the Game*/
                 appSettings = new AppSettings(true);
                 appSettings.setAudioRenderer(audioRendererType);
-                appSettings.setResolution(JmeSurfaceView.this.getLayoutParams().width, JmeSurfaceView.this.getLayoutParams().height);
+                appSettings.setResolution(JmeSurfaceView.this.getLayoutParams().width , JmeSurfaceView.this.getLayoutParams().height);
                 appSettings.setAlphaBits(eglAlphaBits);
                 appSettings.setDepthBits(eglDepthBits);
                 appSettings.setSamples(eglSamples);
@@ -104,14 +106,14 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
                 /*set JME system Listener to initialize game , update , requestClose & destroy on closure*/
                 oglesContext.setSystemListener(JmeSurfaceView.this);
                 /* set the glSurfaceView to fit the widget */
-                glSurfaceView.setLayoutParams(new LayoutParams(JmeSurfaceView.this.getLayoutParams().width, JmeSurfaceView.this.getLayoutParams().height));
+                glSurfaceView.setLayoutParams(new LayoutParams(JmeSurfaceView.this.getLayoutParams().width , JmeSurfaceView.this.getLayoutParams().height));
                 /*post delay the renderer join into the UI thread*/
-                handler.postDelayed(new RendererThread(),delayMillis);
+                handler.postDelayed(new RendererThread() , delayMillis);
             } catch (Exception e) {
-                new OptionPane((Activity) getContext()).showErrorDialog(e,e.getMessage());
-                if( onExceptionThrown !=null){
-                    onExceptionThrown.Throw(e);
-                    jmeSurfaceViewLogger.log(Level.WARNING,e.getMessage());
+                jmeSurfaceViewLogger.log(Level.WARNING , e.getMessage());
+                showErrorDialog(e , e.getMessage());
+                if (onExceptionThrown != null) {
+                    onExceptionThrown.onExceptionThrown(e);
                 }
             }
         }
@@ -120,58 +122,50 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
     /**
      * Custom thread that delays the appearance of the display of jme game on the screen for the sake of initial frame pacing & splash screens.
      */
-    private class RendererThread implements Runnable{
+    private class RendererThread implements Runnable {
+        /**
+         * Delays the #{@link GLSurfaceView} add on the UI thread.
+         * @see JmeSurfaceView#NO_DELAY
+         * @see JmeSurfaceView#startRenderer(int)
+         */
         @Override
-        public synchronized void run() {
+        public void run() {
             /*jme Renderer joins the UIThread at that point*/
             JmeSurfaceView.this.addView(glSurfaceView);
-            jmeSurfaceViewLogger.log(Level.CONFIG,"JmeSurfaceView's joined the UI thread.......");
+            jmeSurfaceViewLogger.log(Level.CONFIG , "JmeSurfaceView's joined the UI thread.......");
         }
     }
 
     @Override
-    public synchronized void initialize() {
-        if( legacyApplication !=null){
-            legacyApplication.enqueue(() -> legacyApplication.initialize());
+    public void initialize() {
+        if (legacyApplication != null) {
+            legacyApplication.initialize();
             /*log for display*/
-            jmeSurfaceViewLogger.log(Level.INFO,"JmeGame started in GLThread Asynchronously......");
+            jmeSurfaceViewLogger.log(Level.INFO , "JmeGame started in GLThread Asynchronously.......");
         }
     }
 
     @Override
-    public void reshape(int width, int height) {
-        if( legacyApplication !=null){
-            legacyApplication.reshape(width, height);
+    public void reshape(int width , int height) {
+        if (legacyApplication != null) {
+            legacyApplication.reshape(width , height);
         }
     }
 
     @Override
-    public synchronized void update() {
-        if( legacyApplication ==null){
+    public void update() {
+        if (legacyApplication == null) {
             return;
         }
-        if(!isIgnoreAssertions()){
-            if ( glSurfaceView != null ){
-                legacyApplication.update();
-            }
-        }else{
-            try {
-                if ( glSurfaceView != null ){
-                    legacyApplication.update();
-                }
-            } catch (AssertionError e) {
-                new OptionPane((Activity) getContext()).showErrorDialog(e,e.getMessage());
-                if( onExceptionThrown !=null){
-                    onExceptionThrown.Throw(e);
-                }
-            }
+        if (glSurfaceView != null) {
+            legacyApplication.update();
         }
-        int timeToPlay=synthesizedTime.addAndGet(1);
-        if(timeToPlay==(delayMillis>100?(delayMillis-TOLERANCE_TIMER) :delayMillis)){
+        int timeToPlay = synthesizedTime.addAndGet(1);
+        if (timeToPlay == (delayMillis>100 ? (delayMillis-TOLERANCE_TIMER) : delayMillis)) {
             ((Activity)getContext()).runOnUiThread(() -> {
-                if ( onRendererCompleted != null ){
-                    jmeSurfaceViewLogger.log(Level.INFO,"SplashScreen Dismissed , User Delay completed with 0 errors.......");
-                    onRendererCompleted.onRenderCompletion(legacyApplication);
+                jmeSurfaceViewLogger.log(Level.INFO,"SplashScreen Dismissed , User Delay completed with 0 errors.......");
+                if (onRendererCompleted != null) {
+                    onRendererCompleted.onRenderCompletion(legacyApplication , legacyApplication.getContext().getSettings());
                 }
             });
         }
@@ -179,24 +173,24 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
 
     @Override
     public void requestClose(boolean esc) {
-        if( legacyApplication !=null){
-            legacyApplication.enqueue(() -> legacyApplication.requestClose(esc));
+        if (legacyApplication != null) {
+            legacyApplication.requestClose(esc);
         }
     }
 
     @Override
     public void gainFocus() {
-        if ( legacyApplication != null) {
+        if (legacyApplication != null) {
             /*resume the audio*/
             AudioRenderer audioRenderer = legacyApplication.getAudioRenderer();
             if (audioRenderer != null) {
                 audioRenderer.resumeAll();
             }
             /*resume the sensors (aka joysticks)*/
-            if ( legacyApplication.getContext() != null) {
+            if (legacyApplication.getContext() != null) {
                 JoyInput joyInput = legacyApplication.getContext().getJoyInput();
                 if (joyInput != null) {
-                    if (joyInput instanceof AndroidSensorJoyInput ) {
+                    if (joyInput instanceof AndroidSensorJoyInput) {
                         AndroidSensorJoyInput androidJoyInput = (AndroidSensorJoyInput) joyInput;
                         androidJoyInput.resumeSensors();
                     }
@@ -209,7 +203,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
 
     @Override
     public void loseFocus() {
-        if ( legacyApplication != null) {
+        if (legacyApplication != null) {
             /*pause the audio*/
             legacyApplication.loseFocus();
             AudioRenderer audioRenderer = legacyApplication.getAudioRenderer();
@@ -217,7 +211,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
                 audioRenderer.pauseAll();
             }
             /*pause the sensors (aka joysticks)*/
-            if ( legacyApplication.getContext() != null) {
+            if (legacyApplication.getContext() != null) {
                 JoyInput joyInput = legacyApplication.getContext().getJoyInput();
                 if (joyInput != null) {
                     if (joyInput instanceof AndroidSensorJoyInput) {
@@ -231,31 +225,52 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
     }
 
     @Override
-    public void handleError(String errorMsg, Throwable t) {
-        System.out.println(errorMsg);
+    public void handleError(String errorMsg , Throwable throwable) {
+        jmeSurfaceViewLogger.log(Level.WARNING , throwable.getMessage());
+        showErrorDialog(throwable , throwable.getMessage());
+        if (onExceptionThrown != null) {
+            onExceptionThrown.onExceptionThrown(throwable);
+        }
     }
 
     @Override
     public void destroy() {
-        if ( legacyApplication != null) {
+        if (legacyApplication != null) {
             legacyApplication.stop(isGLThreadPaused());
             legacyApplication.destroy();
         }
     }
+
     /**
-     * ignores assertions.
-     * @param ignoreAssertions true if you want to ignore AssertionErrors.
+     * Displays an error dialog with a throwable message(error/exception) & with 2 buttons.
+     * @param throwable the throwable stack.
+     * @param message the string message.
      */
-    public void setIgnoreAssertions(boolean ignoreAssertions) {
-        this.ignoreAssertions = ignoreAssertions;
+    protected void showErrorDialog(Throwable throwable , String message) {
+        ((Activity)getContext()).runOnUiThread(() -> {
+            AlertDialog alertDialog = new AlertDialog.Builder(getContext()).create();
+            alertDialog.setTitle(new StringBuffer(String.valueOf(throwable)));
+            alertDialog.setMessage(message);
+            alertDialog.setCancelable(true);
+            alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE , "EXIT" , this);
+            alertDialog.setButton(DialogInterface.BUTTON_POSITIVE , "DISMISS",  this);
+            alertDialog.show();
+        });
     }
-    /**
-     *
-     * @return true if ignored , default -> false.
-     */
-    public boolean isIgnoreAssertions() {
-        return ignoreAssertions;
+
+    @Override
+    public void onClick(DialogInterface dialog , int which) {
+        switch (which) {
+            case DialogInterface.BUTTON_NEGATIVE:
+                dialog.dismiss();
+                ((Activity)getContext()).finish();
+                break;
+            case DialogInterface.BUTTON_POSITIVE:
+                dialog.dismiss();
+                break;
+        }
     }
+
     /**
      * sets the jme game instance that will be engaged into the {@link SystemListener}.
      * @param legacyApplication your jme game instance.
@@ -263,6 +278,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
     public void setLegacyApplication(@NonNull LegacyApplication legacyApplication) {
         this.legacyApplication = legacyApplication;
     }
+
     /**
      * gets the jme app instance
      * @return legacyApplication instance representing your game enclosure.
@@ -270,6 +286,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
     public LegacyApplication getLegacyApplication() {
         return legacyApplication;
     }
+
     /**
      * sets the appSettings instance.
      * @param appSettings the custom appSettings instance
@@ -277,6 +294,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
     public void setAppSettings(@NonNull AppSettings appSettings) {
         this.appSettings = appSettings;
     }
+
     /**
      * gets the game window settings.
      * @return app settings instance.
@@ -284,6 +302,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
     public AppSettings getAppSettings() {
         return appSettings;
     }
+
     /**
      * sets the memory representing each pixel in bits.
      * @param eglBitsPerPixel the bits for each pixel.
@@ -291,6 +310,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
     public void setEglBitsPerPixel(int eglBitsPerPixel) {
         this.eglBitsPerPixel = eglBitsPerPixel;
     }
+
     /**
      * gets the bits/pixel for Embedded gL
      * @return integer representing it.
@@ -306,6 +326,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
     public void setEglAlphaBits(int eglAlphaBits) {
         this.eglAlphaBits = eglAlphaBits;
     }
+
     /**
      * gets the Embedded gL alpha(opacity) bits.
      * @return integer representing it.
@@ -313,6 +334,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
     public int getEglAlphaBits() {
         return eglAlphaBits;
     }
+
     /**
      * sets the EGL depth in bits.
      * the depth buffer or Z-buffer is basically coupled with stencil buffer ,
@@ -323,6 +345,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
     public void setEglDepthBits(int eglDepthBits) {
         this.eglDepthBits = eglDepthBits;
     }
+
     /**
      * gets the memory representing the EGL depth in bits.
      * @return the depth bits.
@@ -330,6 +353,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
     public int getEglDepthBits() {
         return eglDepthBits;
     }
+
     /**
      * Sets the number of samples to use for multi-sampling.
      * Leave 0 (default) to disable multi-sampling.
@@ -339,6 +363,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
     public void setEglSamples(int eglSamples) {
         this.eglSamples = eglSamples;
     }
+
     /**
      * get the number of samples to use for multi-sampling.
      * @return number of samples to use for multi-sampling.
@@ -346,6 +371,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
     public int getEglSamples() {
         return eglSamples;
     }
+
     /**
      * Set the number of stencil buffer bits.
      * Stencil buffer is used in depth-based shadow maps & shadow rendering as it limits rendering,
@@ -357,6 +383,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
     public void setEglStencilBits(int eglStencilBits) {
         this.eglStencilBits = eglStencilBits;
     }
+
     /**
      * gets the number of stencil buffer bits.
      * @return the stencil buffer bits.
@@ -364,6 +391,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
     public int getEglStencilBits() {
         return eglStencilBits;
     }
+
     /**
      * limits the frame rate (fps) in the second.
      * @param frameRate the limitation in integers.
@@ -371,6 +399,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
     public void setFrameRate(int frameRate) {
         this.frameRate = frameRate;
     }
+
     /**
      * gets the limited FrameRate level for egl config.
      * @implNote
@@ -379,6 +408,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
     public int getFrameRate() {
         return frameRate;
     }
+
     /**
      * sets the audioRenderer type.
      * {@link AppSettings#ANDROID_OPENAL_SOFT}.
@@ -387,6 +417,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
     public void setAudioRendererType(String audioRendererType) {
         this.audioRendererType = audioRendererType;
     }
+
     /**
      * gets the audio renderer in String.
      * @return string representing audio renderer framework.
@@ -394,6 +425,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
     public String getAudioRendererType() {
         return audioRendererType;
     }
+
     /**
      * enables keyboard interfacing.
      * @param emulateKeyBoard true to enable keyboard interfacing.
@@ -401,6 +433,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
     public void setEmulateKeyBoard(boolean emulateKeyBoard) {
         this.emulateKeyBoard = emulateKeyBoard;
     }
+
     /**
      * checks if the keyboard interfacing is enabled.
      * @return true if the keyboard interfacing is enabled.
@@ -408,6 +441,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
     public boolean isEmulateKeyBoard() {
         return emulateKeyBoard;
     }
+
     /**
      * enables mouse interfacing.
      * @param emulateMouse true to enable the mouse interfacing.
@@ -415,6 +449,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
     public void setEmulateMouse(boolean emulateMouse) {
         this.emulateMouse = emulateMouse;
     }
+
     /**
      * checks whether the mouse interfacing is enabled or not.
      * @return true if the mouse interfacing is enabled.
@@ -422,6 +457,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
     public boolean isEmulateMouse() {
         return emulateMouse;
     }
+
     /**
      * enable joystick interfacing for a jme-game
      * @param useJoyStickEvents true to enable the joystick interfacing.
@@ -429,6 +465,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
     public void setUseJoyStickEvents(boolean useJoyStickEvents) {
         this.useJoyStickEvents = useJoyStickEvents;
     }
+
     /**
      * checks whether joystick interfacing is enabled or not.
      * @return true if the joystick interfacing is enabled.
@@ -436,6 +473,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
     public boolean isUseJoyStickEvents() {
         return useJoyStickEvents;
     }
+
     /**
      * sets GL Thread paused.
      * @param GLThreadPaused true if you want to pause the GLThread.
@@ -443,6 +481,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
     protected void setGLThreadPaused(boolean GLThreadPaused) {
         isGLThreadPaused = GLThreadPaused;
     }
+
     /**
      * checks whether the GLThread is paused or not.
      * @return true/false
@@ -450,29 +489,16 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
     public boolean isGLThreadPaused() {
         return isGLThreadPaused;
     }
+
     /**
-     * Embedded interface class(abstract) to listen for the moment when when the GL thread holding the #{@link JmeSurfaceView}
-     *  joins the UI thread , after asynchronous rendering.
-     * @see JmeSurfaceView#setOnRendererCompleted(OnRendererCompleted).
-     */
-    public interface OnRendererCompleted{
-        void onRenderCompletion(LegacyApplication application);
-    }
-    /**
-     * sets the listener for the completion of rendering , ie :: when the GL thread holding the #{@link JmeSurfaceView}
+     * sets the listener for the completion of rendering , ie : when the GL thread holding the #{@link JmeSurfaceView}
      * joins the UI thread , after asynchronous rendering.
      * @param onRendererCompleted an instance of the interface #{@link OnRendererCompleted}.
      */
     public void setOnRendererCompleted(OnRendererCompleted onRendererCompleted) {
         this.onRendererCompleted = onRendererCompleted;
     }
-    /**
-     * Embedded interface designed to listen to exceptions & fire when an exception is thrown.
-     * @see JmeSurfaceView#setOnExceptionThrown(OnExceptionThrown).
-     */
-    public interface OnExceptionThrown{
-        void Throw(Throwable e);
-    }
+
     /**
      * sets the listener that will fire when an exception is thrown.
      * @param onExceptionThrown an instance of the interface #{@link OnExceptionThrown}.
@@ -480,4 +506,5 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener {
     public void setOnExceptionThrown(OnExceptionThrown onExceptionThrown) {
         this.onExceptionThrown = onExceptionThrown;
     }
+
 }

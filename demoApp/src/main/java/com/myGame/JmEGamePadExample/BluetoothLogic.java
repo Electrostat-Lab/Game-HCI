@@ -46,12 +46,7 @@ public class BluetoothLogic extends BluetoothActivity {
             BluetoothLogic.this.registerAsClientSide(discoveredDevice,100);
 
         });
-        setOnDiscoveryTerminated(new OnDiscoveryTerminated() {
-            @Override
-            public void onDiscoveryTermination(ArrayList<BluetoothDevice> discoveredDevices) {
-                Toast.makeText(getApplicationContext(),discoveredDevices.toString(),Toast.LENGTH_LONG).show();
-            }
-        });
+        setOnDiscoveryTerminated(discoveredDevices -> Toast.makeText(getApplicationContext(),discoveredDevices.toString(),Toast.LENGTH_LONG).show());
     }
 
 

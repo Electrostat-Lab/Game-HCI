@@ -17,8 +17,8 @@ public class SplashScreen {
     public OnSplashScreenDisplayed onSplashScreenDisplayed;
 
     /**
-     * Display custom splash screen of the user desire , during the renderer delay #{@link JmeSurfaceView#startRenderer(int)}.
-     * @see  JmeSurfaceView#startRenderer(int)
+     * Display custom splash screen of the user desire , during the renderer delay #{@link #startRenderer()}.
+     * @see  #startRenderer()
      * @param appCompatActivity the androidx activity
      * @param jmESurfaceView the jmeSurfaceView instance to link with.
      */

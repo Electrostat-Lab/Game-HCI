@@ -76,10 +76,11 @@ public class UiStateManager extends RelativeLayout {
      * Attach new UIState to the UI-State Factory
      * @param uiState the UI state that extends #{@link View}.
      * @see UiStateManager#fromXML(int).
+     * @apiNote the uiStates are filling the UiStateContainer by default
      */
     public <T extends View> T attachUiState(T uiState){
         addView(uiState);
-        uiStates.put(stateIndex++,uiState);
+        uiStates.put(stateIndex++, uiState);
         uiState.setLayoutParams(getLayoutParams());
         uiState.setVisibility(VISIBLE);
         return uiState;

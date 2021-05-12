@@ -1,5 +1,6 @@
 package com.scrappers.superiorExtendedEngine.gamePad;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
@@ -15,6 +16,8 @@ import com.jme3.app.state.BaseAppState;
 import com.jme3.bullet.control.VehicleControl;
 import com.jme3.math.FastMath;
 import com.scrappers.GamePad.R;
+
+import java.util.ArrayList;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
@@ -52,7 +55,16 @@ public class Speedometer extends CardView {
     private CardView speedCursorBase;
     private CardView cursorHolder;
     private ImageView cursorBlade;
+    private final ArrayList<ImageView> impostorIndicators=new ArrayList<>();
+    private boolean impostorIndicatorEnabled=true;
     private CustomizeSpeedometer customizeSpeedometer;
+    private float xOrigin=0.0f;
+    private float yOrigin=0.0f;
+    private float radius=0.0f;
+    /* angles using the pattern = PI * (1/Math.pow(2,n*2)) where n=n*2 starting from n=1; , when angles approaches zero(FROM EITHER LEFT OR RIGHT SIDES)
+    , flipping the angle sign would render the angle on the bottom as if it was a mirror*/
+    private final double[] angles=new double[]{-Math.PI/2d,-Math.PI/4d,-Math.PI/16d, Math.PI/8d,
+                                                -(Math.PI-Math.PI/4d),-(Math.PI-Math.PI/16d),(Math.PI-Math.PI/8d)};
 
     public Speedometer(Context context) {
         super(context);
@@ -70,15 +82,21 @@ public class Speedometer extends CardView {
      * initializes the speedometer instance with a speedometer impostor , digital screen , cursor .
      */
     public void initialize(){
-        ((AppCompatActivity)getContext()).runOnUiThread(()->{
+        ((Activity)getContext()).runOnUiThread(()->{
             /*doing the styles*/
             speedImpostor =new ProgressBar(getContext(),null, R.style.Widget_AppCompat_ProgressBar_Horizontal);
+            speedImpostor.setLayoutParams(getLayoutParams());
             speedImpostor.setProgressDrawable(ContextCompat.getDrawable(getContext(), SPEEDOMETER_IMPOSTOR_GRADIENT));
             speedImpostor.setBackground(ContextCompat.getDrawable(getContext(), SPEEDOMETER_BACKGROUND));
             /*doing the data related part*/
             speedImpostor.setIndeterminate(false);
             speedImpostor.setMax(PROGRESS_RANGE);
             speedImpostor.setProgress(PROGRESS_MAX);
+
+
+            RelativeLayout speedImpostorHolder=new RelativeLayout(getContext());
+            speedImpostorHolder.setLayoutParams(getLayoutParams());
+            speedImpostorHolder.setBackground(ContextCompat.getDrawable(getContext(),R.color.transparent));
 
             digitalScreen=new TextView(getContext());
             digitalScreen.setText(String.valueOf(0));
@@ -92,8 +110,7 @@ public class Speedometer extends CardView {
 
             setElevation(10);
             setBackground(ContextCompat.getDrawable(getContext(),R.drawable.nothing));
-            addView(speedImpostor);
-            addView(digitalScreen);
+
 
             cursorHolder=new CardView(getContext());
             cursorHolder.setLayoutParams(getLayoutParams());
@@ -115,12 +132,47 @@ public class Speedometer extends CardView {
             speedCursorBase.addView(cursorBlade);
 
             cursorHolder.addView(speedCursorBase);
-            addView(cursorHolder);
 
+            speedImpostorHolder.addView(speedImpostor);
+            addView(speedImpostorHolder);
+            addView(cursorHolder);
+            addView(digitalScreen);
+
+            if(isImpostorIndicatorEnabled()){
+                //let's do the impostor degrees
+                xOrigin = getLayoutParams().width / 2f;
+                yOrigin = getLayoutParams().height / 2f;
+                //for oval shaped objects
+                radius = Math.max(xOrigin, yOrigin);
+                for (double angle : angles) {
+                    ImageView impostorIndicator = new ImageView(getContext());
+                    impostorIndicator.setBackground(ContextCompat.getDrawable(getContext(), CURSOR_BACKGROUND));
+                    impostorIndicator.setLayoutParams(new RelativeLayout.LayoutParams(speedCursorBase.getLayoutParams().width / 2, speedCursorBase.getLayoutParams().height / 2));
+                    impostorIndicator.setRotation((float) Math.toDegrees(angle));
+                    float xOriginPart = xOrigin - impostorIndicator.getLayoutParams().width / 2f;
+                    float yOriginPart = yOrigin - impostorIndicator.getLayoutParams().height / 2f;
+                    impostorIndicator.setX((float) (xOriginPart + Math.cos(angle) * radius / 1.5f));
+                    impostorIndicator.setY((float) (yOriginPart + Math.sin(angle) * radius / 1.5f));
+                    impostorIndicators.add(impostorIndicator);
+                    speedImpostorHolder.addView(impostorIndicator);
+                }
+            }
             if(customizeSpeedometer!=null){
                 customizeSpeedometer.customize(Speedometer.this);
             }
         });
+    }
+
+    public boolean isImpostorIndicatorEnabled() {
+        return impostorIndicatorEnabled;
+    }
+
+    public void setImpostorIndicatorEnabled(boolean impostorIndicatorEnabled) {
+        this.impostorIndicatorEnabled = impostorIndicatorEnabled;
+    }
+
+    public ArrayList<ImageView> getImpostorIndicators() {
+        return impostorIndicators;
     }
 
     /**

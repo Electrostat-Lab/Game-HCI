@@ -14,9 +14,6 @@
         android:endColor="@color/black"
         android:gradientRadius="400dp"
         />
-    <stroke
-        android:color="@color/pureWhite"
-        android:width="2dp"
-        />
+
 
 </shape>

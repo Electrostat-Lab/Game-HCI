@@ -3,6 +3,7 @@ package com.scrappers.superiorExtendedEngine.misc;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.util.AttributeSet;
+import android.widget.ImageView;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.control.VehicleControl;
@@ -41,6 +42,11 @@ public class GullWing extends DrivingWheelView{
         speedometer.initialize();
         speedometer.setX(getLayoutParams().width/2f - speedometer.getLayoutParams().width/2f);
         speedometer.setY(speedometer.getLayoutParams().height/2f);
+        /*customizing the impostorIndicators*/
+        speedometer.setImpostorIndicatorEnabled(true);
+        for(ImageView imageView : speedometer.getImpostorIndicators()){
+            imageView.setBackground(ContextCompat.getDrawable(getContext(),R.drawable.driving_pads));
+        }
         setCustomizeDrivingWheel(parentView -> {
             setNeutralizeWhenLostFocus(true);
             parentView.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(),R.color.transparent)));

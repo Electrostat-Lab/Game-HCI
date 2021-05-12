@@ -8,6 +8,8 @@ import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.BloomFilter;
 import com.jme3.renderer.ViewPort;
 
+import checkers.quals.DefaultLocation;
+
 /**
  *
  * @author Pavly

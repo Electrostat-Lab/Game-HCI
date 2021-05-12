@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/dialog_exception_background">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="42dp"
+        android:text="@string/SEETitle"
+        android:layout_marginTop="5dp"
+        android:textSize="25sp"
+        android:textAlignment="center"
+        android:textDirection="anyRtl"
+        android:layout_gravity="center"
+        android:textColor="@color/pureWhite"
+
+        />
+
+    <EditText
+        android:id="@+id/errorText"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:padding="20dp"
+        android:textColor="@color/pureWhite"
+        android:inputType="textMultiLine"
+        android:enabled="false"
+        android:layout_margin="20dp"
+        android:background="@drawable/text_exception"
+        android:tooltipText="Exception in JME Thread"
+        tools:targetApi="o"
+        android:importantForAutofill="no"
+        tools:ignore="LabelFor" />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:layout_gravity="center"
+        android:padding="5dp"
+        >
+        <Button
+            android:id="@+id/closeApp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/closeapp"
+            android:background="@drawable/text_exception"
+            android:layout_marginEnd="100dp"
+            tools:ignore="ButtonStyle" />
+        <Button
+            android:id="@+id/start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start"
+            android:background="@drawable/text_exception"
+            tools:ignore="ButtonStyle" />
+
+    </LinearLayout>
+</LinearLayout>

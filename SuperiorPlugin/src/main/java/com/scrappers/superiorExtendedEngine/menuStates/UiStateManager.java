@@ -24,7 +24,7 @@ import androidx.annotation.LayoutRes;
 public class UiStateManager extends RelativeLayout {
     private final ViewGroup context;
     private int stateIndex=0;
-    private final HashMap<Integer,View> uiStates=new HashMap<>();
+    private final HashMap<Integer, View> uiStates=new HashMap<>();
     /**
      * Creates a new UI-State-Manager that acts as a rootNode for the other game UI-States stacks.
      * @param context the context parent to place the UI-State-Manager on top of it.
@@ -120,21 +120,63 @@ public class UiStateManager extends RelativeLayout {
      */
     public void detachUiState(View view){
         removeView(view);
+        uiStates.values().remove(view);
     }
     /**
      * detaches the specified UI-State by index.
      * @param index the index of the UI-State by stacks convention.
+     * @return the removed view
      */
     @UseIndex
-    public void detachUiStateByIndex(@UseIndex int index){
-        removeView(getChildUiStateByIndex(index));
+    public <T extends View> T detachUiStateByIndex(@UseIndex int index){
+        View uiState = getChildUiStateByIndex(index);
+        if(hasUiStateByIndex(index)){
+            removeView(uiState);
+        }
+        if(uiStates.containsValue(uiState)){
+            uiStates.values().remove(uiState);
+        }
+        return (T) uiState;
     }
     /**
      * detach a UI-State from the State-Manager by id.
      * @param id the UI-State id.
+     * @return the removed view
      */
-    public void detachUiStateById(@IdRes int id){
-        removeView(getChildUiStateById(id));
+    public <T extends View> T detachUiStateById(@IdRes int id){
+        View uiState = getChildUiStateById(id);
+        if(hasUiStateById(id)){
+            removeView(uiState);
+        }
+        if(uiStates.containsValue(uiState)){
+            uiStates.values().remove(uiState);
+        }
+        return (T) uiState;
+    }
+    /**
+     * Checks if the current Ui-Pager has got Ui-States
+     * @return true if there are Ui-States inside
+     */
+    public boolean hasUiStates(){
+        return uiStates.size() > 0;
+    }
+
+    /**
+     * Checks for the existence of a current Ui-State by an id
+     * @param resId the id of the proposed Ui-State to check for
+     * @return true if the proposed Ui-State exists
+     */
+    public boolean hasUiStateById(@IdRes int resId){
+        return getChildUiStateById(resId) != null;
+    }
+
+    /**
+     * Checks for the existence of a current Ui-State by an index in the UiPager Stack
+     * @param index the index of the proposed Ui-State to check for
+     * @return true if the proposed Ui-State exists
+     */
+    public boolean hasUiStateByIndex(int index){
+        return getChildUiStateByIndex(index) != null;
     }
     /**
      * Loop over UI-States & do things , w/o modifying #{@link UiStateManager#uiStates} stack size.

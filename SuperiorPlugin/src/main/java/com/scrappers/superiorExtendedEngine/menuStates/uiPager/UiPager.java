@@ -1,6 +1,8 @@
 package com.scrappers.superiorExtendedEngine.menuStates.uiPager;
 
+import android.app.Activity;
 import android.content.Context;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridLayout;
@@ -27,6 +29,9 @@ public class UiPager extends GridLayout {
      */
     public UiPager(Context context) {
         super(context);
+        DisplayMetrics displayMetrics =  new DisplayMetrics();
+        ((Activity)getContext()).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        setLayoutParams(new ViewGroup.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels));
     }
 
     /**
@@ -36,6 +41,9 @@ public class UiPager extends GridLayout {
     public UiPager(ViewGroup viewGroup) {
         super(viewGroup.getContext());
         viewGroup.addView(this);
+        DisplayMetrics displayMetrics =  new DisplayMetrics();
+        ((Activity)getContext()).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        setLayoutParams(new ViewGroup.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels));
     }
 
     /**
@@ -85,9 +93,52 @@ public class UiPager extends GridLayout {
         return uiStates.get(index);
     }
 
+    /**
+     * removes a Ui-State from the current Ui-Pager & returns it back
+     * @param view the view to remove
+     * @param <T> a type of View based Ui-Component
+     * @return the proposed removed Ui-State
+     */
     public <T extends View> T detachUiState(View view){
         removeView(view);
+        if(uiStates.containsValue(view)){
+            uiStates.values().remove(view);
+        }
         return (T) view;
+    }
+
+    /**
+     * Checks if the current Ui-Pager has got Ui-States
+     * @return true if there are Ui-States inside
+     */
+    public boolean hasUiStates(){
+        return uiStates.size() > 0;
+    }
+
+    /**
+     * Checks for the existence of a current Ui-State by an id
+     * @param resId the id of the proposed Ui-State to check for
+     * @return true if the proposed Ui-State exists
+     */
+    public boolean hasUiStateById(@IdRes int resId){
+        return getChildUiStateById(resId) != null;
+    }
+
+    /**
+     * Checks for the existence of a current Ui-State by an index in the UiPager Stack
+     * @param index the index of the proposed Ui-State to check for
+     * @return true if the proposed Ui-State exists
+     */
+    public boolean hasUiStateByIndex(int index){
+        return getChildUiStateByIndex(index) != null;
+    }
+    /**
+     * Detaches all game Ui states from the UI-Pager.
+     */
+    public void detachAllUiStates(){
+        if(hasUiStates()){
+            removeAllViews();
+        }
     }
     /**
      * Traverse over through UI-States & do things, w/o modifying #{@link UiPager#uiStates} stack size.
@@ -113,5 +164,11 @@ public class UiPager extends GridLayout {
             uiStatesLooper.applyUpdate(getChildUiStateByIndex(position), position);
         }
     }
-
+    /**
+     * gets the index of the Last UI-State attached to the UI-State-Manager.
+     * @return the index of the last UI state.
+     */
+    public int getLastStateIndex() {
+        return stateIndex;
+    }
 }

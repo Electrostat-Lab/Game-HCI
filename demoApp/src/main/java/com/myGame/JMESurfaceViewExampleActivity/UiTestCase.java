@@ -21,7 +21,6 @@ public class UiTestCase {
         uiPager.setId('J' + 'J');
 //        uiPager.setScrollContainer(true);
         uiPager.setBackgroundColor(Color.BLACK);
-        uiPager.setLayoutParams(uistateManager.getLayoutParams());
         uiPager.setColumnCount(3);
         uiPager.setRowCount(3);
         ScrollView scrollView = uiPager.initializeScrollableContainer();
@@ -38,7 +37,9 @@ public class UiTestCase {
             @Override
             public void onClick(View v) {
                 Toast.makeText(v.getContext(), "Hey", Toast.LENGTH_LONG).show();
-                uiPager.detachUiState(uiPager.getChildUiStateByIndex(1));
+                if(uiPager.hasUiStateByIndex(1)){
+                    uiPager.detachUiState(uiPager.getChildUiStateByIndex(1));
+                }
 //                uistateManager.detachUiState(uistateManager.getChildUiStateById('J' + 'J'));
             }
         });

@@ -116,6 +116,7 @@ public class UiStateManager extends RelativeLayout {
         if(!uiStates.values().isEmpty()){
             uiStates.clear();
         }
+        stateIndex = 0;
     }
     /**
      * detaches the specified Ui-State.

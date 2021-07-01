@@ -9,9 +9,14 @@ import android.widget.GridLayout;
 import android.widget.ScrollView;
 import com.scrappers.superiorExtendedEngine.menuStates.UiStateManager;
 import com.scrappers.superiorExtendedEngine.menuStates.UiStatesLooper;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.Executors;
 import androidx.annotation.IdRes;
+import androidx.annotation.Nullable;
 
 /**
  * A UiState Class that could hold multiple UiStates in a list/grid form.
@@ -20,6 +25,8 @@ import androidx.annotation.IdRes;
  */
 public class UiPager extends GridLayout {
     public static final int SEQUENTIAL_ADD = -1;
+    public static final int A_Z = 200;
+    public static final int Z_A = 300;
     private final HashMap<Integer, View> uiStates = new HashMap<>();
     private int stateIndex=0;
 
@@ -166,6 +173,112 @@ public class UiPager extends GridLayout {
     public void forEachUiState(UiStatesLooper.Modifiable.Looper uiStatesLooper){
         for(int position=0; position < uiStates.size(); position++) {
             uiStatesLooper.applyUpdate(getChildUiStateByIndex(position), position);
+        }
+    }
+
+    /**
+     * Runs an anonymous asynchronous searching task function for some items inside a searchList based on a list of searchKeyWords.
+     * @param searchList the search list you want to traverse through, it should be parallel to the UiStates you want to update.
+     * @param searchKeyWords the keywords you want to look for inside this search list.
+     * @param injector injects what you want to do when an item is returned by the search engine.
+     * @return a list of the founded strings from the searchList based on the search keywords.
+     * @throws Exception throws an exception if the search custom thread fails.
+     * @apiNote <b> <T extends Object> synchronized(T)</b> marks a thread-safe function by the dead locking other threads synchronized on the same object scheduled or started by the thread factory.
+     */
+    public String[] search(String[] searchList, String[] searchKeyWords, ActionInjector injector) throws Exception {
+        synchronized(this) {
+            final String[] resultList = new String[searchList.length];
+            return Executors.callable(() -> {
+                //format the list
+                removeAllViews();
+                for (int pos = 0; pos < searchList.length; pos++) {
+                    for (String keyword : searchKeyWords) {
+                        if (searchList[pos].replaceAll(" ","").trim().toLowerCase().contains(keyword.replaceAll(" ","").trim().toLowerCase())) {
+                            resultList[pos] = searchList[pos];
+                            View uiState = getChildUiStateByIndex(pos);
+                            addView(uiState);
+                            if(injector != null){
+                                injector.execute(uiState, pos);
+                            }
+                            break;
+                        }
+                    }
+                }
+            }, resultList).call();
+        }
+    }
+
+    /**
+     * Revert the search results executed by the search function, to the full length of UiStates, this doesn't stop the searching thread though, it rather waits until it finishes searching.
+     * @param actionInjector injects actions to execute accompanied by the reversion.
+     * @throws Exception throws an exception if the revert custom thread fails.
+     * @apiNote <b> <T extends Object> synchronized(T)</b> marks a thread-safe function by the dead locking other threads synchronized on the same object scheduled or started by the thread factory.
+     */
+    public void revertSearchEngine(@Nullable ActionInjector actionInjector) throws Exception {
+        synchronized(this){
+            //format the states
+            removeAllViews();
+            Executors.callable(() -> forEachUiState((UiStatesLooper.Modifiable.Looper) (currentView, position) -> {
+                if (actionInjector != null) {
+                    actionInjector.execute(currentView, position);
+                }
+                addView(currentView, position);
+            })).call();
+        }
+    }
+
+    /**
+     * Sort a String list either by A_Z or Z_A swapping algorithm, the sort runs in an async task in the same called thread.
+     * @param list the list to order sort for.
+     * @param sortAlgorithm the sort algorithm either {@link UiPager#A_Z} or {@link UiPager#Z_A}.
+     * @return the new sorted String in the shape of Collection List.
+     * @throws Exception if process is interrupted or -1 is returned.
+     * @apiNote you will need to loop over this list to provide the uiStates with new update.
+     */
+    public String[] sort(String[] list, int sortAlgorithm) throws Exception {
+        synchronized(this) {
+            return Executors.callable(() -> {
+                String tempPointer = "";
+                    //main String List looping
+                    for (int i = 0; i < list.length; i++) {
+                        //looping over the String again to compare each one String member var with the sequence of the String member vars after that item
+                        for(int j = i+1; j < list.length; j++ ){
+                            //loop over chars inside the 2 strings & compare those suckers
+                            for(int k = 0; k < Math.min(list[i].length(), list[j].length()); k++){
+                                //sort from A-Z ascendingly
+                                if(sortAlgorithm == A_Z){
+                                    if ( list[i].toLowerCase().charAt(k) > list[j].toLowerCase().charAt(k) ){
+                                            //format the pointer
+                                            tempPointer = "";
+                                            //then swap list[i] & list[j] because list[i] is after the list[k]
+                                            //store the list[i] inside the tempPointer for later access
+                                            tempPointer = list[i];
+                                            //get the list[i] after
+                                            list[i] = list[j];
+                                            //get the list[j] before
+                                            list[j] = tempPointer;
+                                            //terminate the comparison when goal is reached; for a new round
+                                            break;
+                                    }
+                                }else if(sortAlgorithm == Z_A){
+                                    if ( list[i].toLowerCase().charAt(k) < list[j].toLowerCase().charAt(k) ){
+                                            //format the pointer
+                                            tempPointer = "";
+                                            //then swap list[i] & list[j] because list[i] is before the list[k]
+                                            //store the list[j] inside the tempPointer for later access
+                                            tempPointer = list[j];
+                                            //get the list[j] before
+                                            list[j] = list[i];
+                                            //get the list[i] after
+                                            list[i] = tempPointer;
+                                            //terminate the comparison when goal is reached; for a new round
+                                            break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+            }, list).call();
         }
     }
     /**

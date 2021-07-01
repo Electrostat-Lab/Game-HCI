@@ -33,6 +33,7 @@
         android:importantForAutofill="no"
         tools:ignore="LabelFor" />
     <LinearLayout
+        android:id="@+id/container"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:orientation="horizontal"

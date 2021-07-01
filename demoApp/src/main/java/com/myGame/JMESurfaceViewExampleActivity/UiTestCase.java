@@ -6,20 +6,29 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Toast;
-
 import com.myGame.R;
 import com.scrappers.superiorExtendedEngine.menuStates.UiStateManager;
 import com.scrappers.superiorExtendedEngine.menuStates.uiPager.UiPager;
 
-public class UiTestCase {
+/**
+ * Test case for UiPager #{@link UiPager}.
+ * @author pavl_g
+ */
+public class UiTestCase implements View.OnClickListener {
     private final UiStateManager uistateManager;
+    private UiPager uiPager;
+    private String[] sortedList;
     public UiTestCase(final UiStateManager uistateManager){
         this.uistateManager = uistateManager;
     }
-    public void testPagerUiStates(){
-        UiPager uiPager = new UiPager(uistateManager.getContext());
+
+    /**
+     * Test UiPager features
+     * @throws Exception if processes failed.
+     */
+    public void testPagerUiStates() throws Exception {
+        uiPager = new UiPager(uistateManager.getContext());
         uiPager.setId('J' + 'J');
-//        uiPager.setScrollContainer(true);
         uiPager.setBackgroundColor(Color.BLACK);
         uiPager.setColumnCount(3);
         uiPager.setRowCount(3);
@@ -27,23 +36,55 @@ public class UiTestCase {
         scrollView.setId('J' + 'J');
         uistateManager.attachUiState(scrollView);
 
-        for(int pos = 0; pos < 10; pos++){
-            ((Button)((LinearLayout)uiPager.attachUiState(uistateManager.fromXML(R.layout.test_uipager), UiPager.SEQUENTIAL_ADD))
-                    .getChildAt(0)).setText("heeeeeeee");
-            uiPager.attachUiState(uistateManager.fromXML(R.layout.dialog_exception), UiPager.SEQUENTIAL_ADD);
-
+        //Test Sorting before adding items
+        sortedList = uiPager.sort(new String[]{"Search Test", "Revert Search", "Pavly", "Thomas","Fady", "Dismiss" }, UiPager.A_Z);
+        //IDs
+        final char[] iDs = new char[sortedList.length];
+        for (int position = 0; position < sortedList.length; position++) {
+            Button button = ((Button) ((LinearLayout) uistateManager.fromXML(R.layout.test_uipager)).getChildAt(0));
+            //fill the iDs with the first 2 digits of each state
+            iDs[position] = sortedList[position].charAt(0);
+            button.setId(iDs[position]);
+            button.setText(sortedList[position]);
+            button.setOnClickListener(this);
+            //attach the button
+            uiPager.attachUiState(button, UiPager.SEQUENTIAL_ADD);
         }
-        ((LinearLayout)uiPager.getChildUiStateByIndex(0)).getChildAt(0).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(v.getContext(), "Hey", Toast.LENGTH_LONG).show();
-                if(uiPager.hasUiStateByIndex(1)){
-                    uiPager.detachUiState(uiPager.getChildUiStateByIndex(1));
-                }
-//                uistateManager.detachUiState(uistateManager.getChildUiStateById('J' + 'J'));
-            }
-        });
-        uiPager.attachUiState(uistateManager.fromXML(R.layout.main_menu), 1);
 
     }
-}
+
+    @Override
+    public void onClick(View v) {
+            if(v.getId() == 'S'){
+                Toast.makeText(uiPager.getContext(), "Search Button Clicked", Toast.LENGTH_LONG).show();
+                try {
+                    uiPager.search(sortedList, new String[]{"Revert Search", "PAvlY", "Thomas"}, (uiState, position) -> {
+                        uiState.setBackgroundColor(Color.MAGENTA);
+                        if(uiState.getId() == 'P'){
+                            uiState.setBackgroundColor(Color.RED);
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }else if(v.getId() == 'R'){
+                Toast.makeText(uiPager.getContext(), "Revert Search clicked", Toast.LENGTH_LONG).show();
+                try {
+                    uiPager.revertSearchEngine((uiState, position) -> {
+                        uiState.setBackgroundColor(Color.GREEN);
+                        if(uiState.getId() == 'R'){
+                            uiState.setBackgroundColor(Color.RED);
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }else if(v.getId() == 'D'){
+                uiPager.animate().scaleY(0).scaleX(0).rotationY(45).setDuration(800).withEndAction(()->{
+                    uiPager.detachAllUiStates();
+                    uistateManager.detachUiState(uiPager);
+                }).start();
+            }
+        }
+    }
+

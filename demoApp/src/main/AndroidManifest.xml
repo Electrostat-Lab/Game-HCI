@@ -27,7 +27,11 @@
         <activity
             android:name=".JmEGamePadExample.BluetoothLogic"
             android:screenOrientation="landscape" />
+        <service android:name=".backgroundTest.TestPendingIntent"
+
+            />
     </application>
+
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />

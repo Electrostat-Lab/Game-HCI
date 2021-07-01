@@ -92,7 +92,7 @@ public class JmeGame extends SimpleApplication {
         gameStick.setMotionPathColor(Color.WHITE);
         gameStick.initializeGameStickHolder(ControlButtonsView.NOTHING_IMAGE);
         gameStick.initializeGameStick(ControlButtonsView.DEFAULT_BUTTONS,ControlButtonsView.STICK_DASHES,180);
-        Speedometer speedometer=appCompatActivity.findViewById(R.id.speedometer);
+        final Speedometer speedometer=appCompatActivity.findViewById(R.id.speedometer);
         speedometer.initialize();
         speedometer.getSpeedometerDrawable().setStroke(3, ContextCompat.getColor(appCompatActivity,R.color.gold));
         gameStick.createSpeedometerLink(speedometer,JmeGame.this,vehicle,1f);

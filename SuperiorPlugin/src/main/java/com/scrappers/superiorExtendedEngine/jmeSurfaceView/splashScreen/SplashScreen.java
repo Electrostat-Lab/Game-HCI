@@ -38,7 +38,7 @@ public class SplashScreen {
     public void displayProgressedSplash(){
         DisplayMetrics displayMetrics=new DisplayMetrics();
         appCompatActivity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        splashScreen.setLayoutParams(new RelativeLayout.LayoutParams(displayMetrics.widthPixels*2,displayMetrics.heightPixels));
+        splashScreen.setLayoutParams(jmESurfaceView.getLayoutParams());
         progressBar.setLayoutParams(new RelativeLayout.LayoutParams(displayMetrics.widthPixels/4,displayMetrics.widthPixels/4));
 
         progressBar.setX((float) (displayMetrics.widthPixels/2 - progressBar.getLayoutParams().width/2));

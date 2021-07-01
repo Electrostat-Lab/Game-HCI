@@ -9,7 +9,10 @@ import android.widget.GridLayout;
 import android.widget.ScrollView;
 import com.scrappers.superiorExtendedEngine.menuStates.UiStateManager;
 import com.scrappers.superiorExtendedEngine.menuStates.UiStatesLooper;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
@@ -196,10 +199,10 @@ public class UiPager extends GridLayout {
                         if (searchList[pos].replaceAll(" ","").trim().toLowerCase().contains(keyword.replaceAll(" ","").trim().toLowerCase())) {
                             resultList[pos] = searchList[pos];
                             View uiState = getChildUiStateByIndex(pos);
-                            addView(uiState);
                             if(injector != null){
                                 injector.execute(uiState, pos);
                             }
+                            addView(uiState);
                             break;
                         }
                     }
@@ -243,11 +246,10 @@ public class UiPager extends GridLayout {
                     for (int i = 0; i < list.length; i++) {
                         //looping over the String again to compare each one String member var with the sequence of the String member vars after that item
                         for(int j = i+1; j < list.length; j++ ){
-                            //loop over chars inside the 2 strings & compare those suckers
-                            for(int k = 0; k < Math.min(list[i].length(), list[j].length()); k++){
                                 //sort from A-Z ascendingly
                                 if(sortAlgorithm == A_Z){
-                                    if ( list[i].toLowerCase().charAt(k) > list[j].toLowerCase().charAt(k) ){
+                                    //compare 2 strings lexicographically based on their characters, if the (string object > the argument string) then compareTo returns 1
+                                    if ( list[i].toLowerCase().compareTo(list[j].toLowerCase()) > 0 ){
                                             //format the pointer
                                             tempPointer = "";
                                             //then swap list[i] & list[j] because list[i] is after the list[k]
@@ -257,11 +259,10 @@ public class UiPager extends GridLayout {
                                             list[i] = list[j];
                                             //get the list[j] before
                                             list[j] = tempPointer;
-                                            //terminate the comparison when goal is reached; for a new round
-                                            break;
                                     }
                                 }else if(sortAlgorithm == Z_A){
-                                    if ( list[i].toLowerCase().charAt(k) < list[j].toLowerCase().charAt(k) ){
+                                    //compare 2 strings lexicographically based on their characters, if the (string object < the argument string) then compareTo returns -1
+                                    if (  list[i].toLowerCase().compareTo(list[j].toLowerCase()) < 0){
                                             //format the pointer
                                             tempPointer = "";
                                             //then swap list[i] & list[j] because list[i] is before the list[k]
@@ -271,11 +272,8 @@ public class UiPager extends GridLayout {
                                             list[j] = list[i];
                                             //get the list[i] after
                                             list[i] = tempPointer;
-                                            //terminate the comparison when goal is reached; for a new round
-                                            break;
                                     }
                                 }
-                            }
                         }
                     }
             }, list).call();

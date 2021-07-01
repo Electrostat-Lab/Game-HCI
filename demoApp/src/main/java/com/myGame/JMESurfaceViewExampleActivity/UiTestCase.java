@@ -10,6 +10,8 @@ import com.myGame.R;
 import com.scrappers.superiorExtendedEngine.menuStates.UiStateManager;
 import com.scrappers.superiorExtendedEngine.menuStates.uiPager.UiPager;
 
+import java.util.Arrays;
+
 /**
  * Test case for UiPager #{@link UiPager}.
  * @author pavl_g
@@ -50,6 +52,8 @@ public class UiTestCase implements View.OnClickListener {
             //attach the button
             uiPager.attachUiState(button, UiPager.SEQUENTIAL_ADD);
         }
+        System.out.println(Arrays.toString(uiPager.sort(new String[]{"199", "110", "990", "99", "222", "333", "4455",}, UiPager.A_Z)));
+        System.out.println(Arrays.toString(uiPager.sort(new String[]{ "0?Dogy", "=Baka", "9ggBi", "D_aD", "dad", "amam", "-lolo", "\"hi", "Come", "come", "C", "F", "I", "Z", "A"}, UiPager.A_Z)));
 
     }
 

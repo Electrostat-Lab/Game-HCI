@@ -52,8 +52,8 @@ public class UiTestCase implements View.OnClickListener {
             //attach the button
             uiPager.attachUiState(button, UiPager.SEQUENTIAL_ADD);
         }
-        System.out.println(Arrays.toString(uiPager.sort(new String[]{"199", "110", "990", "99", "222", "333", "4455",}, UiPager.A_Z)));
-        System.out.println(Arrays.toString(uiPager.sort(new String[]{ "0?Dogy", "=Baka", "9ggBi", "D_aD", "dad", "amam", "-lolo", "\"hi", "Come", "come", "C", "F", "I", "Z", "A"}, UiPager.A_Z)));
+//        System.out.println(Arrays.toString(uiPager.sort(new String[]{"199", "110", "990", "99", "222", "333", "4455",}, UiPager.A_Z)));
+//        System.out.println(Arrays.toString(uiPager.sort(new String[]{ "0?Dogy", "=Baka", "9ggBi", "D_aD", "dad", "amam", "-lolo", "\"hi", "Come", "come", "C", "F", "I", "Z", "A"}, UiPager.A_Z)));
 
     }
 
@@ -88,6 +88,26 @@ public class UiTestCase implements View.OnClickListener {
                     uiPager.detachAllUiStates();
                     uistateManager.detachUiState(uiPager);
                 }).start();
+            }
+        }
+        private class DataModel {
+            private int id;
+            private String text;
+
+            public int getId() {
+                return id;
+            }
+
+            public void setId(int id) {
+                this.id = id;
+            }
+
+            public String getText() {
+                return text;
+            }
+
+            public void setText(String text) {
+                this.text = text;
             }
         }
     }

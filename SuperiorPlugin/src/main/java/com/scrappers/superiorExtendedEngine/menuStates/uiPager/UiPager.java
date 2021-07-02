@@ -192,17 +192,13 @@ public class UiPager extends GridLayout {
         synchronized(this) {
             final String[] resultList = new String[searchList.length];
             return Executors.callable(() -> {
-                //format the list
-                removeAllViews();
                 for (int pos = 0; pos < searchList.length; pos++) {
                     for (String keyword : searchKeyWords) {
                         if (searchList[pos].replaceAll(" ","").trim().toLowerCase().contains(keyword.replaceAll(" ","").trim().toLowerCase())) {
                             resultList[pos] = searchList[pos];
-                            View uiState = getChildUiStateByIndex(pos);
                             if(injector != null){
-                                injector.execute(uiState, pos);
+                                injector.execute(getChildUiStateByIndex(pos), pos);
                             }
-                            addView(uiState);
                             break;
                         }
                     }
@@ -240,43 +236,45 @@ public class UiPager extends GridLayout {
      */
     public String[] sort(String[] list, int sortAlgorithm) throws Exception {
         synchronized(this) {
+            //to apply the sort change as an external final change on a list copy (warning : ->Internal List change(positions or items count or items values) = Malicious Activity
+            final String[] copy = list;
             return Executors.callable(() -> {
                 String tempPointer = "";
                     //main String List looping
-                    for (int i = 0; i < list.length; i++) {
+                    for (int i = 0; i < copy.length; i++) {
                         //looping over the String again to compare each one String member var with the sequence of the String member vars after that item
-                        for(int j = i+1; j < list.length; j++ ){
+                        for(int j = i+1; j < copy.length; j++ ){
                                 //sort from A-Z ascendingly
                                 if(sortAlgorithm == A_Z){
                                     //compare 2 strings lexicographically based on their characters, if the (string object > the argument string) then compareTo returns 1
-                                    if ( list[i].toLowerCase().compareTo(list[j].toLowerCase()) > 0 ){
+                                    if ( copy[i].toLowerCase().compareTo(copy[j].toLowerCase()) > 0 ){
                                             //format the pointer
                                             tempPointer = "";
                                             //then swap list[i] & list[j] because list[i] is after the list[k]
                                             //store the list[i] inside the tempPointer for later access
-                                            tempPointer = list[i];
+                                            tempPointer = copy[i];
                                             //get the list[i] after
-                                            list[i] = list[j];
+                                            copy[i] = copy[j];
                                             //get the list[j] before
-                                            list[j] = tempPointer;
+                                            copy[j] = tempPointer;
                                     }
                                 }else if(sortAlgorithm == Z_A){
                                     //compare 2 strings lexicographically based on their characters, if the (string object < the argument string) then compareTo returns -1
-                                    if (  list[i].toLowerCase().compareTo(list[j].toLowerCase()) < 0){
+                                    if (  copy[i].toLowerCase().compareTo(copy[j].toLowerCase()) < 0){
                                             //format the pointer
                                             tempPointer = "";
                                             //then swap list[i] & list[j] because list[i] is before the list[k]
                                             //store the list[j] inside the tempPointer for later access
-                                            tempPointer = list[j];
+                                            tempPointer = copy[j];
                                             //get the list[j] before
-                                            list[j] = list[i];
+                                            copy[j] = copy[i];
                                             //get the list[i] after
-                                            list[i] = tempPointer;
+                                            copy[i] = tempPointer;
                                     }
                                 }
                         }
                     }
-            }, list).call();
+            }, copy).call();
         }
     }
     /**

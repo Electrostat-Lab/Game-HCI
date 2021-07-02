@@ -196,7 +196,7 @@ public class UiPager extends GridLayout {
                     for (String keyword : searchKeyWords) {
                         if (searchList[pos].replaceAll(" ","").trim().toLowerCase().contains(keyword.replaceAll(" ","").trim().toLowerCase())) {
                             //dynamic array conception
-                            if(pos > resultList[0].length){
+                            if(pos >= resultList[0].length){
                                 resultList[0] = Arrays.copyOf(resultList[0], resultList[0].length+1);
                             }
                             resultList[0][pos] = searchList[pos];

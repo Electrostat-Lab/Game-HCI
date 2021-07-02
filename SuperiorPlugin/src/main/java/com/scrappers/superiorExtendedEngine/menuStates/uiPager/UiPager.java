@@ -190,12 +190,16 @@ public class UiPager extends GridLayout {
      */
     public String[] search(String[] searchList, String[] searchKeyWords, ActionInjector injector) throws Exception {
         synchronized(this) {
-            final String[] resultList = new String[searchList.length];
+            final String[][] resultList = {new String[0]};
             return Executors.callable(() -> {
                 for (int pos = 0; pos < searchList.length; pos++) {
                     for (String keyword : searchKeyWords) {
                         if (searchList[pos].replaceAll(" ","").trim().toLowerCase().contains(keyword.replaceAll(" ","").trim().toLowerCase())) {
-                            resultList[pos] = searchList[pos];
+                            //dynamic array conception
+                            if(pos > resultList[0].length){
+                                resultList[0] = Arrays.copyOf(resultList[0], resultList[0].length+1);
+                            }
+                            resultList[0][pos] = searchList[pos];
                             if(injector != null){
                                 injector.execute(getChildUiStateByIndex(pos), pos);
                             }
@@ -203,7 +207,7 @@ public class UiPager extends GridLayout {
                         }
                     }
                 }
-            }, resultList).call();
+            }, resultList[0]).call();
         }
     }
 
@@ -237,7 +241,7 @@ public class UiPager extends GridLayout {
     public String[] sort(String[] list, int sortAlgorithm) throws Exception {
         synchronized(this) {
             //to apply the sort change as an external final change on a list copy (warning : ->Internal List change(positions or items count or items values) = Malicious Activity
-            final String[] copy = list;
+            final String[] copy = Arrays.copyOf(list, list.length);
             return Executors.callable(() -> {
                 String tempPointer = "";
                     //main String List looping

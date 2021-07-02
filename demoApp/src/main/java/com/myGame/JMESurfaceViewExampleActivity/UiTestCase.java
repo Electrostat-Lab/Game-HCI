@@ -63,7 +63,7 @@ public class UiTestCase implements View.OnClickListener {
                 Toast.makeText(uiPager.getContext(), "Search Button Clicked", Toast.LENGTH_LONG).show();
                 try {
                     uiPager.removeAllViews();
-                    uiPager.search(sortedList, new String[]{"Revert Search", "PAvlY", "Thomas"}, (uiState, position, currentItem) -> {
+                    uiPager.search(sortedList, new String[]{"Search", "PAvlY", "Thomas"}, (uiState, position, currentItem) -> {
                         uiPager.addView(uiState);
                         uiState.setBackgroundColor(Color.MAGENTA);
                         if(uiState.getId() == 'P'){

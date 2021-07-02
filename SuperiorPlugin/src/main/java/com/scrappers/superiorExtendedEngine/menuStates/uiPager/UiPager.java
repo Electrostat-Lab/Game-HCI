@@ -209,7 +209,6 @@ public class UiPager extends GridLayout {
                             if(injector != null){
                                 injector.execute(getChildUiStateByIndex(j), j, resultList[0][i]);
                             }
-                            break;
                         }
                     }
                 }

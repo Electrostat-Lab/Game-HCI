@@ -192,41 +192,28 @@ public class UiPager extends GridLayout {
         synchronized(this) {
             final String[][] resultList = {new String[0]};
             return Executors.callable(() -> {
-                for (int pos = 0; pos < searchList.length; pos++) {
-                    for (String keyword : searchKeyWords) {
-                        if (searchList[pos].replaceAll(" ","").trim().toLowerCase().contains(keyword.replaceAll(" ","").trim().toLowerCase())) {
+                String[] temp;
+                for (int i = 0; i < searchKeyWords.length; i++) {
+                    for (int j = 0; j < searchList.length; j++) {
+                        if (searchList[j].replaceAll(" ","").trim().toLowerCase().contains(
+                                searchKeyWords[i].replaceAll(" ","").trim().toLowerCase())) {
                             //dynamic array conception
-                            if(pos >= resultList[0].length-1){
-                                resultList[0] = Arrays.copyOf(resultList[0], resultList[0].length+1);
+                            if(i > resultList[0].length-1){
+                                temp = resultList[0];
+                                resultList[0] = new String[temp.length+1];
+                                for(int position=0; position < temp.length; position++){
+                                    resultList[0][position] = temp[position];
+                                }
                             }
-                            resultList[0][pos] = searchList[pos];
+                            resultList[0][i] = searchKeyWords[i];
                             if(injector != null){
-                                injector.execute(getChildUiStateByIndex(pos), pos);
+                                injector.execute(getChildUiStateByIndex(j), j, resultList[0][i]);
                             }
                             break;
                         }
                     }
                 }
             }, resultList[0]).call();
-        }
-    }
-
-    /**
-     * Revert the search results executed by the search function, to the full length of UiStates, this doesn't stop the searching thread though, it rather waits until it finishes searching.
-     * @param actionInjector injects actions to execute accompanied by the reversion.
-     * @throws Exception throws an exception if the revert custom thread fails.
-     * @apiNote <b> <T extends Object> synchronized(T)</b> marks a thread-safe function by the dead locking other threads synchronized on the same object scheduled or started by the thread factory.
-     */
-    public void revertSearchEngine(@Nullable ActionInjector actionInjector) throws Exception {
-        synchronized(this){
-            //format the states
-            removeAllViews();
-            Executors.callable(() -> forEachUiState((UiStatesLooper.Modifiable.Looper) (currentView, position) -> {
-                if (actionInjector != null) {
-                    actionInjector.execute(currentView, position);
-                }
-                addView(currentView, position);
-            })).call();
         }
     }
 

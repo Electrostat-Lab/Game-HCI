@@ -62,7 +62,9 @@ public class UiTestCase implements View.OnClickListener {
             if(v.getId() == 'S'){
                 Toast.makeText(uiPager.getContext(), "Search Button Clicked", Toast.LENGTH_LONG).show();
                 try {
-                    uiPager.search(sortedList, new String[]{"Revert Search", "PAvlY", "Thomas"}, (uiState, position) -> {
+                    uiPager.removeAllViews();
+                    uiPager.search(sortedList, new String[]{"Revert Search", "PAvlY", "Thomas"}, (uiState, position, currentItem) -> {
+                        uiPager.addView(uiState);
                         uiState.setBackgroundColor(Color.MAGENTA);
                         if(uiState.getId() == 'P'){
                             uiState.setBackgroundColor(Color.RED);
@@ -73,16 +75,7 @@ public class UiTestCase implements View.OnClickListener {
                 }
             }else if(v.getId() == 'R'){
                 Toast.makeText(uiPager.getContext(), "Revert Search clicked", Toast.LENGTH_LONG).show();
-                try {
-                    uiPager.revertSearchEngine((uiState, position) -> {
-                        uiState.setBackgroundColor(Color.GREEN);
-                        if(uiState.getId() == 'R'){
-                            uiState.setBackgroundColor(Color.RED);
-                        }
-                    });
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+
             }else if(v.getId() == 'D'){
                 uiPager.animate().scaleY(0).scaleX(0).rotationY(45).setDuration(800).withEndAction(()->{
                     uiPager.detachAllUiStates();

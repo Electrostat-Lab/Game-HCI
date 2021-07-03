@@ -11,6 +11,7 @@ import com.scrappers.superiorExtendedEngine.menuStates.UiStateManager;
 import com.scrappers.superiorExtendedEngine.menuStates.uiPager.UiPager;
 
 import java.util.Arrays;
+import java.util.concurrent.Executors;
 
 /**
  * Test case for UiPager #{@link UiPager}.
@@ -61,18 +62,21 @@ public class UiTestCase implements View.OnClickListener {
     public void onClick(View v) {
             if(v.getId() == 'S'){
                 Toast.makeText(uiPager.getContext(), "Search Button Clicked", Toast.LENGTH_LONG).show();
+                uiPager.removeAllViews();
                 try {
-                    uiPager.removeAllViews();
-                    uiPager.search(sortedList, new String[]{"Search", "PAvlY", "Thomas"}, (uiState, position, currentItem) -> {
-                        uiPager.addView(uiState);
-                        uiState.setBackgroundColor(Color.MAGENTA);
-                        if(uiState.getId() == 'P'){
-                            uiState.setBackgroundColor(Color.RED);
-                        }
-                    });
+                    Executors.callable(()->{
+                        System.out.println(Arrays.toString(uiPager.search(sortedList, new String[]{"Search", "PAvlY", "Thomas"}, (uiState, position, currentItem) -> {
+                            uiPager.addView(uiState);
+                            uiState.setBackgroundColor(Color.MAGENTA);
+                            if ( uiState.getId() == 'P' ){
+                                uiState.setBackgroundColor(Color.RED);
+                            }
+                        })));
+                    }).call();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+
             }else if(v.getId() == 'R'){
                 Toast.makeText(uiPager.getContext(), "Revert Search clicked", Toast.LENGTH_LONG).show();
 

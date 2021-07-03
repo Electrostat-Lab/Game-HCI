@@ -180,40 +180,49 @@ public class UiPager extends GridLayout {
     }
 
     /**
-     * Runs an anonymous asynchronous searching task function for some items inside a searchList based on a list of searchKeyWords.
+     * Runs a searching task function for some items inside a searchList based on a list of searchKeyWords.
      * @param searchList the search list you want to traverse through, it should be parallel to the UiStates you want to update.
      * @param searchKeyWords the keywords you want to look for inside this search list.
      * @param injector injects what you want to do when an item is returned by the search engine.
      * @return a list of the founded strings from the searchList based on the search keywords.
-     * @throws Exception throws an exception if the search custom thread fails.
-     * @apiNote <b> <T extends Object> synchronized(T)</b> marks a thread-safe function by the dead locking other threads synchronized on the same object scheduled or started by the thread factory.
      */
-    public String[] search(String[] searchList, String[] searchKeyWords, ActionInjector injector) throws Exception {
-        synchronized(this) {
-            final String[][] resultList = {new String[0]};
-            return Executors.callable(() -> {
-                String[] temp;
-                for (int i = 0; i < searchKeyWords.length; i++) {
-                    for (int j = 0; j < searchList.length; j++) {
-                        if (searchList[j].replaceAll(" ","").trim().toLowerCase().contains(
-                                searchKeyWords[i].replaceAll(" ","").trim().toLowerCase())) {
-                            //dynamic array conception
-                            if(i > resultList[0].length-1){
-                                temp = resultList[0];
-                                resultList[0] = new String[temp.length+1];
-                                for(int position=0; position < temp.length; position++){
-                                    resultList[0][position] = temp[position];
+    public String[] search(String[] searchList, String[] searchKeyWords, ActionInjector injector) {
+        String[] resultList = new String[0];
+        String[] temp;
+        int index = 0;
+            //loop over the main list items
+            for (int i = 0; i < searchList.length; i++) {
+                //loop over the search keywords
+                for (String searchKeyWord : searchKeyWords) {
+                    if ( searchList[i].replaceAll(" ", "").trim().toLowerCase().contains(
+                            searchKeyWord.replaceAll(" ", "").trim().toLowerCase()) ){
+                            //dynamic array conception (expandable by 1 array) & index to keep track of the successful matched string literals
+                            if ( index > resultList.length - 1 ){
+                                //creating temp pointer producing a deep copy of resultList[0] array
+                                temp = resultList;
+                                //expanding the array through a new wider in size pointer
+                                resultList = new String[temp.length + 1];
+                                //copy the values of the old contacted array to the new expanded one
+                                int position = 0;
+                                while (position < temp.length) {
+                                    resultList[position] = temp[position];
+                                    position++;
                                 }
                             }
-                            resultList[0][i] = searchKeyWords[i];
-                            if(injector != null){
-                                injector.execute(getChildUiStateByIndex(j), j, resultList[0][i]);
+                            //fill a new item after expanding the pointer
+                            resultList[index] = searchList[i];
+                            //inject users' actions to execute
+                            if ( injector != null ){
+                                injector.execute(getChildUiStateByIndex(i), i, resultList[index]);
                             }
-                        }
+                            //add 1 to keep track of successful values
+                            index++;
+                            //terminate when a successful condition search has met in the list of search keywords
+                        break;
                     }
                 }
-            }, resultList[0]).call();
-        }
+            }
+        return resultList;
     }
 
     /**

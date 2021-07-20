@@ -82,7 +82,7 @@ public class UiStateManager extends RelativeLayout {
      * @return a view fetched from that layout resource xml file.
      * @see UiStateManager#attachUiState(View).
      */
-    public View fromXML(@LayoutRes int resId, Context context){
+    public static View fromXML(@LayoutRes int resId, Context context){
         return LayoutInflater.from(context).inflate(resId, null);
     }
     /**

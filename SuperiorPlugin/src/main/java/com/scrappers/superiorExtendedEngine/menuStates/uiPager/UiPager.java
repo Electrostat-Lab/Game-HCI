@@ -8,13 +8,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridLayout;
 import android.widget.ScrollView;
-import com.scrappers.superiorExtendedEngine.menuStates.UiStateManager;
-import com.scrappers.superiorExtendedEngine.menuStates.UiStatesLooper;
 import java.util.Arrays;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.concurrent.Executors;
 import androidx.annotation.IdRes;
+
+import com.scrappers.superiorExtendedEngine.menuStates.UiStateManager;
+import com.scrappers.superiorExtendedEngine.menuStates.UiStatesLooper;
 
 /**
  * A UiState Class that could hold multiple UiStates in a list/grid form.
@@ -69,12 +70,12 @@ public class UiPager extends GridLayout {
      * @return a scroll view instance representing a Scrollable Container
      */
     public ScrollView initializeScrollableContainer(){
-            ScrollView scrollView = new ScrollView(getContext());
-            scrollView.setLayoutParams(getLayoutParams());
-            scrollView.setSmoothScrollingEnabled(true);
-            scrollView.setScrollContainer(true);
-            setScrollContainer(true);
-            scrollView.addView(this);
+        ScrollView scrollView = new ScrollView(getContext());
+        scrollView.setLayoutParams(getLayoutParams());
+        scrollView.setSmoothScrollingEnabled(true);
+        scrollView.setScrollContainer(true);
+        setScrollContainer(true);
+        scrollView.addView(this);
         return scrollView;
     }
 
@@ -195,7 +196,7 @@ public class UiPager extends GridLayout {
      * @return a list of the founded strings from the searchList based on the search keywords.
      */
     public <M extends PageDataModel> M[] search(M[] searchList, String[] searchKeyWords, ActionInjector injector) {
-        M[] resultList = (M[]) new PageDataModel[0];
+        M[] resultList = Arrays.copyOf(searchList, 0);
         M[] temp;
         int index = 0;
         //loop over the main list items
@@ -209,7 +210,7 @@ public class UiPager extends GridLayout {
                         //creating temp pointer producing a deep copy of resultList[0] array
                         temp = resultList;
                         //expanding the array through a new wider in size pointer
-                        resultList = (M[]) new PageDataModel[temp.length + 1];
+                        resultList = Arrays.copyOf(resultList, resultList.length + 1);
                         //copy the values of the old contacted array to the new expanded one
                         int position = 0;
                         while (position < temp.length) {
@@ -238,43 +239,42 @@ public class UiPager extends GridLayout {
      * @param list the list to order sort for.
      * @param sortAlgorithm the sort algorithm either {@link UiPager#A_Z} or {@link UiPager#Z_A}.
      * @return the new sorted String in the shape of Collection List.
-     * @throws Exception if process is interrupted or -1 is returned.
      * @apiNote you will need to loop over this list to provide the uiStates with new update.
      */
-    public <M extends PageDataModel> M[] sort(M[] list, int sortAlgorithm) throws Exception {
+    public <M extends PageDataModel> M[] sort(M[] list, int sortAlgorithm) {
         //to apply the sort change as an external final change on a list copy (warning : ->Internal List change(positions or items count or items values) = Malicious Activity
         final M[] copy = Arrays.copyOf(list, list.length);
-            M tempPointer;
-                //main String List looping
-                for (int i = 0; i < copy.length; i++) {
-                    //looping over the String again to compare each one String member var with the sequence of the String member vars after that item
-                    for(int j = i+1; j < copy.length; j++ ){
-                            //sort from A-Z ascendingly
-                            if(sortAlgorithm == A_Z){
-                                //compare 2 strings lexicographically based on their characters, if the (string object > the argument string) then compareTo returns 1
-                                if ( copy[i].getSortingData().toLowerCase().compareTo(copy[j].getSortingData().toLowerCase()) > 0 ){
-                                        //then swap list[i] & list[j] because list[i] is after the list[k]
-                                        //store the list[i] inside the tempPointer for later access
-                                        tempPointer = copy[i];
-                                        //get the list[i] after
-                                        copy[i] = copy[j];
-                                        //get the list[j] before
-                                        copy[j] = tempPointer;
-                                }
-                            }else if(sortAlgorithm == Z_A){
-                                //compare 2 strings lexicographically based on their characters, if the (string object < the argument string) then compareTo returns -1
-                                if (  copy[i].getSortingData().toLowerCase().compareTo(copy[j].getSortingData().toLowerCase()) < 0){
-                                        //then swap list[i] & list[j] because list[i] is before the list[k]
-                                        //store the list[j] inside the tempPointer for later access
-                                        tempPointer = copy[j];
-                                        //get the list[j] before
-                                        copy[j] = copy[i];
-                                        //get the list[i] after
-                                        copy[i] = tempPointer;
-                                }
-                            }
+        M tempPointer;
+        //main String List looping
+        for (int i = 0; i < copy.length; i++) {
+            //looping over the String again to compare each one String member var with the sequence of the String member vars after that item
+            for(int j = i+1; j < copy.length; j++ ){
+                //sort from A-Z ascendingly
+                if(sortAlgorithm == A_Z){
+                    //compare 2 strings lexicographically based on their characters, if the (string object > the argument string) then compareTo returns 1
+                    if ( copy[i].getSortingData().toLowerCase().compareTo(copy[j].getSortingData().toLowerCase()) > 0 ){
+                        //then swap list[i] & list[j] because list[i] is after the list[k]
+                        //store the list[i] inside the tempPointer for later access
+                        tempPointer = copy[i];
+                        //get the list[i] after
+                        copy[i] = copy[j];
+                        //get the list[j] before
+                        copy[j] = tempPointer;
+                    }
+                }else if(sortAlgorithm == Z_A){
+                    //compare 2 strings lexicographically based on their characters, if the (string object < the argument string) then compareTo returns -1
+                    if (  copy[i].getSortingData().toLowerCase().compareTo(copy[j].getSortingData().toLowerCase()) < 0){
+                        //then swap list[i] & list[j] because list[i] is before the list[k]
+                        //store the list[j] inside the tempPointer for later access
+                        tempPointer = copy[j];
+                        //get the list[j] before
+                        copy[j] = copy[i];
+                        //get the list[i] after
+                        copy[i] = tempPointer;
                     }
                 }
+            }
+        }
         return copy;
     }
     /**

@@ -1,23 +1,21 @@
-package com.scrappers.superiorExtendedEngine.misc;
+package com.scrappers.superiorExtendedEngine.vehicles;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
-import android.graphics.drawable.GradientDrawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
-
 import com.scrappers.GamePad.R;
 import com.scrappers.superiorExtendedEngine.gamePad.ControlButtonsView;
-import com.scrappers.superiorExtendedEngine.gamePad.GameStickView;
 
-import androidx.annotation.CallSuper;
+import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RawRes;
+import androidx.annotation.XmlRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
@@ -27,14 +25,6 @@ import androidx.core.content.ContextCompat;
  * @author pavl_g
  */
 public class DrivingWheelView extends RelativeLayout {
-    private int DRIVING_PADS_TINT = R.color.pureWhite;
-    private int AXLE_TINT = R.color.pureWhite;
-    private int DRIVING_WHEEL = R.drawable.driving_wheel;
-    private int DRIVING_WHEEL_TINT = R.color.fireEngineRed;
-    private int WHEEL_AXLE = R.drawable.wheel_axle;
-    private int DRIVING_PADS = R.drawable.driving_pads;
-    private int HORN_HOLDER = R.drawable.driving_handle;
-    private int HORN = R.drawable.ic_air_horn;
     private boolean neutralizeWhenLostFocus=true;
     private CardView drivingWheel;
     private CardView hornHolder;
@@ -52,6 +42,26 @@ public class DrivingWheelView extends RelativeLayout {
     public OnSteering onSteering;
     private CustomizeDrivingWheel customizeDrivingWheel;
     private DynamicUTurn dynamicUTurn;
+
+    /**
+     * Driving Handle Style enclosure.
+     * @author pavl_g
+     */
+    public enum HandleStyles {
+        //the enums
+        DRIVING_PADS_TINT(R.color.pureWhite), AXLE_TINT(R.color.pureWhite), DRIVING_WHEEL(R.drawable.driving_wheel),
+        DRIVING_WHEEL_TINT(R.color.fireEngineRed), WHEEL_AXLE(R.drawable.wheel_axle), DRIVING_PADS(R.drawable.driving_pads),
+        HORN_HOLDER(R.drawable.driving_handle), HORN(R.drawable.ic_air_horn);
+
+        public final int STYLE;
+        /**
+         * Make a call to a constant enum of couple of designs
+         * @param STYLE the style
+         */
+        HandleStyles(int STYLE){
+            this.STYLE = STYLE;
+        }
+    }
 
     public DrivingWheelView(@NonNull Context appCompatActivity) {
         super(appCompatActivity);
@@ -74,13 +84,13 @@ public class DrivingWheelView extends RelativeLayout {
             xOrigin=getLayoutParams().width/2f;
             yOrigin=getLayoutParams().height/2f;
 
-            setBackground(ContextCompat.getDrawable(this.getContext(), ControlButtonsView.NOTHING_IMAGE));
+            setBackground(ContextCompat.getDrawable(this.getContext(), ControlButtonsView.ButtonStyle.NOTHING_IMAGE.STYLE));
 
             /*initialization of drivingWheel*/
             drivingWheel =new CardView(getContext());
             drivingWheel.setRotationX((float) Math.toDegrees(Math.PI/10));
-            drivingWheel.setBackground(ContextCompat.getDrawable(getContext(), DRIVING_WHEEL));
-            drivingWheel.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(),DRIVING_WHEEL_TINT)));
+            drivingWheel.setBackground(ContextCompat.getDrawable(getContext(), HandleStyles.DRIVING_WHEEL.STYLE));
+            drivingWheel.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), HandleStyles.DRIVING_WHEEL_TINT.STYLE)));
             ViewGroup.LayoutParams drivingWheelParams=new RelativeLayout.LayoutParams(getLayoutParams().width,getLayoutParams().height);
             drivingWheel.setLayoutParams(drivingWheelParams);
             drivingWheel.setX(getLayoutParams().width/2f-drivingWheelParams.width/2f);
@@ -91,8 +101,8 @@ public class DrivingWheelView extends RelativeLayout {
             axle=new ImageView(getContext());
             axle.setRotationY(60);
             axle.setRotationX(10);
-            axle.setBackground(ContextCompat.getDrawable(getContext(),WHEEL_AXLE));
-            axle.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(),AXLE_TINT)));
+            axle.setBackground(ContextCompat.getDrawable(getContext(), HandleStyles.WHEEL_AXLE.STYLE));
+            axle.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), HandleStyles.AXLE_TINT.STYLE)));
             //total distance of the upper half of the circle = half of the width of the view = half the circumference of the circle
             // (because we wanna get the exact width of the axle after a rotation by some degree points in the +ve direction of x-axis
             //general formula = length covered by an angle in unit circle = perimeter of the circle(circle frame length) * (theta/360 or the scaleFactor)
@@ -113,8 +123,8 @@ public class DrivingWheelView extends RelativeLayout {
             axle2=new ImageView(getContext());
             axle2.setRotationY(-60);
             axle2.setRotationX(10);
-            axle2.setBackground(ContextCompat.getDrawable(getContext(), WHEEL_AXLE));
-            axle2.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(),AXLE_TINT)));
+            axle2.setBackground(ContextCompat.getDrawable(getContext(), HandleStyles.WHEEL_AXLE.STYLE));
+            axle2.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), HandleStyles.AXLE_TINT.STYLE)));
             ViewGroup.LayoutParams axle2Params=new RelativeLayout.LayoutParams((int) (getLayoutParams().width/2+lengthCoveredByRotationAngle)+strokeWidth
                     ,drivingWheelParams.height/5);
             axle2.setLayoutParams(axle2Params);
@@ -124,8 +134,8 @@ public class DrivingWheelView extends RelativeLayout {
             drivingWheel.addView(axle2);
             /*Axle3*/
             axle3=new ImageView(getContext());
-            axle3.setBackground(ContextCompat.getDrawable(getContext(),WHEEL_AXLE));
-            axle3.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(),AXLE_TINT)));
+            axle3.setBackground(ContextCompat.getDrawable(getContext(), HandleStyles.WHEEL_AXLE.STYLE));
+            axle3.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), HandleStyles.AXLE_TINT.STYLE)));
             ViewGroup.LayoutParams axle3Params=new RelativeLayout.LayoutParams(getLayoutParams().width,drivingWheelParams.height/5);
             axle3.setLayoutParams(axle3Params);
             axle3.setX(drivingWheel.getLayoutParams().width/2f-axle3Params.width/2f);
@@ -137,8 +147,8 @@ public class DrivingWheelView extends RelativeLayout {
 
             /*define the drivingWheelPads*/
             drivingPads=new CardView(getContext());
-            drivingPads.setBackground(ContextCompat.getDrawable(getContext(), DRIVING_PADS));
-            drivingPads.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(),DRIVING_PADS_TINT)));
+            drivingPads.setBackground(ContextCompat.getDrawable(getContext(), HandleStyles.DRIVING_PADS.STYLE));
+            drivingPads.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), HandleStyles.DRIVING_PADS_TINT.STYLE)));
             ViewGroup.LayoutParams drivingPadsParams=new RelativeLayout.LayoutParams(getLayoutParams().width,getLayoutParams().height);
             drivingPads.setLayoutParams(drivingPadsParams);
             drivingPads.setX(getLayoutParams().width/2f-drivingWheelParams.width/2f);
@@ -148,7 +158,7 @@ public class DrivingWheelView extends RelativeLayout {
 
             /*define the hornHolder view*/
             hornHolder=new CardView(drivingWheel.getContext());
-            hornHolder.setBackground(ContextCompat.getDrawable(getContext(),HORN_HOLDER));
+            hornHolder.setBackground(ContextCompat.getDrawable(getContext(), HandleStyles.HORN_HOLDER.STYLE));
             hornHolder.setRotationX(drivingWheel.getRotationX());
             hornHolder.setLayoutParams(new RelativeLayout.LayoutParams(drivingWheelParams.width/3, drivingWheelParams.height/3));
             hornHolder.setX(drivingWheel.getLayoutParams().width/2f-hornHolder.getLayoutParams().width/2f);
@@ -159,7 +169,7 @@ public class DrivingWheelView extends RelativeLayout {
 
             /*define hornHolder image*/
             horn=new ImageView(hornHolder.getContext());
-            horn.setImageDrawable(ContextCompat.getDrawable(getContext(),HORN));
+            horn.setImageDrawable(ContextCompat.getDrawable(getContext(), HandleStyles.HORN.STYLE));
             horn.setLayoutParams(new RelativeLayout.LayoutParams(hornHolder.getLayoutParams().width/2,hornHolder.getLayoutParams().height/2));
             horn.setX(hornHolder.getLayoutParams().width/2f-horn.getLayoutParams().width/2f);
             horn.setY(hornHolder.getLayoutParams().height/2f-horn.getLayoutParams().height/2f);
@@ -167,8 +177,8 @@ public class DrivingWheelView extends RelativeLayout {
 
             /* the driving wheel enclosure is the top part part of the driving wheel with same color*/
             drivingWheelEnclosure=new CardView(getContext());
-            drivingWheelEnclosure.setBackground(ContextCompat.getDrawable(getContext(), DRIVING_WHEEL));
-            drivingWheelEnclosure.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(),DRIVING_WHEEL_TINT)));
+            drivingWheelEnclosure.setBackground(ContextCompat.getDrawable(getContext(), HandleStyles.DRIVING_WHEEL.STYLE));
+            drivingWheelEnclosure.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), HandleStyles.DRIVING_WHEEL_TINT.STYLE)));
             drivingWheelEnclosure.setLayoutParams(drivingWheel.getLayoutParams());
             drivingWheelEnclosure.setX(drivingWheel.getX());
             drivingWheelEnclosure.setY(drivingWheel.getY());
@@ -260,70 +270,6 @@ public class DrivingWheelView extends RelativeLayout {
 
     public void setDrivingWheelAnimationDuration(long drivingWheelAnimationDuration) {
         this.drivingWheelAnimationDuration = drivingWheelAnimationDuration;
-    }
-
-    public int getDRIVING_WHEEL() {
-        return DRIVING_WHEEL;
-    }
-
-    public void setDRIVING_WHEEL(int DRIVING_WHEEL) {
-        this.DRIVING_WHEEL = DRIVING_WHEEL;
-    }
-
-    public int getDRIVING_WHEEL_TINT() {
-        return DRIVING_WHEEL_TINT;
-    }
-
-    public void setDRIVING_WHEEL_TINT(int DRIVING_WHEEL_TINT) {
-        this.DRIVING_WHEEL_TINT = DRIVING_WHEEL_TINT;
-    }
-
-    public int getWHEEL_AXLE() {
-        return WHEEL_AXLE;
-    }
-
-    public void setWHEEL_AXLE(int WHEEL_AXLE) {
-        this.WHEEL_AXLE = WHEEL_AXLE;
-    }
-
-    public int getDRIVING_PADS() {
-        return DRIVING_PADS;
-    }
-
-    public void setDRIVING_PADS(int DRIVING_PADS) {
-        this.DRIVING_PADS = DRIVING_PADS;
-    }
-
-    public int getHORN_HOLDER() {
-        return HORN_HOLDER;
-    }
-
-    public void setHORN_HOLDER(int HORN_HOLDER) {
-        this.HORN_HOLDER = HORN_HOLDER;
-    }
-
-    public int getHORN() {
-        return HORN;
-    }
-
-    public void setHORN(int HORN) {
-        this.HORN = HORN;
-    }
-
-    public void setAXLE_TINT(int AXLE_TINT) {
-        this.AXLE_TINT = AXLE_TINT;
-    }
-
-    public int getAXLE_TINT() {
-        return AXLE_TINT;
-    }
-
-    public void setDRIVING_PADS_TINT(int DRIVING_PADS_TINT) {
-        this.DRIVING_PADS_TINT = DRIVING_PADS_TINT;
-    }
-
-    public int getDRIVING_PADS_TINT() {
-        return DRIVING_PADS_TINT;
     }
 
     public CardView getDrivingWheel() {

@@ -1,6 +1,8 @@
 package com.scrappers.superiorExtendedEngine.menuStates;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +24,7 @@ import androidx.annotation.LayoutRes;
  */
 @SuppressLint("ViewConstructor")
 public class UiStateManager extends RelativeLayout {
-    private final ViewGroup context;
+    private ViewGroup context;
     private int stateIndex=0;
     private final HashMap<Integer, View> uiStates=new HashMap<>();
     /**
@@ -36,11 +38,22 @@ public class UiStateManager extends RelativeLayout {
         context.addView(this);
         this.context=context;
     }
-    /**
-     * gets the map of the UiStates stack
-     * @return a HashMap representing the UiStates stack ,
-     * where the key is the index of the UiState & the value represents the UiState instance.
-     */
+    public UiStateManager(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public UiStateManager(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+    }
+
+    public UiStateManager(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
+    }
+        /**
+         * gets the map of the UiStates stack
+         * @return a HashMap representing the UiStates stack ,
+         * where the key is the index of the UiState & the value represents the UiState instance.
+         */
     public HashMap<Integer, View> getUiStates() {
         return uiStates;
     }

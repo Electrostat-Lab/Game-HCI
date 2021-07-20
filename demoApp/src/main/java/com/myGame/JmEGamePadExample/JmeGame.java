@@ -2,7 +2,6 @@ package com.myGame.JmEGamePadExample;
 
 import android.content.Intent;
 import android.graphics.Color;
-
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.AssetManager;
 import com.jme3.bullet.BulletAppState;
@@ -42,8 +41,7 @@ import com.myGame.R;
 import com.scrappers.superiorExtendedEngine.gamePad.ControlButtonsView;
 import com.scrappers.superiorExtendedEngine.gamePad.GameStickView;
 import com.scrappers.superiorExtendedEngine.gamePad.Speedometer;
-import com.scrappers.superiorExtendedEngine.misc.GullWing;
-
+import com.scrappers.superiorExtendedEngine.vehicles.GullWing;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -73,45 +71,50 @@ public class JmeGame extends SimpleApplication {
         createPhysicsTestWorld(rootNode, getAssetManager(), bulletAppState.getPhysicsSpace());
         buildPlayer();
 //        addEnvLightProbe();
+
         /*LIBRARY CODE*/
         /*run the gamePad attachments & listeners from the android activity UI thread */
         /* create an instance of a class extending gameStickView to easily handle the listeners */
         gameStick = appCompatActivity.findViewById(R.id.gameStickView);
-        final GameStick gameStick1=new GameStick();
-        gameStick1.setChaseCamera(chaseCam);
-        gameStick1.setVehicleControl(vehicle);
-        gameStick.setGameStickListeners(gameStick1);
+
+        final GameStick gameStickController=new GameStick();
+        gameStickController.setChaseCamera(chaseCam);
+        gameStickController.setVehicleControl(vehicle);
+        gameStick.setGameStickListeners(gameStickController);
 
         final GullWing drivingWheelView =appCompatActivity.findViewById(R.id.steeringWheel);
         drivingWheelView.initializeWheel();
         drivingWheelView.initializeTachometer(gameStick,this,vehicle,3f);
-        drivingWheelView.setOnSteering(gameStick1);
-
+        drivingWheelView.setOnSteering(gameStickController);
 
         gameStick.initializeStickPath();
         gameStick.setMotionPathColor(Color.WHITE);
-        gameStick.initializeGameStickHolder(ControlButtonsView.NOTHING_IMAGE);
-        gameStick.initializeGameStick(ControlButtonsView.DEFAULT_BUTTONS,ControlButtonsView.STICK_DASHES,180);
-        final Speedometer speedometer=appCompatActivity.findViewById(R.id.speedometer);
+        gameStick.initializeGameStickHolder(ControlButtonsView.ButtonStyle.NOTHING_IMAGE.STYLE);
+        gameStick.initializeGameStick(ControlButtonsView.ButtonStyle.DEFAULT_BUTTONS.STYLE, ControlButtonsView.ButtonStyle.STICK_DASHES.STYLE,180);
+
+        final Speedometer speedometer = appCompatActivity.findViewById(R.id.speedometer);
         speedometer.initialize();
         speedometer.getSpeedometerDrawable().setStroke(3, ContextCompat.getColor(appCompatActivity,R.color.gold));
         gameStick.createSpeedometerLink(speedometer,JmeGame.this,vehicle,1f);
-        ControlButtonsView controlButtonsView=appCompatActivity.findViewById(R.id.gamePadbtns);
-            controlButtonsView.addControlButton("X",ControlButtonsView.GAMEPAD_BUTTON_X,ControlButtonsView.DEFAULT_BUTTONS,ControlButtonsView.X_BUTTON_ALPHA)
-            .setOnClickListener(v -> appCompatActivity.startActivity(new Intent(appCompatActivity.getApplicationContext(), LanLogic.class)));
-            controlButtonsView.addControlButton("Y",ControlButtonsView.GAMEPAD_BUTTON_Y,ControlButtonsView.DEFAULT_BUTTONS,ControlButtonsView.Y_BUTTON_ALPHA);
-            controlButtonsView.addControlButton("A",ControlButtonsView.GAMEPAD_BUTTON_A,ControlButtonsView.DEFAULT_BUTTONS,ControlButtonsView.A_BUTTON_ALPHA)
-            .setOnClickListener(v -> {
-                    vehicle.applyCentralImpulse(jumpForce);
-            });
-            controlButtonsView.addControlButton("B",ControlButtonsView.GAMEPAD_BUTTON_B,ControlButtonsView.DEFAULT_BUTTONS,ControlButtonsView.B_BUTTON_ALPHA)
-            .setOnClickListener(v -> {
-                    vehicle.applyCentralImpulse(vehicle.getLinearVelocity().mult(150));
-                    Node nitroNode=((Node)((Node) chassis).getChild("nitro"));
-                    NitroState nitroState=new NitroState(assetManager,nitroNode,Vector3f.UNIT_Z.negate(),"nitroEffect",new ColorRGBA(0f, 1f, 1f, 0.8f),new ColorRGBA(251f / 255f, 130f / 255f, 0f, 0.1f));
-                    nitroState.setViewPort(viewPort);
-                    stateManager.attach(nitroState);
-            });
+
+        final ControlButtonsView controlButtonsView = appCompatActivity.findViewById(R.id.gamePadbtns);
+
+        controlButtonsView.addControlButton(ControlButtonsView.ButtonSignature.GAMEPAD_BUTTON_X, ControlButtonsView.ButtonStyle.DEFAULT_BUTTONS.STYLE, ControlButtonsView.ButtonIcon.X_BUTTON_ALPHA.ID)
+        .setOnClickListener(v -> appCompatActivity.startActivity(new Intent(appCompatActivity.getApplicationContext(), LanLogic.class)));
+
+        controlButtonsView.addControlButton(ControlButtonsView.ButtonSignature.GAMEPAD_BUTTON_Y, ControlButtonsView.ButtonStyle.DEFAULT_BUTTONS.STYLE, ControlButtonsView.ButtonIcon.Y_BUTTON_ALPHA.ID);
+
+        controlButtonsView.addControlButton(ControlButtonsView.ButtonSignature.GAMEPAD_BUTTON_A, ControlButtonsView.ButtonStyle.DEFAULT_BUTTONS.STYLE, ControlButtonsView.ButtonIcon.A_BUTTON_ALPHA.ID)
+        .setOnClickListener(v -> vehicle.applyCentralImpulse(jumpForce));
+
+        controlButtonsView.addControlButton(ControlButtonsView.ButtonSignature.GAMEPAD_BUTTON_B, ControlButtonsView.ButtonStyle.DEFAULT_BUTTONS.STYLE, ControlButtonsView.ButtonIcon.B_BUTTON_ALPHA.ID)
+        .setOnClickListener(v -> {
+                vehicle.applyCentralImpulse(vehicle.getLinearVelocity().mult(150));
+                Node nitroNode=((Node)((Node) chassis).getChild("nitro"));
+                NitroState nitroState=new NitroState(assetManager,nitroNode,Vector3f.UNIT_Z.negate(),"nitroEffect",new ColorRGBA(0f, 1f, 1f, 0.8f),new ColorRGBA(251f / 255f, 130f / 255f, 0f, 0.1f));
+                nitroState.setViewPort(viewPort);
+                stateManager.attach(nitroState);
+        });
     }
 
     @Override

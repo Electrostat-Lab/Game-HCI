@@ -8,6 +8,7 @@ import android.widget.ScrollView;
 import android.widget.Toast;
 import com.myGame.R;
 import com.scrappers.superiorExtendedEngine.menuStates.UiStateManager;
+import com.scrappers.superiorExtendedEngine.menuStates.uiPager.PageDataModel;
 import com.scrappers.superiorExtendedEngine.menuStates.uiPager.UiPager;
 
 import java.util.Arrays;
@@ -20,7 +21,8 @@ import java.util.concurrent.Executors;
 public class UiTestCase implements View.OnClickListener {
     private final UiStateManager uistateManager;
     private UiPager uiPager;
-    private String[] sortedList;
+    private DataModel[] unSortedList = new DataModel[5];
+    private final String[] texts = new String[]{"Search", "Revert", "paul", "Dismiss", "Matt"};
     public UiTestCase(final UiStateManager uistateManager){
         this.uistateManager = uistateManager;
     }
@@ -38,24 +40,23 @@ public class UiTestCase implements View.OnClickListener {
         ScrollView scrollView = uiPager.initializeScrollableContainer();
         scrollView.setId('J' + 'J');
         uistateManager.attachUiState(scrollView);
-
-        //Test Sorting before adding items
-        sortedList = uiPager.sort(new String[]{"Search Test", "Revert Search", "Pavly", "Thomas","Fady", "Dismiss" }, UiPager.A_Z);
+        for(int i = 0; i <unSortedList.length; i++){
+            unSortedList[i] = new DataModel();
+            unSortedList[i].setText(texts[i]);
+        }
+        unSortedList = uiPager.sort(unSortedList, UiPager.A_Z);
         //IDs
-        final char[] iDs = new char[sortedList.length];
-        for (int position = 0; position < sortedList.length; position++) {
+        final char[] iDs = new char[unSortedList.length];
+        for (int position = 0; position < unSortedList.length; position++) {
             Button button = ((Button) ((LinearLayout) uistateManager.fromXML(R.layout.test_uipager)).getChildAt(0));
             //fill the iDs with the first 2 digits of each state
-            iDs[position] = sortedList[position].charAt(0);
+            iDs[position] = unSortedList[position].getComparingData().charAt(0);
             button.setId(iDs[position]);
-            button.setText(sortedList[position]);
+            button.setText(unSortedList[position].getSortingData());
             button.setOnClickListener(this);
             //attach the button
             uiPager.attachUiState(button, UiPager.SEQUENTIAL_ADD);
         }
-//        System.out.println(Arrays.toString(uiPager.sort(new String[]{"199", "110", "990", "99", "222", "333", "4455",}, UiPager.A_Z)));
-//        System.out.println(Arrays.toString(uiPager.sort(new String[]{ "0?Dogy", "=Baka", "9ggBi", "D_aD", "dad", "amam", "-lolo", "\"hi", "Come", "come", "C", "F", "I", "Z", "A"}, UiPager.A_Z)));
-
     }
 
     @Override
@@ -65,7 +66,7 @@ public class UiTestCase implements View.OnClickListener {
                 uiPager.removeAllViews();
                 try {
                     Executors.callable(()->{
-                        System.out.println(Arrays.toString(uiPager.search(sortedList, new String[]{"Search", "PAvlY", "Thomas"}, (uiState, position, currentItem) -> {
+                        System.out.println(Arrays.toString(uiPager.search(unSortedList, new String[]{"Revert","Dismiss"}, (uiState, position, currentItem) -> {
                             uiPager.addView(uiState);
                             uiState.setBackgroundColor(Color.MAGENTA);
                             if ( uiState.getId() == 'P' ){
@@ -83,11 +84,11 @@ public class UiTestCase implements View.OnClickListener {
             }else if(v.getId() == 'D'){
                 uiPager.animate().scaleY(0).scaleX(0).rotationY(45).setDuration(800).withEndAction(()->{
                     uiPager.detachAllUiStates();
-                    uistateManager.detachUiState(uiPager);
+                    uistateManager.detachUiState((ScrollView) uiPager.getParent());
                 }).start();
             }
         }
-        private class DataModel {
+        private static class DataModel extends PageDataModel {
             private int id;
             private String text;
 
@@ -105,6 +106,16 @@ public class UiTestCase implements View.OnClickListener {
 
             public void setText(String text) {
                 this.text = text;
+            }
+
+            @Override
+            public String getComparingData() {
+                return getText();
+            }
+
+            @Override
+            public String getSortingData() {
+                return getText();
             }
         }
     }

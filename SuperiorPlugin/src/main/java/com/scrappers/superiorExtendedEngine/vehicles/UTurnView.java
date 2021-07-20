@@ -1,4 +1,4 @@
-package com.scrappers.superiorExtendedEngine.misc;
+package com.scrappers.superiorExtendedEngine.vehicles;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -92,8 +92,9 @@ public class UTurnView extends CardView {
         super.onDraw(canvas);
         //draw a path
         canvas.drawColor(ContextCompat.getColor(getContext(), R.color.transparent));
-        for(int index=0;index<cartesianPoints.size();index++){
-            if(index!=0){
+
+        for(int index=0; index<cartesianPoints.size(); index++){
+            if(index != 0){
                 path.moveTo(Objects.requireNonNull(cartesianPoints.get(index - 1)).get(0),
                         Objects.requireNonNull(cartesianPoints.get(index - 1)).get(1));
             }else{

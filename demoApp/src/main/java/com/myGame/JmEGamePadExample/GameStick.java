@@ -4,10 +4,8 @@ import com.jme3.bullet.control.VehicleControl;
 import com.jme3.input.ChaseCamera;
 import com.jme3.math.FastMath;
 import com.scrappers.superiorExtendedEngine.gamePad.GameStickView;
-import com.scrappers.superiorExtendedEngine.misc.GullWing;
-import com.scrappers.superiorExtendedEngine.misc.UTurnView;
-
-import checkers.quals.DefaultLocation;
+import com.scrappers.superiorExtendedEngine.vehicles.GullWing;
+import com.scrappers.superiorExtendedEngine.vehicles.UTurnView;
 
 
 public class GameStick implements GameStickView.GameStickListeners, GullWing.OnSteering {

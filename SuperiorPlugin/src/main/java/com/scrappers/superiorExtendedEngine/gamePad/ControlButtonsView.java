@@ -15,42 +15,68 @@ import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-
 import com.scrappers.GamePad.R;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 public class ControlButtonsView extends RelativeLayout {
-    public static final int GAMEPAD_BUTTON_X = 'X';
-    public static final int GAMEPAD_BUTTON_Y = 'Y';
-    public static final int GAMEPAD_BUTTON_A = 'A';
-    public static final int GAMEPAD_BUTTON_B = 'B';
-    public static final int DEFAULT_GAMEPAD_DOMAIN=R.drawable.gamepad_domain;
-    public static final int DEFAULT_COLOR_STICK_DOMAIN=R.drawable.moving_stick_domain;
-    public static final int FLIPPED_COLOR_STICK_DOMAIN=R.drawable.moving_stick_flipped_domain;
-    public static final int OPACIFIED_COLOR_STICK_DOMAIN=R.drawable.opacified_domain;
-    public static final int NOTHING_IMAGE=R.drawable.nothing;
-    public static final int DEFAULT_BUTTONS=R.drawable.moving_stick;
-    public static final int CRYSTAL_BUTTONS= R.drawable.crystal_buttons;
-    public static final int CRYSTAL_QUADS=R.drawable.crystal_buttons_quad;
-    public static final int MATERIALISTIC_BUTTONS=R.drawable.material_buttons;
-    public static final int MATERIALISTIC_QUADS=R.drawable.material_buttons_quad;
-    public static final int TEAL_HEXAS=R.drawable.teal_hexagons;
-    public static final int TRIS_BUTTONS=R.drawable.tris_buttons;
-    public static final int X_BUTTON_ALPHA=R.drawable.x_button_alpha;
-    public static final int X_BUTTON_OUTLINE=R.drawable.x_button_outline;
-    public static final int Y_BUTTON_ALPHA=R.drawable.y_button_alpha;
-    public static final int Y_BUTTON_OUTLINE=R.drawable.y_button_outline;
-    public static final int A_BUTTON_ALPHA=R.drawable.a_button_alpha;
-    public static final int A_BUTTON_OUTLINE=R.drawable.a_button_outline;
-    public static final int B_BUTTON_ALPHA=R.drawable.b_button_alpha;
-    public static final int B_BUTTON_OUTLINE=R.drawable.b_button_outline;
-    public static final int STICK_DASHES=R.drawable.stick_dash;
+    /**
+     * Grouping up the ButtonSignatures.
+     * @author pavl_g
+     */
+    public enum ButtonSignature {
+        GAMEPAD_BUTTON_X('X', "X"),
+        GAMEPAD_BUTTON_Y('Y', "Y"),
+        GAMEPAD_BUTTON_A('A', "A"),
+        GAMEPAD_BUTTON_B('B', "B");
 
+        public final int ID;
+        public String NAME;
 
+        ButtonSignature(final int ID){
+            this.ID = ID;
+        }
+        ButtonSignature(final int ID, final String NAME){
+            this.ID = ID;
+            this.NAME = NAME;
+        }
+    }
+
+    /**
+     * Grouping up the ButtonIcons.
+     * @author pavl_g
+     */
+    public enum ButtonIcon {
+        X_BUTTON_ALPHA(R.drawable.x_button_alpha), X_BUTTON_OUTLINE(R.drawable.x_button_outline),
+        Y_BUTTON_ALPHA(R.drawable.y_button_alpha), Y_BUTTON_OUTLINE(R.drawable.y_button_outline),
+        A_BUTTON_ALPHA(R.drawable.a_button_alpha), A_BUTTON_OUTLINE(R.drawable.a_button_outline),
+        B_BUTTON_ALPHA(R.drawable.b_button_alpha), B_BUTTON_OUTLINE(R.drawable.b_button_outline);
+        public final int ID;
+
+        ButtonIcon(final int ID){
+            this.ID = ID;
+        }
+    }
+
+    /**
+     * Grouping up the ButtonsStyles.
+     * @author pavl_g
+     */
+    public enum ButtonStyle {
+        DEFAULT_GAMEPAD_DOMAIN(R.drawable.gamepad_domain), DEFAULT_COLOR_STICK_DOMAIN(R.drawable.moving_stick_domain),
+        FLIPPED_COLOR_STICK_DOMAIN(R.drawable.moving_stick_flipped_domain), OPACIFIED_COLOR_STICK_DOMAIN(R.drawable.opacified_domain),
+        NOTHING_IMAGE(R.drawable.nothing), DEFAULT_BUTTONS(R.drawable.moving_stick), CRYSTAL_BUTTONS(R.drawable.crystal_buttons),
+        CRYSTAL_QUADS(R.drawable.crystal_buttons_quad), MATERIALISTIC_BUTTONS(R.drawable.material_buttons),
+        TEAL_HEXAS(R.drawable.teal_hexagons), TRIS_BUTTONS(R.drawable.tris_buttons), STICK_DASHES(R.drawable.stick_dash);
+
+        public final int STYLE;
+
+        ButtonStyle(final int STYLE){
+            this.STYLE = STYLE;
+        }
+    }
 
     public ControlButtonsView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -60,60 +86,63 @@ public class ControlButtonsView extends RelativeLayout {
         super(context, attrs, defStyleAttr);
     }
 
-    public ImageView addControlButton(String buttonName,int buttonID, int backgroundDrawable, int drawableIcon){
+    /**
+     * Adds a GamePad button & apply the UI.
+     * @param button the button to add from the enum #{@link ControlButtonsView.ButtonSignature} : eg : #{@link ButtonSignature#GAMEPAD_BUTTON_X},...etc.
+     * @param backgroundDrawable the drawable style, you can get some from enum : #{@link ControlButtonsView.ButtonStyle}
+     * @param drawableIcon the button icon, you can get some from enum : #{@link ControlButtonsView.ButtonIcon}
+     * @return an imageView instance representing the added button.
+     */
+    public ImageView addControlButton(@NonNull ButtonSignature button, int backgroundDrawable, int drawableIcon){
         ImageView controlButton = new ImageView(this.getContext());
-        ((AppCompatActivity)getContext()).runOnUiThread(()->{
-            controlButton.setId(buttonID);
-            ViewGroup.LayoutParams layoutParams = new LayoutParams(this.getLayoutParams().width /3, this.getLayoutParams().height/3);
-            controlButton.setLayoutParams(layoutParams);
-            controlButton.setImageDrawable(ContextCompat.getDrawable(this.getContext(), drawableIcon));
-            controlButton.setBackground(ContextCompat.getDrawable(this.getContext(), backgroundDrawable));
-        if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ){
-                controlButton.setTooltipText(buttonName);
-            }
-            switch (buttonID){
-                case GAMEPAD_BUTTON_X:
+            ((AppCompatActivity)getContext()).runOnUiThread(()->{
+                controlButton.setId(button.ID);
+                ViewGroup.LayoutParams layoutParams = new LayoutParams(this.getLayoutParams().width /3, this.getLayoutParams().height/3);
+                controlButton.setLayoutParams(layoutParams);
+                controlButton.setImageDrawable(ContextCompat.getDrawable(this.getContext(), drawableIcon));
+                controlButton.setBackground(ContextCompat.getDrawable(this.getContext(), backgroundDrawable));
+
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+                    controlButton.setTooltipText(button.NAME);
+                }
+
+                if (button == ButtonSignature.GAMEPAD_BUTTON_X){
                     controlButton.setX(0f);
                     controlButton.setY(layoutParams.height);
-                    break;
-                case GAMEPAD_BUTTON_B:
-                    controlButton.setX(layoutParams.width*2);
+                }else if(button == ButtonSignature.GAMEPAD_BUTTON_B){
+                    controlButton.setX(layoutParams.width * 2);
                     controlButton.setY(layoutParams.height);
-                    break;
-
-                case GAMEPAD_BUTTON_Y:
+                }else if(button == ButtonSignature.GAMEPAD_BUTTON_Y){
                     controlButton.setX(layoutParams.width);
                     controlButton.setY(0f);
-                    break;
-                case GAMEPAD_BUTTON_A:
+                }else if(button == ButtonSignature.GAMEPAD_BUTTON_A){
                     controlButton.setX(layoutParams.width);
-                    controlButton.setY(layoutParams.height*2);
-                    break;
-            }
-            this.addView(controlButton);
-        });
+                    controlButton.setY(layoutParams.height * 2);
+                }
+                this.addView(controlButton);
+            });
         return controlButton;
     }
-    public void setButtonListener(int buttonID,OnClickListener onClickListener){
-        ImageView pushButton=findViewById(buttonID);
+    public void setButtonListener(@NonNull ButtonSignature button, OnClickListener onClickListener){
+        ImageView pushButton=findViewById(button.ID);
         pushButton.setOnClickListener(onClickListener);
     }
-    public void setButtonLongClickListener(int buttonID,OnLongClickListener onLongClickListener){
-        ImageView pushButton=findViewById(buttonID);
+    public void setButtonLongClickListener(@NonNull ButtonSignature button, OnLongClickListener onLongClickListener){
+        ImageView pushButton=findViewById(button.ID);
         pushButton.setOnLongClickListener(onLongClickListener);
     }
-    public void setButtonBackgroundDrawable(int buttonID,int drawable){
-        (findViewById(buttonID)).setBackground(ContextCompat.getDrawable(getContext(),drawable));
+    public void setButtonBackgroundDrawable(@NonNull ButtonSignature button,int drawable){
+        (findViewById(button.ID)).setBackground(ContextCompat.getDrawable(getContext(),drawable));
     }
-    public void setButtonSrcDrawable(int buttonID,int drawable){
-        ((ImageView)findViewById(buttonID)).setImageDrawable(ContextCompat.getDrawable(getContext(),drawable));
+    public void setButtonSrcDrawable(@NonNull ButtonSignature button, int drawable){
+        ((ImageView)findViewById(button.ID)).setImageDrawable(ContextCompat.getDrawable(getContext(),drawable));
     }
-    public void setButtonSrcBitmap(int buttonID,String srcPath){
-        ((ImageView)findViewById(buttonID)).setImageBitmap(BitmapFactory.decodeFile(srcPath));
+    public void setButtonSrcBitmap(@NonNull ButtonSignature button, String srcPath){
+        ((ImageView)findViewById(button.ID)).setImageBitmap(BitmapFactory.decodeFile(srcPath));
     }
-    public void setButtonSrcIcon(int buttonID,String srcPath){
+    public void setButtonSrcIcon(@NonNull ButtonSignature button, String srcPath){
         if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ){
-            ((ImageView)findViewById(buttonID)).setImageIcon(Icon.createWithFilePath(srcPath));
+            ((ImageView)findViewById(button.ID)).setImageIcon(Icon.createWithFilePath(srcPath));
         }
     }
     /**

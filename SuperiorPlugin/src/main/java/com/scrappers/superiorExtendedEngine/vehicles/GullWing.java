@@ -1,4 +1,4 @@
-package com.scrappers.superiorExtendedEngine.misc;
+package com.scrappers.superiorExtendedEngine.vehicles;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -45,24 +45,24 @@ public class GullWing extends DrivingWheelView{
         /*customizing the impostorIndicators*/
         speedometer.setImpostorIndicatorEnabled(true);
         for(ImageView imageView : speedometer.getImpostorIndicators()){
-            imageView.setBackground(ContextCompat.getDrawable(getContext(),R.drawable.driving_pads));
+            imageView.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.driving_pads));
         }
         setCustomizeDrivingWheel(parentView -> {
             setNeutralizeWhenLostFocus(true);
-            parentView.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(),R.color.transparent)));
+            parentView.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.transparent)));
             GullWing.this.getDrivingWheel().setRotationX(0);
-            GullWing.this.getDrivingPads().setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(),R.color.gold)));
-            GullWing.this.getDrivingWheelEnclosure().setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(),R.color.transparent)));
+            GullWing.this.getDrivingPads().setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.gold)));
+            GullWing.this.getDrivingWheelEnclosure().setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.transparent)));
             GullWing.this.getAxle3().setVisibility(INVISIBLE);
-            GullWing.this.getAxle().setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(),R.color.lightBlack)));
-            GullWing.this.getAxle2().setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(),R.color.lightBlack)));
-            GullWing.this.getHornHolder().setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(),R.color.gold)));
-            GullWing.this.getHorn().setImageDrawable(ContextCompat.getDrawable(getContext(),ControlButtonsView.TRIS_BUTTONS));
+            GullWing.this.getAxle().setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.lightBlack)));
+            GullWing.this.getAxle2().setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.lightBlack)));
+            GullWing.this.getHornHolder().setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.gold)));
+            GullWing.this.getHorn().setImageDrawable(ContextCompat.getDrawable(getContext(), ControlButtonsView.ButtonStyle.TRIS_BUTTONS.STYLE));
             GullWing.this.setDrivingWheelAnimationDuration(1000);
             getDrivingWheel().addView(speedometer);
 
             uTurnView=new UTurnView(getContext());
-            uTurnView.setLayoutParams(new LayoutParams(getLayoutParams().width/6,getLayoutParams().height/6));
+            uTurnView.setLayoutParams(new LayoutParams(getLayoutParams().width/6, getLayoutParams().height/6));
             uTurnView.setScaleX(0f);
             uTurnView.setScaleY(0f);
             uTurnView.setBackgroundColor(ContextCompat.getColor(getContext(),R.color.transparent));

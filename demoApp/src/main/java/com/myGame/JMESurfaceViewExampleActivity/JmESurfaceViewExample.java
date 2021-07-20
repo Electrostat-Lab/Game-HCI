@@ -1,7 +1,6 @@
 package com.myGame.JMESurfaceViewExampleActivity;
 
 import android.annotation.SuppressLint;
-import android.app.Application;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -9,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.myGame.JmEGamePadExample.JmeGame;
 import com.myGame.R;
@@ -19,8 +19,7 @@ import com.scrappers.superiorExtendedEngine.jmeSurfaceView.JmeSurfaceView;
 import com.scrappers.superiorExtendedEngine.jmeSurfaceView.dialog.OptionPane;
 import com.scrappers.superiorExtendedEngine.jmeSurfaceView.splashScreen.SplashScreen;
 import com.scrappers.superiorExtendedEngine.menuStates.UiStateManager;
-import com.scrappers.superiorExtendedEngine.menuStates.UiStatesLooper;
-import com.scrappers.superiorExtendedEngine.misc.GullWing;
+import com.scrappers.superiorExtendedEngine.vehicles.GullWing;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
@@ -52,7 +51,6 @@ public class JmESurfaceViewExample extends AppCompatActivity {
             ControlButtonsView.GamePadSoundEffects gamePadSoundEffects=new ControlButtonsView.GamePadSoundEffects(JmESurfaceViewExample.this);
             gamePadSoundEffects.initializeSoundEffects();
             gamePadSoundEffects.playEffect(R.raw.intro);
-
         });
         splashScreen.displayProgressedSplash();
         splashScreen.getSplashScreen().setBackground(ContextCompat.getDrawable(this,R.mipmap.power1));
@@ -72,8 +70,8 @@ public class JmESurfaceViewExample extends AppCompatActivity {
             UiStateManager uiStateManager = new UiStateManager(jmESurfaceView);
             LinearLayout menu = (LinearLayout)uiStateManager.fromXML(R.layout.main_menu);
             uiStateManager.attachUiState(menu);
-            menu.setId('a');
-            uiStateManager.getChildUiStateById('a').findViewById(R.id.container).findViewById(R.id.start).setOnClickListener(v -> {
+            menu.setId('N');
+            uiStateManager.getChildUiStateById('N').findViewById(R.id.start).setOnClickListener(v -> {
                 (findViewById(R.id.gameStickView)).setVisibility(View.VISIBLE);
                 (findViewById(R.id.speedometer)).setVisibility(View.VISIBLE);
                 (findViewById(R.id.gamePadbtns)).setVisibility(View.VISIBLE);
@@ -149,4 +147,16 @@ public class JmESurfaceViewExample extends AppCompatActivity {
         optionPane.getInflater().findViewById(R.id.ignoreError).setOnClickListener(view -> optionPane.getAlertDialog().dismiss());
 
     }
+    public class test1 {
+        public void addView(View v){
+
+        }
+    }
+    public class test2 extends test1{
+
+        public void addView(RelativeLayout v) {
+            super.addView(v);
+        }
+    }
+
 }

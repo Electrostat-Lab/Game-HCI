@@ -2,6 +2,7 @@ package com.scrappers.superiorExtendedEngine.menuStates.uiPager;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,17 +10,11 @@ import android.widget.GridLayout;
 import android.widget.ScrollView;
 import com.scrappers.superiorExtendedEngine.menuStates.UiStateManager;
 import com.scrappers.superiorExtendedEngine.menuStates.UiStatesLooper;
-
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.Executors;
 import androidx.annotation.IdRes;
-import androidx.annotation.Nullable;
 
 /**
  * A UiState Class that could hold multiple UiStates in a list/grid form.
@@ -34,7 +29,7 @@ public class UiPager extends GridLayout {
     private int stateIndex=0;
 
     /**
-     * Create a UiPager UiState group, to hold some UiStates
+     * Creates a UiPager UiState group, to hold some UiStates
      * @param context the current context wrapper
      */
     public UiPager(Context context) {
@@ -43,9 +38,22 @@ public class UiPager extends GridLayout {
         ((Activity)getContext()).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         setLayoutParams(new ViewGroup.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels));
     }
-
     /**
-     * Create a UiPager UiState group, to hold some UiStates, & add that UiPager UiState to another container UiState
+     * Creates a uiPager for xml custom design.
+     * @param context the application context.
+     * @param attributeSet the attrs of xml.
+     */
+    public UiPager(Context context, AttributeSet attributeSet){
+        super(context, attributeSet);
+    }
+    public UiPager(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr, 0);
+    }
+    public UiPager(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
+    }
+    /**
+     * Creates a UiPager UiState group, to hold some UiStates, & add that UiPager UiState to another container UiState
      * @param viewGroup the viewGroup container to add on
      */
     public UiPager(ViewGroup viewGroup) {
@@ -186,42 +194,42 @@ public class UiPager extends GridLayout {
      * @param injector injects what you want to do when an item is returned by the search engine.
      * @return a list of the founded strings from the searchList based on the search keywords.
      */
-    public String[] search(String[] searchList, String[] searchKeyWords, ActionInjector injector) {
-        String[] resultList = new String[0];
-        String[] temp;
+    public <M extends PageDataModel> M[] search(M[] searchList, String[] searchKeyWords, ActionInjector injector) {
+        M[] resultList = (M[]) new PageDataModel[0];
+        M[] temp;
         int index = 0;
-            //loop over the main list items
-            for (int i = 0; i < searchList.length; i++) {
-                //loop over the search keywords
-                for (String searchKeyWord : searchKeyWords) {
-                    if ( searchList[i].replaceAll(" ", "").trim().toLowerCase().contains(
-                            searchKeyWord.replaceAll(" ", "").trim().toLowerCase()) ){
-                            //dynamic array conception (expandable by 1 array) & index to keep track of the successful matched string literals
-                            if ( index > resultList.length - 1 ){
-                                //creating temp pointer producing a deep copy of resultList[0] array
-                                temp = resultList;
-                                //expanding the array through a new wider in size pointer
-                                resultList = new String[temp.length + 1];
-                                //copy the values of the old contacted array to the new expanded one
-                                int position = 0;
-                                while (position < temp.length) {
-                                    resultList[position] = temp[position];
-                                    position++;
-                                }
-                            }
-                            //fill a new item after expanding the pointer
-                            resultList[index] = searchList[i];
-                            //inject users' actions to execute
-                            if ( injector != null ){
-                                injector.execute(getChildUiStateByIndex(i), i, resultList[index]);
-                            }
-                            //add 1 to keep track of successful values
-                            index++;
-                            //terminate when a successful condition search has met in the list of search keywords
-                        break;
+        //loop over the main list items
+        for (int i = 0; i < searchList.length; i++) {
+            //loop over the search keywords
+            for (String searchKeyWord : searchKeyWords) {
+                if ( searchList[i].getComparingData().replaceAll(" ", "").trim().toLowerCase().contains(
+                        searchKeyWord.replaceAll(" ", "").trim().toLowerCase()) ){
+                    //dynamic array conception (expandable by 1 array) & index to keep track of the successful matched string literals
+                    if ( index > resultList.length - 1 ){
+                        //creating temp pointer producing a deep copy of resultList[0] array
+                        temp = resultList;
+                        //expanding the array through a new wider in size pointer
+                        resultList = (M[]) new PageDataModel[temp.length + 1];
+                        //copy the values of the old contacted array to the new expanded one
+                        int position = 0;
+                        while (position < temp.length) {
+                            resultList[position] = temp[position];
+                            position++;
+                        }
                     }
+                    //fill a new item after expanding the pointer
+                    resultList[index] = searchList[i];
+                    //inject users' actions to execute
+                    if ( injector != null ){
+                        injector.execute(getChildUiStateByIndex(i), i, resultList[index]);
+                    }
+                    //add 1 to keep track of successful values
+                    index++;
+                    //terminate when a successful condition search has met in the list of search keywords
+                    break;
                 }
             }
+        }
         return resultList;
     }
 
@@ -233,48 +241,41 @@ public class UiPager extends GridLayout {
      * @throws Exception if process is interrupted or -1 is returned.
      * @apiNote you will need to loop over this list to provide the uiStates with new update.
      */
-    public String[] sort(String[] list, int sortAlgorithm) throws Exception {
-        synchronized(this) {
-            //to apply the sort change as an external final change on a list copy (warning : ->Internal List change(positions or items count or items values) = Malicious Activity
-            final String[] copy = Arrays.copyOf(list, list.length);
-            return Executors.callable(() -> {
-                String tempPointer = "";
-                    //main String List looping
-                    for (int i = 0; i < copy.length; i++) {
-                        //looping over the String again to compare each one String member var with the sequence of the String member vars after that item
-                        for(int j = i+1; j < copy.length; j++ ){
-                                //sort from A-Z ascendingly
-                                if(sortAlgorithm == A_Z){
-                                    //compare 2 strings lexicographically based on their characters, if the (string object > the argument string) then compareTo returns 1
-                                    if ( copy[i].toLowerCase().compareTo(copy[j].toLowerCase()) > 0 ){
-                                            //format the pointer
-                                            tempPointer = "";
-                                            //then swap list[i] & list[j] because list[i] is after the list[k]
-                                            //store the list[i] inside the tempPointer for later access
-                                            tempPointer = copy[i];
-                                            //get the list[i] after
-                                            copy[i] = copy[j];
-                                            //get the list[j] before
-                                            copy[j] = tempPointer;
-                                    }
-                                }else if(sortAlgorithm == Z_A){
-                                    //compare 2 strings lexicographically based on their characters, if the (string object < the argument string) then compareTo returns -1
-                                    if (  copy[i].toLowerCase().compareTo(copy[j].toLowerCase()) < 0){
-                                            //format the pointer
-                                            tempPointer = "";
-                                            //then swap list[i] & list[j] because list[i] is before the list[k]
-                                            //store the list[j] inside the tempPointer for later access
-                                            tempPointer = copy[j];
-                                            //get the list[j] before
-                                            copy[j] = copy[i];
-                                            //get the list[i] after
-                                            copy[i] = tempPointer;
-                                    }
+    public <M extends PageDataModel> M[] sort(M[] list, int sortAlgorithm) throws Exception {
+        //to apply the sort change as an external final change on a list copy (warning : ->Internal List change(positions or items count or items values) = Malicious Activity
+        final M[] copy = Arrays.copyOf(list, list.length);
+            M tempPointer;
+                //main String List looping
+                for (int i = 0; i < copy.length; i++) {
+                    //looping over the String again to compare each one String member var with the sequence of the String member vars after that item
+                    for(int j = i+1; j < copy.length; j++ ){
+                            //sort from A-Z ascendingly
+                            if(sortAlgorithm == A_Z){
+                                //compare 2 strings lexicographically based on their characters, if the (string object > the argument string) then compareTo returns 1
+                                if ( copy[i].getSortingData().toLowerCase().compareTo(copy[j].getSortingData().toLowerCase()) > 0 ){
+                                        //then swap list[i] & list[j] because list[i] is after the list[k]
+                                        //store the list[i] inside the tempPointer for later access
+                                        tempPointer = copy[i];
+                                        //get the list[i] after
+                                        copy[i] = copy[j];
+                                        //get the list[j] before
+                                        copy[j] = tempPointer;
                                 }
-                        }
+                            }else if(sortAlgorithm == Z_A){
+                                //compare 2 strings lexicographically based on their characters, if the (string object < the argument string) then compareTo returns -1
+                                if (  copy[i].getSortingData().toLowerCase().compareTo(copy[j].getSortingData().toLowerCase()) < 0){
+                                        //then swap list[i] & list[j] because list[i] is before the list[k]
+                                        //store the list[j] inside the tempPointer for later access
+                                        tempPointer = copy[j];
+                                        //get the list[j] before
+                                        copy[j] = copy[i];
+                                        //get the list[i] after
+                                        copy[i] = tempPointer;
+                                }
+                            }
                     }
-            }, copy).call();
-        }
+                }
+        return copy;
     }
     /**
      * gets the index of the Last UI-State attached to the UI-State-Manager.

@@ -82,13 +82,13 @@ public class UiStateManager extends RelativeLayout {
      * @return a view fetched from that layout resource xml file.
      * @see UiStateManager#attachUiState(View).
      */
-    public View fromXML(@LayoutRes int resId){
-        return LayoutInflater.from(getContext()).inflate(resId, null);
+    public View fromXML(@LayoutRes int resId, Context context){
+        return LayoutInflater.from(context).inflate(resId, null);
     }
     /**
      * Attach new UIState to the UI-State Factory
      * @param uiState the UI state that extends #{@link View}.
-     * @see UiStateManager#fromXML(int).
+     * @see UiStateManager#fromXML(int, Context).
      * @apiNote the uiStates are filling the UiStateContainer by default
      */
     public <T extends View> T attachUiState(T uiState){

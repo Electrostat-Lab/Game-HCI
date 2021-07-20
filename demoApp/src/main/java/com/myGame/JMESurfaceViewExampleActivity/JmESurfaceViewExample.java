@@ -68,7 +68,7 @@ public class JmESurfaceViewExample extends AppCompatActivity {
             });
             //test UiStates stacks
             UiStateManager uiStateManager = new UiStateManager(jmESurfaceView);
-            LinearLayout menu = (LinearLayout)uiStateManager.fromXML(R.layout.main_menu);
+            LinearLayout menu = (LinearLayout)uiStateManager.fromXML(R.layout.main_menu, jmESurfaceView.getContext());
             uiStateManager.attachUiState(menu);
             menu.setId('N');
             uiStateManager.getChildUiStateById('N').findViewById(R.id.start).setOnClickListener(v -> {

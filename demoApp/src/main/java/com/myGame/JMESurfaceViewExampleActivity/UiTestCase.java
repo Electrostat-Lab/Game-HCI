@@ -48,7 +48,7 @@ public class UiTestCase implements View.OnClickListener {
         //IDs
         final char[] iDs = new char[unSortedList.length];
         for (int position = 0; position < unSortedList.length; position++) {
-            Button button = ((Button) ((LinearLayout) uistateManager.fromXML(R.layout.test_uipager)).getChildAt(0));
+            Button button = ((Button) ((LinearLayout) uistateManager.fromXML(R.layout.test_uipager, uiPager.getContext())).getChildAt(0));
             //fill the iDs with the first 2 digits of each state
             iDs[position] = unSortedList[position].getComparingData().charAt(0);
             button.setId(iDs[position]);

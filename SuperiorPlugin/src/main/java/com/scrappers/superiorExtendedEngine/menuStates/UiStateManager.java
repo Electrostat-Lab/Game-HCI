@@ -34,7 +34,9 @@ public class UiStateManager extends RelativeLayout {
     public UiStateManager(ViewGroup context) {
         super(context.getContext());
         /*attach the parent View state*/
-        setLayoutParams(new LayoutParams(context.getLayoutParams().width,context.getLayoutParams().height));
+        if(context.getLayoutParams() != null) {
+            setLayoutParams(new LayoutParams(context.getLayoutParams().width, context.getLayoutParams().height));
+        }
         context.addView(this);
         this.context=context;
     }

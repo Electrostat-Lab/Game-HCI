@@ -8,7 +8,11 @@ import android.opengl.GLSurfaceView;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.widget.RelativeLayout;
-
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleEventObserver;
+import androidx.lifecycle.LifecycleOwner;
 import com.jme3.app.LegacyApplication;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.input.JoyInput;
@@ -17,13 +21,9 @@ import com.jme3.system.AppSettings;
 import com.jme3.system.SystemListener;
 import com.jme3.system.android.JmeAndroidSystem;
 import com.jme3.system.android.OGLESContext;
-
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 /**
  * <b>A RelativeLayout Class Holder that holds a #{{@link GLSurfaceView}} using #{{@link OGLESContext}} as a renderer to render
@@ -34,7 +34,7 @@ import androidx.annotation.Nullable;
  * an image or even play a preface game music of choice.
  * @author pavl_g.
  */
-public class JmeSurfaceView extends RelativeLayout implements SystemListener , DialogInterface.OnClickListener {
+public class JmeSurfaceView extends RelativeLayout implements SystemListener, DialogInterface.OnClickListener, LifecycleEventObserver {
 
     /*using #{@link LegacyApplication} instead of #{@link SimpleApplication} to include all classes extends LegacyApplication*/
     private LegacyApplication legacyApplication;
@@ -59,6 +59,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener , D
     public static final int NO_DELAY = 1;
     private int delayMillis = NO_DELAY;
     private static final int TOLERANCE_TIMER = 100;
+    private boolean showErrorDialog = true;
 
     public JmeSurfaceView(@NonNull Context context) {
         super(context);
@@ -80,42 +81,63 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener , D
      */
     public void startRenderer(int delayMillis) {
         this.delayMillis = Math.max(NO_DELAY , delayMillis);
-        if (legacyApplication != null) {
-            try {
-                /*initialize App Settings & start the Game*/
-                appSettings = new AppSettings(true);
-                appSettings.setAudioRenderer(audioRendererType);
-                appSettings.setResolution(JmeSurfaceView.this.getLayoutParams().width , JmeSurfaceView.this.getLayoutParams().height);
-                appSettings.setAlphaBits(eglAlphaBits);
-                appSettings.setDepthBits(eglDepthBits);
-                appSettings.setSamples(eglSamples);
-                appSettings.setStencilBits(eglStencilBits);
-                appSettings.setBitsPerPixel(eglBitsPerPixel);
-                appSettings.setEmulateKeyboard(emulateKeyBoard);
-                appSettings.setEmulateMouse(emulateMouse);
-                appSettings.setUseJoysticks(useJoyStickEvents);
-                legacyApplication.setSettings(appSettings);
-                /*start jme game context*/
-                legacyApplication.start();
-                /*attach the game to JmE OpenGL.Renderer context */
-                OGLESContext oglesContext = (OGLESContext) legacyApplication.getContext();
-                /*create a glSurfaceView that will hold the renderer thread*/
-                glSurfaceView = oglesContext.createView(JmeSurfaceView.this.getContext());
-                /*set the current view as the system engine thread view for future uses*/
-                JmeAndroidSystem.setView(JmeSurfaceView.this);
-                /*set JME system Listener to initialize game , update , requestClose & destroy on closure*/
-                oglesContext.setSystemListener(JmeSurfaceView.this);
-                /* set the glSurfaceView to fit the widget */
-                glSurfaceView.setLayoutParams(new LayoutParams(JmeSurfaceView.this.getLayoutParams().width , JmeSurfaceView.this.getLayoutParams().height));
-                /*post delay the renderer join into the UI thread*/
-                handler.postDelayed(new RendererThread() , delayMillis);
-            } catch (Exception e) {
-                jmeSurfaceViewLogger.log(Level.WARNING , e.getMessage());
-                showErrorDialog(e , e.getMessage());
-                if (onExceptionThrown != null) {
-                    onExceptionThrown.onExceptionThrown(e);
-                }
+        if (legacyApplication == null) {
+            throw new IllegalStateException("Cannot build a SurfaceView for a null app, make sure to use setLegacyApplication() to pass in your app !");
+        }
+        try {
+            /*initialize App Settings & start the Game*/
+            appSettings = new AppSettings(true);
+            appSettings.setAudioRenderer(audioRendererType);
+            appSettings.setResolution(JmeSurfaceView.this.getLayoutParams().width , JmeSurfaceView.this.getLayoutParams().height);
+            appSettings.setAlphaBits(eglAlphaBits);
+            appSettings.setDepthBits(eglDepthBits);
+            appSettings.setSamples(eglSamples);
+            appSettings.setStencilBits(eglStencilBits);
+            appSettings.setBitsPerPixel(eglBitsPerPixel);
+            appSettings.setEmulateKeyboard(emulateKeyBoard);
+            appSettings.setEmulateMouse(emulateMouse);
+            appSettings.setUseJoysticks(useJoyStickEvents);
+            legacyApplication.setSettings(appSettings);
+            /*start jme game context*/
+            legacyApplication.start();
+            /*attach the game to JmE OpenGL.Renderer context */
+            OGLESContext oglesContext = (OGLESContext) legacyApplication.getContext();
+            /*create a glSurfaceView that will hold the renderer thread*/
+            glSurfaceView = oglesContext.createView(JmeSurfaceView.this.getContext());
+            /*set the current view as the system engine thread view for future uses*/
+            JmeAndroidSystem.setView(JmeSurfaceView.this);
+            /*set JME system Listener to initialize game , update , requestClose & destroy on closure*/
+            oglesContext.setSystemListener(JmeSurfaceView.this);
+            /* set the glSurfaceView to fit the widget */
+            glSurfaceView.setLayoutParams(new LayoutParams(JmeSurfaceView.this.getLayoutParams().width , JmeSurfaceView.this.getLayoutParams().height));
+            /*post delay the renderer join into the UI thread*/
+            handler.postDelayed(new RendererThread() , delayMillis);
+        } catch (Exception e) {
+            jmeSurfaceViewLogger.log(Level.WARNING , e.getMessage());
+            showErrorDialog(e , e.getMessage());
+            if (onExceptionThrown != null) {
+                onExceptionThrown.onExceptionThrown(e);
             }
+        }
+    }
+
+    /**
+     * A state change observer to the current Activity life cycle.
+     * @param source the life cycle source, aka the observable object.
+     * @param event the fired event by the observable object, which is dispatched and sent to the observers.
+     */
+    @Override
+    public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
+        switch (event){
+            case ON_DESTROY:
+                destroy();
+                break;
+            case ON_PAUSE:
+                loseFocus();
+                break;
+            case ON_RESUME:
+                gainFocus();
+                break;
         }
     }
 
@@ -132,36 +154,40 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener , D
         public void run() {
             /*jme Renderer joins the UIThread at that point*/
             JmeSurfaceView.this.addView(glSurfaceView);
+            //register this Ui Component as an observer to the context of jmeSurfaceView only if this context is a LifeCycleOwner
+            if(getContext() instanceof LifecycleOwner) {
+                ((LifecycleOwner) getContext()).getLifecycle().addObserver(JmeSurfaceView.this);
+            }
             jmeSurfaceViewLogger.log(Level.CONFIG , "JmeSurfaceView's joined the UI thread.......");
         }
     }
 
     @Override
     public void initialize() {
-        if (legacyApplication != null) {
-            legacyApplication.initialize();
-            /*log for display*/
-            jmeSurfaceViewLogger.log(Level.INFO , "JmeGame started in GLThread Asynchronously.......");
+        if (legacyApplication == null) {
+            return;
         }
+        legacyApplication.initialize();
+        /*log for display*/
+        jmeSurfaceViewLogger.log(Level.INFO , "JmeGame started in GLThread Asynchronously.......");
     }
 
     @Override
     public void reshape(int width , int height) {
-        if (legacyApplication != null) {
-            legacyApplication.reshape(width , height);
+        if (legacyApplication == null) {
+            return;
         }
+        legacyApplication.reshape(width , height);
     }
 
     @Override
     public void update() {
-        if (legacyApplication == null) {
+        if (legacyApplication == null || glSurfaceView == null) {
             return;
         }
-        if (glSurfaceView != null) {
-            legacyApplication.update();
-        }
+        legacyApplication.update();
         int timeToPlay = synthesizedTime.addAndGet(1);
-        if (timeToPlay == (delayMillis>100 ? (delayMillis-TOLERANCE_TIMER) : delayMillis)) {
+        if (timeToPlay == (delayMillis > 100 ? (delayMillis - TOLERANCE_TIMER) : delayMillis)) {
             ((Activity)getContext()).runOnUiThread(() -> {
                 jmeSurfaceViewLogger.log(Level.INFO,"SplashScreen Dismissed , User Delay completed with 0 errors.......");
                 if (onRendererCompleted != null) {
@@ -173,51 +199,56 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener , D
 
     @Override
     public void requestClose(boolean esc) {
-        if (legacyApplication != null) {
-            legacyApplication.requestClose(esc);
+        if (legacyApplication == null) {
+            return;
         }
+        legacyApplication.requestClose(esc);
     }
 
     @Override
     public void gainFocus() {
-        if (legacyApplication != null) {
-            /*resume the audio*/
-            AudioRenderer audioRenderer = legacyApplication.getAudioRenderer();
-            if (audioRenderer != null) {
-                audioRenderer.resumeAll();
-            }
-            /*resume the sensors (aka joysticks)*/
-            if (legacyApplication.getContext() != null) {
-                JoyInput joyInput = legacyApplication.getContext().getJoyInput();
-                if (joyInput != null) {
-                    if (joyInput instanceof AndroidSensorJoyInput) {
-                        AndroidSensorJoyInput androidJoyInput = (AndroidSensorJoyInput) joyInput;
-                        androidJoyInput.resumeSensors();
-                    }
+        if (legacyApplication == null || glSurfaceView == null) {
+            return;
+        }
+        glSurfaceView.onResume();
+        /*resume the audio*/
+        AudioRenderer audioRenderer = legacyApplication.getAudioRenderer();
+        if (audioRenderer != null) {
+            audioRenderer.resumeAll();
+        }
+        /*resume the sensors (aka joysticks)*/
+        if (legacyApplication.getContext() != null) {
+            JoyInput joyInput = legacyApplication.getContext().getJoyInput();
+            if (joyInput != null) {
+                if (joyInput instanceof AndroidSensorJoyInput) {
+                    AndroidSensorJoyInput androidJoyInput = (AndroidSensorJoyInput) joyInput;
+                    androidJoyInput.resumeSensors();
                 }
-                legacyApplication.gainFocus();
             }
+            legacyApplication.gainFocus();
         }
         setGLThreadPaused(false);
     }
 
     @Override
     public void loseFocus() {
-        if (legacyApplication != null) {
-            /*pause the audio*/
-            legacyApplication.loseFocus();
-            AudioRenderer audioRenderer = legacyApplication.getAudioRenderer();
-            if (audioRenderer != null) {
-                audioRenderer.pauseAll();
-            }
-            /*pause the sensors (aka joysticks)*/
-            if (legacyApplication.getContext() != null) {
-                JoyInput joyInput = legacyApplication.getContext().getJoyInput();
-                if (joyInput != null) {
-                    if (joyInput instanceof AndroidSensorJoyInput) {
-                        AndroidSensorJoyInput androidJoyInput = (AndroidSensorJoyInput) joyInput;
-                        androidJoyInput.pauseSensors();
-                    }
+        if (legacyApplication == null || glSurfaceView == null) {
+            return;
+        }
+        glSurfaceView.onPause();
+        /*pause the audio*/
+        legacyApplication.loseFocus();
+        AudioRenderer audioRenderer = legacyApplication.getAudioRenderer();
+        if (audioRenderer != null) {
+            audioRenderer.pauseAll();
+        }
+        /*pause the sensors (aka joysticks)*/
+        if (legacyApplication.getContext() != null) {
+            JoyInput joyInput = legacyApplication.getContext().getJoyInput();
+            if (joyInput != null) {
+                if (joyInput instanceof AndroidSensorJoyInput) {
+                    AndroidSensorJoyInput androidJoyInput = (AndroidSensorJoyInput) joyInput;
+                    androidJoyInput.pauseSensors();
                 }
             }
         }
@@ -236,8 +267,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener , D
     @Override
     public void destroy() {
         if (legacyApplication != null) {
-            legacyApplication.stop(isGLThreadPaused());
-            legacyApplication.destroy();
+            legacyApplication.stop(!isGLThreadPaused());
         }
     }
 
@@ -247,6 +277,9 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener , D
      * @param message the string message.
      */
     protected void showErrorDialog(Throwable throwable , String message) {
+        if(!isShowErrorDialog()){
+            return;
+        }
         ((Activity)getContext()).runOnUiThread(() -> {
             AlertDialog alertDialog = new AlertDialog.Builder(getContext()).create();
             alertDialog.setTitle(new StringBuffer(String.valueOf(throwable)));
@@ -256,6 +289,14 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener , D
             alertDialog.setButton(DialogInterface.BUTTON_POSITIVE , "DISMISS",  this);
             alertDialog.show();
         });
+    }
+
+    public void setShowErrorDialog(boolean showErrorDialog) {
+        this.showErrorDialog = showErrorDialog;
+    }
+
+    public boolean isShowErrorDialog() {
+        return showErrorDialog;
     }
 
     @Override

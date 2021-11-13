@@ -42,10 +42,15 @@ Step 2. Add the dependency :
 	<b> Linear Interpolation : <b/>
 	https://www.mathsisfun.com/data/scatter-xy-plots.html
 
-2) `Converting vector coordinates (vector2d) to polar coordinates (angles) :` => Used by `DrivingWheel`
+2) `Converting vector/rectangular coordinates (vector2d) to polar coordinates (angles) :` => Used by `DrivingWheel`
 	<br/>
+	Code : https://github.com/Scrappers-glitch/Superior-Extended-Engine/blob/27c6dbb65e07eb2b3096b0dd07af575cc43c54f0/SuperiorPlugin/src/main/java/com/scrappers/superiorExtendedEngine/vehicles/DrivingWheelView.java#L213
 	<br/>
  	[Trigonometry.pdf](https://github.com/Scrappers-glitch/Superior-Extended-Engine/files/7531994/Trigonometry.pdf)
+	<br/>
+	Arc of trig functions : https://www.mathsisfun.com/algebra/trig-inverse-sin-cos-tan.html 
+	<br/>
+	Java atan2 docs : https://developer.android.com/reference/java/lang/Math#atan2(double,%20double)
 
 
 3) `Using the game rotation vector software sensor (Geomagnetic sensor + Gyroscope) :` => Used by `GameDrivingMatrix`

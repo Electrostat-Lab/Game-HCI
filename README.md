@@ -35,6 +35,8 @@ Step 2. Add the dependency :
 ## References : 
 
 1) `Constraining the game pad stick using a scale factor to the coordinates calculated from the similarity of parallel triangles` : 
+        <br/>
+	<br/>
 	https://www.instructables.com/A-Simple-Android-UI-Joystick/
 
 2) `Converting vector coordinates (vector2d) to polar coordinates (angles) :` => Used by `DrivingWheel`
@@ -44,5 +46,6 @@ Step 2. Add the dependency :
 
 
 3) `Using the game rotation vector software sensor (Geomagnetic sensor + Gyroscope) :` => Used by `GameDrivingMatrix`
-
+	<br/>
+	<br/>
 	https://developer.android.com/guide/topics/sensors/sensors_position#java

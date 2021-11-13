@@ -31,3 +31,11 @@ Step 2. Add the dependency :
 ![](https://github.com/Scrappers-glitch/Superior-Extended-Engine/blob/master/SuperiorPlugin/src/main/java/com/scrappers/superiorExtendedEngine/attachments/imageSEEDemo2.png)
 
 ![](https://github.com/Scrappers-glitch/Superior-Extended-Engine/blob/master/SuperiorPlugin/src/main/java/com/scrappers/superiorExtendedEngine/attachments/imageSEEDemo3.png)
+
+## References : 
+
+1) 
+
+2) Using the game rotation vector software sensor (Geomagnetic sensor + Gyroscope) : 
+
+https://developer.android.com/guide/topics/sensors/sensors_position#java

@@ -37,12 +37,15 @@ Step 2. Add the dependency :
 1) `Constraining the game pad stick using a scale factor to the coordinates calculated from the similarity of parallel triangles` : 
         <br/>
 	<br/>
+	Code : https://github.com/Scrappers-glitch/Superior-Extended-Engine/blob/27c6dbb65e07eb2b3096b0dd07af575cc43c54f0/SuperiorPlugin/src/main/java/com/scrappers/superiorExtendedEngine/gamePad/GameStickView.java#L335 
+	<br/>
 	https://www.instructables.com/A-Simple-Android-UI-Joystick/
 	<br/>
 	<b> Linear Interpolation : <b/>
 	https://www.mathsisfun.com/data/scatter-xy-plots.html
 
 2) `Converting vector/rectangular coordinates (vector2d) to polar coordinates (angles) :` => Used by `DrivingWheel`
+	<br/>
 	<br/>
 	Code : https://github.com/Scrappers-glitch/Superior-Extended-Engine/blob/27c6dbb65e07eb2b3096b0dd07af575cc43c54f0/SuperiorPlugin/src/main/java/com/scrappers/superiorExtendedEngine/vehicles/DrivingWheelView.java#L213
 	<br/>
@@ -55,5 +58,7 @@ Step 2. Add the dependency :
 
 3) `Using the game rotation vector software sensor (Geomagnetic sensor + Gyroscope) :` => Used by `GameDrivingMatrix`
 	<br/>
+	<br/>
+	Code : https://github.com/Scrappers-glitch/Superior-Extended-Engine/blob/27c6dbb65e07eb2b3096b0dd07af575cc43c54f0/SuperiorPlugin/src/main/java/com/scrappers/superiorExtendedEngine/gamePad/GameStickView.java#L231 
 	<br/>
 	https://developer.android.com/guide/topics/sensors/sensors_position#java

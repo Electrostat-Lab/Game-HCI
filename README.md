@@ -34,7 +34,8 @@ Step 2. Add the dependency :
 
 ## References : 
 
-1) ``
+1) `Constraining the game pad stick using a scale factor to the coordinates calculated from the similarity of parallel triangles` : 
+	https://www.instructables.com/A-Simple-Android-UI-Joystick/
 
 2) `Converting vector coordinates (vector2d) to polar coordinates (angles) :` => Used by `DrivingWheel`
  	

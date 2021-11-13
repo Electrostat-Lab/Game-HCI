@@ -34,8 +34,11 @@ Step 2. Add the dependency :
 
 ## References : 
 
-1) 
+1) ``
 
-2) Using the game rotation vector software sensor (Geomagnetic sensor + Gyroscope) : 
+2) `Converting vector coordinates (vector2d) to polar coordinates (angles) :` => Used by `DrivingWheel`
+ 	
 
-https://developer.android.com/guide/topics/sensors/sensors_position#java
+3) `Using the game rotation vector software sensor (Geomagnetic sensor + Gyroscope) :` => Used by `GameDrivingMatrix`
+
+	https://developer.android.com/guide/topics/sensors/sensors_position#java

@@ -38,6 +38,9 @@ Step 2. Add the dependency :
         <br/>
 	<br/>
 	https://www.instructables.com/A-Simple-Android-UI-Joystick/
+	<br/>
+	<b> Linear Interpolation : <b/>
+	https://www.mathsisfun.com/data/scatter-xy-plots.html
 
 2) `Converting vector coordinates (vector2d) to polar coordinates (angles) :` => Used by `DrivingWheel`
 	<br/>

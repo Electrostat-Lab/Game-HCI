@@ -38,6 +38,7 @@ Step 2. Add the dependency :
 	https://www.instructables.com/A-Simple-Android-UI-Joystick/
 
 2) `Converting vector coordinates (vector2d) to polar coordinates (angles) :` => Used by `DrivingWheel`
+	<br/>
  	[Trigonometry.pdf](https://github.com/Scrappers-glitch/Superior-Extended-Engine/files/7531994/Trigonometry.pdf)
 
 

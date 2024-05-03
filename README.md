@@ -1,11 +1,7 @@
- # Superior Extended Engine 1.4
+ # Game-HCI
+> Formerly known as "JmeGamepad" and "Superior-Extended-Engine" or "SEE".
 
-![](https://github.com/Scrappers-glitch/Superior-Extended-Engine/blob/master/SuperiorPlugin/src/main/java/com/scrappers/superiorExtendedEngine/attachments/LogoMod1.png)
-
-### GamePad Library for Android Games running java/Kotlin ###
-
-
-## [Video about this Library ](https://www.youtube.com/watch?v=Gp2JJ-PCI8c) ##
+## [Demonstration of the library's capabilities.](https://www.youtube.com/watch?v=Gp2JJ-PCI8c) ##
 
 ##### How to implement it into your Android project :
 
@@ -32,7 +28,7 @@ Step 2. Add the dependency :
 
 ![](https://github.com/Scrappers-glitch/Superior-Extended-Engine/blob/master/SuperiorPlugin/src/main/java/com/scrappers/superiorExtendedEngine/attachments/imageSEEDemo3.png)
 
-## References : 
+## Useful Tags/Code snippets: 
 
 1) `Constraining the game pad stick using a scale factor to the coordinates calculated from the similarity of parallel triangles` : 
         <br/>
